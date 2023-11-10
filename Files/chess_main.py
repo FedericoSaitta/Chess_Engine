@@ -5,13 +5,14 @@ from Files import chess_engine
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = WIDTH/DIMENSION
-MAX_FPS = 20# comes into play when animating images
+MAX_FPS = 10# comes into play when animating images
 IMAGES = {}
 
 def load_images():
+    path = '/Users/federicosaitta/PycharmProjects/Chess/Images/'
     pieces = ['wP', 'bP', 'wR', 'bR', 'wN', 'bN', 'wB', 'bB', 'wQ', 'bQ', 'wK', 'bK']
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load('Images/' + piece + '.png'), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load(path + piece + '.png'), (SQ_SIZE, SQ_SIZE))
 
 # Handle user input and update graphics
 def main(): # Standard game loop for a game
@@ -31,6 +32,7 @@ def main(): # Standard game loop for a game
             if e.type == p.QUIT:
                 running = False
 
+            # Mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:  # Change this to add dragging pieces
                 location = p.mouse.get_pos()  # Note if you add extra panels note to keep track of those
                 col = int(location[0]//SQ_SIZE)
@@ -53,6 +55,12 @@ def main(): # Standard game loop for a game
 
                     sq_selected = ()
                     player_clicks = []
+
+            # Key press handler
+
+            elif e.type == p.KEYDOWN:
+                if e.key == p.K_z:
+                    gs.undo_move()
 
 
         draw_game_state(screen, gs)

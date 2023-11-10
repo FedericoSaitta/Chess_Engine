@@ -24,13 +24,19 @@ class GameState:
         # Here we will keep track of things such as right to castle etc.
 
 
-    def make_move(self, move):
+    def make_move(self, move): # This will not work for pawn promotion, en passant and castleling
         self.board[move.start_row][move.start_col] = '--'
         self.board[move.end_row][move.end_col] = move.piece_moved
 
         self.moveLog.append(move)
         self.white_to_move = not self.white_to_move # Swap the player's move
 
+    def undo_move(self): # To reverse a move
+        if len(self.moveLog) > 0:
+            move = self.moveLog.pop()
+            self.board[move.start_row][move.start_col] = move.piece_moved
+            self.board[move.end_row][move.end_col] = move.piece_captured
+            self.white_to_move = not self.white_to_move
 
 class Move:
     ranks_to_rows = {'1':7, '2':6, '3':5, '4':4,
