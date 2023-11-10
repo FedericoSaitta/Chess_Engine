@@ -2,6 +2,7 @@
 import pygame as p
 from Files import chess_engine
 
+
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = WIDTH/DIMENSION
@@ -21,6 +22,10 @@ def main(): # Standard game loop for a game
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
     gs = chess_engine.GameState()
+    valid_moves = gs.get_all_possible_moves()
+
+    move_made = False # Flag for when we want to generate this function
+
     load_images() # important to do this only once (expensive process)
 
     running = True
@@ -50,8 +55,10 @@ def main(): # Standard game loop for a game
                 if len(player_clicks) == 2:
 
                     move = chess_engine.Move(player_clicks[0], player_clicks[1], gs.board)
-                    print(move.get_chess_notation())
-                    gs.make_move(move)
+
+                    if move in valid_moves:
+                        gs.make_move(move)
+                        move_made = True
 
                     sq_selected = ()
                     player_clicks = []
@@ -59,9 +66,20 @@ def main(): # Standard game loop for a game
             # Key press handler
 
             elif e.type == p.KEYDOWN:
-                if e.key == p.K_z:
+                '''if e.key == p.K_z: # Do not allow for undo moves for now
                     gs.undo_move()
+                    move_made = True
+                '''
 
+                if e.key == p.K_LEFT: # Use these to go through previous moves
+                    pass
+
+                elif e.key == p.K_RIGHT:
+                    pass
+
+        if move_made:
+            valid_moves = gs.get_all_possible_moves() # Note this will need to be valid moves only in the future
+            move_made = False
 
         draw_game_state(screen, gs)
         clock.tick(MAX_FPS)
