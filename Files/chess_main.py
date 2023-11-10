@@ -14,7 +14,6 @@ def load_images():
         IMAGES[piece] = p.transform.scale(p.image.load('Images/' + piece + '.png'), (SQ_SIZE, SQ_SIZE))
 
 # Handle user input and update graphics
-
 def main(): # Standard game loop for a game
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
