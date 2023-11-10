@@ -5,7 +5,7 @@ from Files import chess_engine
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = WIDTH/DIMENSION
-MAX_FPS = 10# comes into play when animating images
+MAX_FPS = 15# comes into play when animating images
 IMAGES = {}
 
 def load_images():

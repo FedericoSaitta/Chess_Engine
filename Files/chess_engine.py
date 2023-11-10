@@ -7,7 +7,7 @@ class GameState:
         # Each element of 8x8 has two chars, first char represents colour of piece,
         # The second one represent the type of the piece
         # '--' represents that no piece is present
-        # sdwer
+
 
         self.board = [
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
