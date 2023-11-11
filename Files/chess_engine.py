@@ -61,8 +61,8 @@ class GameState:
                         self.get_rook_moves(r, c, moves)
                     elif piece == 'K':
                         self.get_king_moves(r, c, moves)
-   #     for move in moves:
-   #         print(move.get_chess_notation())
+        for move in moves:
+            print(move.get_chess_notation(self.board))
         return moves
 
 # Piece functions dont need to return anything as they are just appending
@@ -279,7 +279,7 @@ class GameState:
 
         for tup in possibilities:
             if -1 < tup[0] < 8 and -1 < tup[1] < 8:
-                if self.board[tup[0]][tup[1]] != color:
+                if self.board[tup[0]][tup[1]][0] != color:
                     moves_obj_list.append(Move((row, col), (tup[0], tup[1]), self.board))
 
 
@@ -358,8 +358,19 @@ class Move:
 
         self.piece_captured = board[self.end_row][self.end_col]
 
-    def get_chess_notation(self):
-        return self.get_rank_file(self.start_row, self.start_col) + ' ' + self.get_rank_file(self.end_row, self.end_col)
+    def get_chess_notation(self, board):
+        piece = board[self.start_row][self.start_col][1]
+        start_rank_file = self.get_rank_file(self.start_row, self.start_col)
+        end_rank_file = self.get_rank_file(self.end_row, self.end_col)
+
+        if piece == 'P':
+            if board[self.end_row][self.end_col] != '--':
+                return piece + start_rank_file + ' x ' + end_rank_file
+
+        if board[self.end_row][self.end_col] != '--':
+            return piece + start_rank_file + ' x ' + end_rank_file
+
+        return piece + start_rank_file + ' to ' + end_rank_file
 
     def get_rank_file(self, r, c):
         return self.cols_to_files[c] + self.rows_to_ranks[r]
