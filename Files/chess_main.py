@@ -24,6 +24,7 @@ def main(): # Standard game loop for a game
     screen.fill(p.Color('white'))
     gs = chess_engine.GameState()
     valid_moves = gs.get_all_possible_moves()
+    print(len(gs.get_all_possible_moves()))
 
     move_made = False # Flag for when we want to generate this function
 
@@ -86,6 +87,7 @@ def main(): # Standard game loop for a game
             valid_moves = gs.get_all_possible_moves()# Note this will need to be valid moves only in the future
 
             print("The time difference is :", timeit.default_timer() - starttime)
+            print(len(valid_moves))
 
             move_made = False
 
