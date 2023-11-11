@@ -298,12 +298,12 @@ class GameState:
             if row != 7:
                 if self.board[row + 1][col][0] != 'w':
                     moves_obj_list.append(Move((row, col), (row + 1, col), self.board))
-                    if col != 0:
-                        if self.board[row + 1][col - 1][0] != 'w':
-                            moves_obj_list.append(Move((row, col), (row + 1, col - 1), self.board))
-                    if col != 7:
-                        if self.board[row + 1][col + 1][0] != 'w':
-                            moves_obj_list.append(Move((row, col), (row + 1, col + 1), self.board))
+                if col != 0:
+                    if self.board[row + 1][col - 1][0] != 'w':
+                        moves_obj_list.append(Move((row, col), (row + 1, col - 1), self.board))
+                if col != 7:
+                    if self.board[row + 1][col + 1][0] != 'w':
+                        moves_obj_list.append(Move((row, col), (row + 1, col + 1), self.board))
             if col != 0:
                 if self.board[row ][col - 1][0] != 'w':
                     moves_obj_list.append(Move((row, col), (row, col - 1), self.board))
@@ -325,12 +325,12 @@ class GameState:
             if row != 7:
                 if self.board[row + 1][col][0] != 'b':
                     moves_obj_list.append(Move((row, col), (row + 1, col), self.board))
-                    if col != 0:
-                        if self.board[row + 1][col - 1][0] != 'b':
-                            moves_obj_list.append(Move((row, col), (row + 1, col - 1), self.board))
-                    if col != 7:
-                        if self.board[row + 1][col + 1][0] != 'b':
-                            moves_obj_list.append(Move((row, col), (row + 1, col + 1), self.board))
+                if col != 0:
+                    if self.board[row + 1][col - 1][0] != 'b':
+                        moves_obj_list.append(Move((row, col), (row + 1, col - 1), self.board))
+                if col != 7:
+                    if self.board[row + 1][col + 1][0] != 'b':
+                        moves_obj_list.append(Move((row, col), (row + 1, col + 1), self.board))
             if col != 0:
                 if self.board[row][col - 1][0] != 'b':
                     moves_obj_list.append(Move((row, col), (row, col - 1), self.board))
