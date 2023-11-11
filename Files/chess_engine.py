@@ -61,8 +61,8 @@ class GameState:
                         self.get_queen_moves(r, c, moves)
                     elif piece == 'K':
                         self.get_king_moves(r, c, moves)
-        for move in moves:
-            print(move.get_chess_notation())
+   #     for move in moves:
+   #         print(move.get_chess_notation())
         return moves
 
 # Piece functions dont need to return anything as they are just appending
@@ -145,16 +145,140 @@ class GameState:
                         break
 
         elif self.board[row][col][0] == 'b':
-            pass
+
+            for north in range(1, len(self.board)):  # Note North is going up in rows so -1
+                north = -1 * north
+                if north + row > -1:
+                    if self.board[row + north][col][0] == 'b':
+                        break
+                    elif self.board[row + north][col] == '--':
+                        moves_obj_list.append(Move((row, col), (row + north, col), self.board))
+                    elif self.board[row + north][col][0] == 'w':
+                        moves_obj_list.append(Move((row, col), (row + north, col), self.board))
+                        break
+
+            for south in range(1, len(self.board)):
+                if south + row < 8:
+                    if self.board[row + south][col][0] == 'b':
+                        break
+                    elif self.board[row + south][col] == '--':
+                        moves_obj_list.append(Move((row, col), (row + south, col), self.board))
+                    elif self.board[row + south][col][0] == 'w':
+                        moves_obj_list.append(Move((row, col), (row + south, col), self.board))
+                        break
+
+            for west in range(1, len(self.board)):  # Note North is going up in rows so -1
+                west = -1 * west
+                if west + col > -1:
+                    if self.board[row][col + west][0] == 'b':
+                        break
+                    elif self.board[row][col + west] == '--':
+                        moves_obj_list.append(Move((row, col), (row, col + west), self.board))
+                    elif self.board[row][col + west][0] == 'w':
+                        moves_obj_list.append(Move((row, col), (row, col + west), self.board))
+                        break
+
+            for east in range(1, len(self.board)):  # Note North is going up in rows so -1
+                if east + col < 8:
+                    if self.board[row][col + east][0] == 'b':
+                        break
+                    elif self.board[row][col + east] == '--':
+                        moves_obj_list.append(Move((row, col), (row, col + east), self.board))
+                    elif self.board[row][col + east][0] == 'w':
+                        moves_obj_list.append(Move((row, col), (row, col + east), self.board))
+                        break
 
 
+    def get_bishop_moves(self, row, col, moves_obj_list):
+        if self.board[row][col][0] == 'w':
+            for NE in range(1, len(self.board)):
+                if (row - NE > -1) and (col + NE < 8):
+                    if self.board[row - NE][col + NE][0] == 'w':
+                        break
+                    elif self.board[row - NE][col + NE][0] == 'b':
+                        moves_obj_list.append(Move((row, col), (row - NE, col + NE), self.board))
+                        break
+                    elif self.board[row - NE][col + NE] == '--':
+                        moves_obj_list.append(Move((row, col), (row - NE, col + NE), self.board))
+
+            for SE in range(1, len(self.board)):
+                if (row + SE < 8) and (col + SE < 8):
+                    if self.board[row + SE][col + SE][0] == 'w':
+                        break
+                    elif self.board[row + SE][col + SE][0] == 'b':
+                        moves_obj_list.append(Move((row, col), (row + SE, col + SE), self.board))
+                        break
+                    elif self.board[row + SE][col + SE] == '--':
+                        moves_obj_list.append(Move((row, col), (row + SE, col + SE), self.board))
+
+            for NW in range(1, len(self.board)):
+                if (row - NW > -1) and (col - NW > -1):
+                    if self.board[row - NW][col - NW][0] == 'w':
+                        break
+                    elif self.board[row - NW][col - NW][0] == 'b':
+                        moves_obj_list.append(Move((row, col), (row - NW, col - NW), self.board))
+                        break
+                    elif self.board[row - NW][col - NW] == '--':
+                        moves_obj_list.append(Move((row, col), (row - NW, col - NW), self.board))
+
+            for SW in range(1, len(self.board)):
+                if (row + SW < 8) and (col - SW > -1):
+                    if self.board[row + SW][col - SW][0] == 'w':
+                        break
+                    elif self.board[row + SW][col - SW][0] == 'b':
+                        moves_obj_list.append(Move((row, col), (row + SW, col - SW), self.board))
+                        break
+                    elif self.board[row + SW][col - SW] == '--':
+                        moves_obj_list.append(Move((row, col), (row + SW, col - SW), self.board))
+
+        elif self.board[row][col][0] == 'b':
+            for NE in range(1, len(self.board)):
+                if (row - NE > -1) and (col + NE < 8):
+                    if self.board[row - NE][col + NE][0] == 'b':
+                        break
+                    elif self.board[row - NE][col + NE][0] == 'w':
+                        moves_obj_list.append(Move((row, col), (row - NE, col + NE), self.board))
+                        break
+                    elif self.board[row - NE][col + NE] == '--':
+                        moves_obj_list.append(Move((row, col), (row - NE, col + NE), self.board))
+
+            for SE in range(1, len(self.board)):
+                if (row + SE < 8) and (col + SE < 8):
+                    if self.board[row + SE][col + SE][0] == 'b':
+                        break
+                    elif self.board[row + SE][col + SE][0] == 'w':
+                        moves_obj_list.append(Move((row, col), (row + SE, col + SE), self.board))
+                        break
+                    elif self.board[row + SE][col + SE] == '--':
+                        moves_obj_list.append(Move((row, col), (row + SE, col + SE), self.board))
+
+            for NW in range(1, len(self.board)):
+                if (row - NW > -1) and (col - NW > -1):
+                    if self.board[row - NW][col - NW][0] == 'b':
+                        break
+                    elif self.board[row - NW][col - NW][0] == 'w':
+                        moves_obj_list.append(Move((row, col), (row - NW, col - NW), self.board))
+                        break
+                    elif self.board[row - NW][col - NW] == '--':
+                        moves_obj_list.append(Move((row, col), (row - NW, col - NW), self.board))
+
+            for SW in range(1, len(self.board)):
+                if (row + SW < 8) and (col - SW > -1):
+                    if self.board[row + SW][col - SW][0] == 'b':
+                        break
+                    elif self.board[row + SW][col - SW][0] == 'w':
+                        moves_obj_list.append(Move((row, col), (row + SW, col - SW), self.board))
+                        break
+                    elif self.board[row + SW][col - SW] == '--':
+                        moves_obj_list.append(Move((row, col), (row + SW, col - SW), self.board))
     def get_knight_moves(self, row, col, moves_list):
         pass
-    def get_bishop_moves(self, row, col, moves_list):
-        pass
-    def get_queen_moves(self, row, col, moves_list):
-        pass
+
+
     def get_king_moves(self, row, col, moves_list):
+        pass
+
+    def get_queen_moves(self, row, col, moves_list):
         pass
 
 

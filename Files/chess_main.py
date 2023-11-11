@@ -1,6 +1,7 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
 from Files import chess_engine
+import timeit
 
 
 WIDTH = HEIGHT = 512
@@ -53,7 +54,7 @@ def main(): # Standard game loop for a game
                     player_clicks.append(sq_selected)  # Append both first and second clicks
 
                 if len(player_clicks) == 2:
-
+                    print(player_clicks)
                     move = chess_engine.Move(player_clicks[0], player_clicks[1], gs.board)
 
                     if move in valid_moves:
@@ -78,7 +79,14 @@ def main(): # Standard game loop for a game
                     pass
 
         if move_made:
-            valid_moves = gs.get_all_possible_moves() # Note this will need to be valid moves only in the future
+            print(f'White to play: {gs.white_to_move}')
+
+            starttime = timeit.default_timer()
+
+            valid_moves = gs.get_all_possible_moves()# Note this will need to be valid moves only in the future
+
+            print("The time difference is :", timeit.default_timer() - starttime)
+
             move_made = False
 
         draw_game_state(screen, gs)
