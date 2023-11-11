@@ -65,8 +65,8 @@ class GameState:
         return moves
 
 
-    def get_pawn_moves(self, row, col, moves_obj_list):
-        if self.board[row][col][0] == 'w':
+    def get_pawn_moves(self, row, col, moves_obj_list):  # Can defo make this a lot smaller, there are
+        if self.board[row][col][0] == 'w':               # smarter ways to do this, also a lot simpler probs
 
             if row == 6:
                 if self.board[5][col] == '--':
