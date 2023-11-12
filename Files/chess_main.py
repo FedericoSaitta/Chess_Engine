@@ -81,6 +81,9 @@ def main(): # Standard game loop for a game
                     move = chess_engine.Move(player_clicks[0], player_clicks[1], gs.board)
 
                     if move in valid_moves:
+                        move = valid_moves[valid_moves.index(move)]
+
+
                         gs.make_move(move)
                         move_made = True
 
@@ -104,12 +107,12 @@ def main(): # Standard game loop for a game
         if move_made:
             print(f'White to play: {gs.white_to_move}')
 
-            starttime = timeit.default_timer()
+         #   starttime = timeit.default_timer()
 
             valid_moves = gs.get_all_possible_moves()# Note this will need to be valid moves only in the future
 
-            print("The time difference is :", timeit.default_timer() - starttime)
-            print(len(valid_moves))
+      #     print("The time difference is :", timeit.default_timer() - starttime)
+      #     print(len(valid_moves))
             move_made = False
 
 

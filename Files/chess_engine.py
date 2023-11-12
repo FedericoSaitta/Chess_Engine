@@ -21,14 +21,59 @@ class GameState:
         ]
         self.white_to_move = True
         self.moveLog = []
+
+        self.w_l_c, self.b_l_c = True, True # Castling rights for white and black
+        self.w_r_c, self.b_r_c = True, True
+
         # Here we will keep track of things such as right to castle etc.
 
 
     def make_move(self, move): # This will not work for pawn promotion, en passant and castleling
+        if move.castle_move:
+            if move.end_col == 2:  # For left castle
+                if move.end_row == 7:  # For white
+                    self.board[7][0] = '--'
+                    self.board[7][3] = 'wR'
+                    self.w_l_c = self.w_r_c = False
+                elif move.end_row == 0:  # For black
+                    self.board[0][0] = '--'
+                    self.board[0][3] = 'bR'
+                    self.b_l_c = self.w_r_c = False
+
+            if move.end_col == 6:  # For right castle
+                if move.end_row == 7:
+                    self.board[7][7] = '--'
+                    self.board[7][5] = 'wR'
+                    self.w_l_c = self.w_r_c = False
+                elif move.end_row == 0:
+                    self.board[0][7] = '--'
+                    self.board[0][5] = 'bR'
+                    self.b_l_c = self.w_r_c = False
+
+
         self.board[move.start_row][move.start_col] = '--'
         self.board[move.end_row][move.end_col] = move.piece_moved
-
         self.moveLog.append(move)
+
+        if self.w_r_c or self.w_l_c or self.b_l_c or self.b_r_c:
+            if self.board[move.start_row][move.start_col][1] == 'K':
+                if self.white_to_move:
+                    self.w_l_c, self.w_r_c = False, False
+                else:
+                    self.b_l_c, self.b_r_c = False, False
+
+            if self.board[move.start_row][move.start_col][1] == 'R':
+                if self.white_to_move:
+                    if move.start_col == 0:
+                        self.w_l_c = False
+                    elif move.start_col == 7:
+                        self.w_r_c = False
+                else:
+                    if move.start_col == 0:
+                        self.w_l_c = False
+                    elif move.start_col == 7:
+                        self.w_r_c = False
+
         self.white_to_move = not self.white_to_move # Swap the player's move
 
     def undo_move(self): # To reverse a move
@@ -61,15 +106,13 @@ class GameState:
                         self.get_rook_moves(r, c, moves)
                     elif piece == 'K':
                         self.get_king_moves(r, c, moves)
-        for move in moves:
-            print(move.get_chess_notation(self.board))
+
         return moves
 
 # Piece functions dont need to return anything as they are just appending
 
     def get_pawn_moves(self, row, col, moves_obj_list):  # Can defo make this a lot smaller, there are
         if self.board[row][col][0] == 'w':               # smarter ways to do this, also a lot simpler probs
-
             if row == 6:
                 if self.board[5][col] == '--':
                     moves_obj_list.append(Move((row,col), (row - 1, col), self.board))
@@ -311,7 +354,7 @@ class GameState:
                 if self.board[row ][col + 1][0] != 'w':
                     moves_obj_list.append(Move((row, col), (row, col + 1), self.board))
 
-        if self.board[row][col][0] == 'b':
+        elif self.board[row][col][0] == 'b':
             if row != 0:
                 if self.board[row - 1][col][0] != 'b':  # just checking that it is not your own piece
                     moves_obj_list.append(Move((row, col), (row - 1, col), self.board))
@@ -338,6 +381,26 @@ class GameState:
                 if self.board[row][col + 1][0] != 'b':
                     moves_obj_list.append(Move((row, col), (row, col + 1), self.board))
 
+        # Castling check
+
+        if self.board[row][col][0] == 'w':
+            if self.w_l_c and self.board[row][1:4] == ['--', '--' ,'--']:
+                print('left castle available, white')
+                moves_obj_list.append(Move((row, col), (row, col - 2), self.board, castle_move=True))
+            if self.w_r_c and self.board[row][5:7] == ['--', '--']:
+                print('right castle available, white')
+                moves_obj_list.append(Move((row, col), (row, col + 2), self.board, castle_move=True))
+
+
+        elif self.board[row][col][0] == 'b':
+            if self.b_l_c and self.board[row][1:4] == ['--', '--', '--']:
+                print('left castle available, black')
+                moves_obj_list.append(Move((row, col), (row, col - 2), self.board, castle_move=True))
+            if self.b_r_c and self.board[row][5:7] == ['--', '--']:
+                print('right castle available, black')
+                moves_obj_list.append(Move((row, col), (row, col + 2), self.board, castle_move=True))
+
+
 
 class Move:
     ranks_to_rows = {'1':7, '2':6, '3':5, '4':4,
@@ -348,7 +411,7 @@ class Move:
                      'e':4, 'f':5, 'g':6, 'h':7 }
     cols_to_files = {v: k for k,v in files_to_cols.items()}
 
-    def __init__(self, start_sq, end_sq, board):
+    def __init__(self, start_sq, end_sq, board, castle_move=False):
         self.start_row, self.start_col = start_sq # Tuple
         self.end_row, self.end_col = end_sq # Tuple
 
@@ -357,6 +420,10 @@ class Move:
         self.piece_moved = board[self.start_row][self.start_col]
 
         self.piece_captured = board[self.end_row][self.end_col]
+
+        self.castle_move = castle_move
+
+
 
     def get_chess_notation(self, board):
         piece = board[self.start_row][self.start_col][1]
@@ -380,5 +447,3 @@ class Move:
             if (self.move_ID == other.move_ID):
                 return True
         return False
-
-
