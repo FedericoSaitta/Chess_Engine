@@ -133,15 +133,10 @@ class GameState:
 
         moves =  self.get_all_possible_moves()
         for i in range(len(moves) - 1, -1, -1): # Going backwards through loop
-            print(moves[i].get_chess_notation(self.board), self.black_king_loc, self.white_king_loc)
-
             self.make_move(moves[i])
-
             self.white_to_move = not self.white_to_move
 
             if self.in_check():
-
-                print('we removed:' + moves[i].get_chess_notation(self.board))
                 moves.remove(moves[i])
 
             self.white_to_move = not self.white_to_move
@@ -201,37 +196,30 @@ class GameState:
         return moves
 
 # Piece functions dont need to return anything as they are just appending
-    def get_pawn_moves(self, row, col, moves_obj_list):  # Can defo make this a lot smaller, there are
-        if self.board[row][col][0] == 'w':               # smarter ways to do this, also a lot simpler probs
-            if row == 6:
-                if self.board[5][col] == '--':
-                    moves_obj_list.append(Move((row,col), (row - 1, col), self.board))
-                if self.board[4][col] == '--':
-                    moves_obj_list.append(Move((row, col), (row - 2, col), self.board))
-            elif row > 0:
-                if self.board[row - 1][col] == '--':
-                    moves_obj_list.append(Move((row, col), (row - 1, col), self.board))
+    def get_pawn_moves(self, row, col, moves_obj_list):
+        piece_color = self.board[row][col][0]
 
-            if col != 7 and self.board[row - 1][col + 1][0] == 'b':
-                moves_obj_list.append(Move((row, col), (row - 1, col+1), self.board))
-            if col != 0 and self.board[row - 1][col - 1][0] == 'b':
-                moves_obj_list.append(Move((row, col), (row - 1, col-1), self.board))
+        if piece_color == 'w':
+            poss_moves = [(row - 1, col), (row -  1, col -1), (row - 1, col + 1)]
+        else:
+            poss_moves = [(row + 1, col), (row +  1, col -1), (row + 1, col + 1)]
 
-        elif self.board[row][col][0] == 'b':
-            if row == 1:
-                if self.board[row + 1][col] == '--':
-                    moves_obj_list.append(Move((row, col), (row + 1, col), self.board))
-                if self.board[row + 2][col] == '--':
-                    moves_obj_list.append(Move((row, col), (row + 2, col), self.board))
+        for index, tup in enumerate(poss_moves):
+            if -1 < tup[0] < 8 and -1 < tup[1] < 8:
+                if index == 0:
+                    if self.board[tup[0]][tup[1]] == '--':
+                        moves_obj_list.append(Move((row, col), tup, self.board))
 
-            elif row < 7:
-                if self.board[row + 1][col] == '--':
-                    moves_obj_list.append(Move((row, col), (row + 1, col), self.board))
+                        if row == 1 and piece_color == 'b': # Checking for double move
+                            if self.board[row + 2][col] == '--':
+                                moves_obj_list.append(Move((row, col), (row + 2, col), self.board))
 
-            if col != 7 and self.board[row + 1][col + 1][0] == 'w':
-                moves_obj_list.append(Move((row, col), (row + 1, col + 1), self.board))
-            if col != 0 and self.board[row + 1][col - 1][0] == 'w':
-                moves_obj_list.append(Move((row, col), (row + 1, col - 1), self.board))
+                        elif row == 6 and piece_color == 'w':
+                            if self.board[row - 2][col] == '--':
+                                moves_obj_list.append(Move((row, col), (row - 2, col), self.board))
+                else:
+                    if self.board[tup[0]][tup[1]] != piece_color and self.board[tup[0]][tup[1]] != '--':
+                        moves_obj_list.append(Move((row, col), tup , self.board))
 
     def get_rook_moves(self, row, col, moves_obj_list):
 
@@ -324,94 +312,35 @@ class GameState:
 
 
     def get_bishop_moves(self, row, col, moves_obj_list):
-        if self.board[row][col][0] == 'w':
-            for NE in range(1, len(self.board)):
-                if (row - NE > -1) and (col + NE < 8):
-                    if self.board[row - NE][col + NE][0] == 'w':
-                        break
-                    elif self.board[row - NE][col + NE][0] == 'b':
-                        moves_obj_list.append(Move((row, col), (row - NE, col + NE), self.board))
-                        break
-                    elif self.board[row - NE][col + NE] == '--':
-                        moves_obj_list.append(Move((row, col), (row - NE, col + NE), self.board))
+        possible_moves = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+        piece_color = self.board[row][col][0]
 
-            for SE in range(1, len(self.board)):
-                if (row + SE < 8) and (col + SE < 8):
-                    if self.board[row + SE][col + SE][0] == 'w':
-                        break
-                    elif self.board[row + SE][col + SE][0] == 'b':
-                        moves_obj_list.append(Move((row, col), (row + SE, col + SE), self.board))
-                        break
-                    elif self.board[row + SE][col + SE] == '--':
-                        moves_obj_list.append(Move((row, col), (row + SE, col + SE), self.board))
-
-            for NW in range(1, len(self.board)):
-                if (row - NW > -1) and (col - NW > -1):
-                    if self.board[row - NW][col - NW][0] == 'w':
-                        break
-                    elif self.board[row - NW][col - NW][0] == 'b':
-                        moves_obj_list.append(Move((row, col), (row - NW, col - NW), self.board))
-                        break
-                    elif self.board[row - NW][col - NW] == '--':
-                        moves_obj_list.append(Move((row, col), (row - NW, col - NW), self.board))
-
-            for SW in range(1, len(self.board)):
-                if (row + SW < 8) and (col - SW > -1):
-                    if self.board[row + SW][col - SW][0] == 'w':
-                        break
-                    elif self.board[row + SW][col - SW][0] == 'b':
-                        moves_obj_list.append(Move((row, col), (row + SW, col - SW), self.board))
-                        break
-                    elif self.board[row + SW][col - SW] == '--':
-                        moves_obj_list.append(Move((row, col), (row + SW, col - SW), self.board))
-
-        elif self.board[row][col][0] == 'b':
-            for NE in range(1, len(self.board)):
-                if (row - NE > -1) and (col + NE < 8):
-                    if self.board[row - NE][col + NE][0] == 'b':
-                        break
-                    elif self.board[row - NE][col + NE][0] == 'w':
-                        moves_obj_list.append(Move((row, col), (row - NE, col + NE), self.board))
-                        break
-                    elif self.board[row - NE][col + NE] == '--':
-                        moves_obj_list.append(Move((row, col), (row - NE, col + NE), self.board))
-
-            for SE in range(1, len(self.board)):
-                if (row + SE < 8) and (col + SE < 8):
-                    if self.board[row + SE][col + SE][0] == 'b':
-                        break
-                    elif self.board[row + SE][col + SE][0] == 'w':
-                        moves_obj_list.append(Move((row, col), (row + SE, col + SE), self.board))
-                        break
-                    elif self.board[row + SE][col + SE] == '--':
-                        moves_obj_list.append(Move((row, col), (row + SE, col + SE), self.board))
-
-            for NW in range(1, len(self.board)):
-                if (row - NW > -1) and (col - NW > -1):
-                    if self.board[row - NW][col - NW][0] == 'b':
-                        break
-                    elif self.board[row - NW][col - NW][0] == 'w':
-                        moves_obj_list.append(Move((row, col), (row - NW, col - NW), self.board))
-                        break
-                    elif self.board[row - NW][col - NW] == '--':
-                        moves_obj_list.append(Move((row, col), (row - NW, col - NW), self.board))
-
-            for SW in range(1, len(self.board)):
-                if (row + SW < 8) and (col - SW > -1):
-                    if self.board[row + SW][col - SW][0] == 'b':
-                        break
-                    elif self.board[row + SW][col - SW][0] == 'w':
-                        moves_obj_list.append(Move((row, col), (row + SW, col - SW), self.board))
-                        break
-                    elif self.board[row + SW][col - SW] == '--':
-                        moves_obj_list.append(Move((row, col), (row + SW, col - SW), self.board))
+        for tup in possible_moves:
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                if self.board[row + tup[0]][col + tup[1]][0] == piece_color:
+                    continue
+                elif self.board[row + tup[0]][col + tup[1]] != '--':
+                    moves_obj_list.append(Move((row, col), (row + tup[0], col + tup[1]), self.board))
+                    continue
+                else:
+                    for mul in range(1, 8):
+                        if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
+                            if self.board[row + (mul * tup[0])][col + (mul * tup[1])] == piece_color:
+                                break
+                            elif self.board[row + (mul * tup[0])][col + (mul * tup[1])] != '--':
+                                moves_obj_list.append(Move((row, col), (row + mul * tup[0], col + mul * tup[1]), self.board))
+                                break
+                            else:
+                                moves_obj_list.append(Move((row, col), (row + mul * tup[0], col + mul * tup[1]), self.board))
+                        else:
+                            break
 
     def get_knight_moves(self, row, col, moves_obj_list):
-        possibilities = [(row + 2, col + 1), (row + 2, col - 1), (row - 2, col + 1), (row - 2, col - 1),
+        possible_moves = [(row + 2, col + 1), (row + 2, col - 1), (row - 2, col + 1), (row - 2, col - 1),
                          (row + 1, col + 2), (row + 1, col - 2), (row - 1, col + 2), (row - 1, col - 2)]
         color = self.board[row][col][0]
 
-        for tup in possibilities:
+        for tup in possible_moves:
             if -1 < tup[0] < 8 and -1 < tup[1] < 8:
                 if self.board[tup[0]][tup[1]][0] != color:
                     moves_obj_list.append(Move((row, col), (tup[0], tup[1]), self.board))
@@ -476,19 +405,15 @@ class GameState:
 
         if self.board[row][col][0] == 'w':
             if self.w_l_c and self.board[row][1:4] == ['--', '--' ,'--']:
-                print('left castle available, white')
                 moves_obj_list.append(Move((row, col), (row, col - 2), self.board, castle_move=True))
             if self.w_r_c and self.board[row][5:7] == ['--', '--']:
-                print('right castle available, white')
                 moves_obj_list.append(Move((row, col), (row, col + 2), self.board, castle_move=True))
 
 
         elif self.board[row][col][0] == 'b':
             if self.b_l_c and self.board[row][1:4] == ['--', '--', '--']:
-                print('left castle available, black')
                 moves_obj_list.append(Move((row, col), (row, col - 2), self.board, castle_move=True))
             if self.b_r_c and self.board[row][5:7] == ['--', '--']:
-                print('right castle available, black')
                 moves_obj_list.append(Move((row, col), (row, col + 2), self.board, castle_move=True))
 
 

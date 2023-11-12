@@ -2,12 +2,13 @@
 import pygame as p
 from Files import chess_engine
 import timeit
+import numpy as np
 
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = WIDTH/DIMENSION
-MAX_FPS = 15# comes into play when animating images
+MAX_FPS = 15 # comes into play when animating images
 IMAGES = {}
 
 'Conversions constants'
@@ -18,6 +19,9 @@ rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dicti
 files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3,
                  'e': 4, 'f': 5, 'g': 6, 'h': 7}
 cols_to_files = {v: k for k, v in files_to_cols.items()}
+
+avg_move_time = []
+avg_num_moves = []
 
 
 # Handle user input and update graphics
@@ -34,7 +38,6 @@ def main(): # Standard game loop for a game
     starttime = timeit.default_timer()
     valid_moves = gs.get_all_valid_moves()  # Note this will need to be valid moves only in the future
     print("The time difference is :", timeit.default_timer() - starttime)
-    print(len(valid_moves))
 
 
     move_made = False # Flag for when we want to generate this function
@@ -99,21 +102,32 @@ def main(): # Standard game loop for a game
                 elif e.key == p.K_RIGHT:
                     pass
 
+                elif e.key == p.K_r: # To make random moves
+                    ind = np.random.randint(len(valid_moves))
+                    rnd_move = valid_moves[ind]
+                    gs.make_move(rnd_move)
+                    move_made = True
+    
+
+
         if move_made:
-            print(f'White to play: {gs.white_to_move}')
+
+            #print(f'White to play: {gs.white_to_move}')
+            #starttime = timeit.default_timer()
 
             starttime = timeit.default_timer()
-
             valid_moves = gs.get_all_valid_moves()# Note this will need to be valid moves only in the future
+            time = timeit.default_timer() - starttime
 
-            print("The time difference is :", timeit.default_timer() - starttime)
-            print(len(valid_moves))
+            avg_move_time.append(time)
+            avg_num_moves.append(len(valid_moves))
+            #print("The time difference is :", timeit.default_timer() - starttime)
             #print(len(valid_moves))
+
             move_made = False
 
 
         draw_game_state(screen, gs, highlight_sq)
-
         clock.tick(MAX_FPS)
         p.display.flip()
 
@@ -167,3 +181,5 @@ def get_single_move_notation(move):
 
 if __name__ == '__main__':
     main()
+    print(np.average(avg_move_time))
+    print(np.average(avg_num_moves))
