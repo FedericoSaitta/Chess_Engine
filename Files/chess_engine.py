@@ -2,12 +2,13 @@
 # Will also keep a move log
 # dskjfhsdf
 
+
+
 class GameState:
     def __init__(self):
         # Each element of 8x8 has two chars, first char represents colour of piece,
         # The second one represent the type of the piece
         # '--' represents that no piece is present
-
 
         self.board = [
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
@@ -26,7 +27,6 @@ class GameState:
         self.w_r_c, self.b_r_c = True, True
 
         # Here we will keep track of things such as right to castle etc.
-
 
     def make_move(self, move): # This will not work for pawn promotion, en passant and castleling
         if move.castle_move:
@@ -110,7 +110,6 @@ class GameState:
         return moves
 
 # Piece functions dont need to return anything as they are just appending
-
     def get_pawn_moves(self, row, col, moves_obj_list):  # Can defo make this a lot smaller, there are
         if self.board[row][col][0] == 'w':               # smarter ways to do this, also a lot simpler probs
             if row == 6:
@@ -442,8 +441,11 @@ class Move:
     def get_rank_file(self, r, c):
         return self.cols_to_files[c] + self.rows_to_ranks[r]
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # Note the other move is the one stored in the valid_moves list
         if isinstance(other, Move):
-            if (self.move_ID == other.move_ID):
+            if (self.move_ID == other.move_ID) and other.castle_move:
+                self.castle_move = True
+                return True
+            elif (self.move_ID == other.move_ID):
                 return True
         return False
