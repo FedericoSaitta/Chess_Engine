@@ -10,15 +10,15 @@ class GameState:
         # The second one represent the type of the piece
         # '--' represents that no piece is present
 
-        self.board = [
-            ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
-            ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
-            ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
+        self.board = [  # Testing this board and I indeed get 218 moves possible, good
+            ['wR', '--', '--', '--', '--', '--', '--', 'wR'],
+            ['--', '--', '--', 'wQ', '--', '--', '--', '--'],
+            ['--', 'wQ', '--', '--', '--', '--', 'wQ', '--'],
+            ['--', '--', '--', '--', 'wQ', '--', '--', '--'],
+            ['--', '--', 'wQ', '--', '--', '--', '--', 'wQ'],
+            ['wQ', '--', '--', '--', '--', 'wQ', '--', '--'],
+            ['bP', 'bP', '--', 'wQ', '--', '--', '--', '--'],
+            ['bK', 'wB', 'wN', 'wN', '--', 'wK', 'wB', '--']
         ]
         self.white_to_move = True
         self.moveLog = []
@@ -26,9 +26,22 @@ class GameState:
         self.w_l_c, self.b_l_c = True, True # Castling rights for white and black
         self.w_r_c, self.b_r_c = True, True
 
+        self.white_king_loc = (7, 4)
+        self.black_king_loc = (0, 4)
+        self.check_mate, self.stale_mate = False, False
+
+
+
+
         # Here we will keep track of things such as right to castle etc.
 
     def make_move(self, move): # This will not work for pawn promotion, en passant and castleling
+
+        if move.piece_moved == 'wK':
+            self.white_king_loc = (move.end_row, move.end_col)
+        elif move.piece_moved == 'bK':
+            self.black_king_loc = (move.end_row, move.end_col)
+
         if move.castle_move:
             if move.end_col == 2:  # For left castle
                 if move.end_row == 7:  # For white
@@ -79,12 +92,90 @@ class GameState:
     def undo_move(self): # To reverse a move
         if len(self.moveLog) > 0:
             move = self.moveLog.pop()
+
+            if move.castle_move:
+                if move.end_col == 6 and move.end_row == 7:
+                    self.w_r_c = True
+                    self.board[7][7] = 'wR'
+                    self.board[7][5] = '--'
+
+                elif move.end_col == 6 and move.end_row == 0:
+                    self.b_r_c = True
+                    self.board[0][7] = 'bR'
+                    self.board[0][5] = '--'
+
+                elif move.end_col == 2 and move.end_row == 0:
+                    self.b_l_c = True
+                    self.board[0][0] = 'bR'
+                    self.board[0][3] = '--'
+
+                elif move.end_col == 2 and move.end_row == 7:
+                    self.w_l_c = True
+                    self.board[7][0] = 'wR'
+                    self.board[7][3] = '--'
+
             self.board[move.start_row][move.start_col] = move.piece_moved
             self.board[move.end_row][move.end_col] = move.piece_captured
             self.white_to_move = not self.white_to_move
+            # Keep track of white_king loc and black one too if you implement this  # Doesnt yet work with castling
+
+            if self.board[move.start_row][move.start_col] == 'wK':
+                self.white_king_loc = (move.start_row, move.start_col)
+            elif self.board[move.start_row][move.start_col] == 'bK':
+                self.black_king_loc = (move.start_row, move.start_col)
+
+
+
+
 
     def get_all_valid_moves(self): # This will take into account non-legal moves that put our king in check
-        pass
+        ''' As long as we switch turns an even number of times at the end we should be good'''
+
+        moves =  self.get_all_possible_moves()
+        for i in range(len(moves) - 1, -1, -1): # Going backwards through loop
+            print(moves[i].get_chess_notation(self.board), self.black_king_loc, self.white_king_loc)
+
+            self.make_move(moves[i])
+
+            self.white_to_move = not self.white_to_move
+
+            if self.in_check():
+
+                print('we removed:' + moves[i].get_chess_notation(self.board))
+                moves.remove(moves[i])
+
+            self.white_to_move = not self.white_to_move
+            self.undo_move()
+
+        if len(moves) == 0:
+            if self.in_check():
+                print(f'Check Mate on the Board, white wins: {not self.white_to_move}')
+                self.check_mate = True
+            else:
+                print(f'We have a Stale Mate on the board, none wins')
+                self.stale_mate = True
+        else:
+            self.check_mate, self.stale_mate = False, False
+
+        return moves
+
+    def in_check(self): # Determine if the current player is in check
+        if self.white_to_move:
+            return self.sq_under_attack(self.white_king_loc[0], self.white_king_loc[1])
+        else:
+            return self.sq_under_attack(self.black_king_loc[0], self.black_king_loc[1])
+
+    def sq_under_attack(self, r, c): # Determine if the enemy can attack the square (r, c)
+
+        self.white_to_move = not self.white_to_move
+        opp_moves = self.get_all_possible_moves()
+        self.white_to_move = not self.white_to_move
+
+        for move in opp_moves:
+            if (move.end_row == r) and (move.end_col == c):
+                return True
+        return False
+
 
     def get_all_possible_moves(self): # This will generate all possible moves, some might not be legal due to opening up our king to check etc
         moves = []
@@ -117,7 +208,7 @@ class GameState:
                     moves_obj_list.append(Move((row,col), (row - 1, col), self.board))
                 if self.board[4][col] == '--':
                     moves_obj_list.append(Move((row, col), (row - 2, col), self.board))
-            else:
+            elif row > 0:
                 if self.board[row - 1][col] == '--':
                     moves_obj_list.append(Move((row, col), (row - 1, col), self.board))
 
@@ -132,7 +223,8 @@ class GameState:
                     moves_obj_list.append(Move((row, col), (row + 1, col), self.board))
                 if self.board[row + 2][col] == '--':
                     moves_obj_list.append(Move((row, col), (row + 2, col), self.board))
-            else:
+
+            elif row < 7:
                 if self.board[row + 1][col] == '--':
                     moves_obj_list.append(Move((row, col), (row + 1, col), self.board))
 

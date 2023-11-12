@@ -20,12 +20,6 @@ files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3,
 cols_to_files = {v: k for k, v in files_to_cols.items()}
 
 
-def load_images():
-    path = '/Users/federicosaitta/PycharmProjects/Chess/Images/'
-    pieces = ['wP', 'bP', 'wR', 'bR', 'wN', 'bN', 'wB', 'bB', 'wQ', 'bQ', 'wK', 'bK']
-    for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load(path + piece + '.png'), (SQ_SIZE, SQ_SIZE))
-
 # Handle user input and update graphics
 def main(): # Standard game loop for a game
     global highlight_sq # Will fix this as no variable should be global ig
@@ -38,7 +32,7 @@ def main(): # Standard game loop for a game
     gs = chess_engine.GameState()
 
     starttime = timeit.default_timer()
-    valid_moves = gs.get_all_possible_moves()  # Note this will need to be valid moves only in the future
+    valid_moves = gs.get_all_valid_moves()  # Note this will need to be valid moves only in the future
     print("The time difference is :", timeit.default_timer() - starttime)
     print(len(valid_moves))
 
@@ -95,10 +89,10 @@ def main(): # Standard game loop for a game
             # Key press handler
 
             elif e.type == p.KEYDOWN:
-                '''if e.key == p.K_z: # Do not allow for undo moves for now
+                if e.key == p.K_z: # Do not allow for undo moves for now
                     gs.undo_move()
                     move_made = True
-                '''
+
 
                 if e.key == p.K_LEFT: # Use these to go through previous moves
                     pass
@@ -111,7 +105,7 @@ def main(): # Standard game loop for a game
 
             starttime = timeit.default_timer()
 
-            valid_moves = gs.get_all_possible_moves()# Note this will need to be valid moves only in the future
+            valid_moves = gs.get_all_valid_moves()# Note this will need to be valid moves only in the future
 
             print("The time difference is :", timeit.default_timer() - starttime)
             print(len(valid_moves))
@@ -124,13 +118,20 @@ def main(): # Standard game loop for a game
         clock.tick(MAX_FPS)
         p.display.flip()
 
-# Responsible for all the graphics
+
+
+''' Responsible for all the graphics '''
+def load_images():
+    path = '/Users/federicosaitta/PycharmProjects/Chess/Images/'
+    pieces = ['wP', 'bP', 'wR', 'bR', 'wN', 'bN', 'wB', 'bB', 'wQ', 'bQ', 'wK', 'bK']
+    for piece in pieces:
+        IMAGES[piece] = p.transform.scale(p.image.load(path + piece + '.png'), (SQ_SIZE, SQ_SIZE))
+
 def draw_game_state(screen, gs, highlight_sq_list):  # Drawing is done once per frame
     draw_board(screen)
     if len(highlight_sq_list) > 1:
         draw_highlights(screen, highlight_sq_list)
     draw_pieces(screen, gs.board)
-
 
 def draw_board(screen): # Draws the squares on the board
     colors = [p.Color((238,238,210)), p.Color((118,160,86))]
