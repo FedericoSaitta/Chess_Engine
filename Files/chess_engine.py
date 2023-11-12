@@ -10,15 +10,15 @@ class GameState:
         # The second one represent the type of the piece
         # '--' represents that no piece is present
 
-        self.board = [  # Testing this board and I indeed get 218 moves possible, good
-            ['wR', '--', '--', '--', '--', '--', '--', 'wR'],
-            ['--', '--', '--', 'wQ', '--', '--', '--', '--'],
-            ['--', 'wQ', '--', '--', '--', '--', 'wQ', '--'],
-            ['--', '--', '--', '--', 'wQ', '--', '--', '--'],
-            ['--', '--', 'wQ', '--', '--', '--', '--', 'wQ'],
-            ['wQ', '--', '--', '--', '--', 'wQ', '--', '--'],
-            ['bP', 'bP', '--', 'wQ', '--', '--', '--', '--'],
-            ['bK', 'wB', 'wN', 'wN', '--', 'wK', 'wB', '--']
+        self.board = [
+            ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
+            ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
+            ['--', '--', '--', '--', '--', '--', '--', '--'],
+            ['--', '--', '--', '--', '--', '--', '--', '--'],
+            ['--', '--', '--', '--', '--', '--', '--', '--'],
+            ['--', '--', '--', '--', '--', '--', '--', '--'],
+            ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
+            ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
         ]
         self.white_to_move = True
         self.moveLog = []

@@ -93,7 +93,6 @@ def main(): # Standard game loop for a game
                     gs.undo_move()
                     move_made = True
 
-
                 if e.key == p.K_LEFT: # Use these to go through previous moves
                     pass
 
