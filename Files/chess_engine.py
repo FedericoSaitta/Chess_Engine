@@ -1,6 +1,12 @@
 # Stores information about current state of system, responsible for valid moves at the current state
 # Will also keep a move log
 # dskjfhsdf
+import numpy
+import numpy as np
+
+BISHOP_MOVES = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+ROOK_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
 
 
 
@@ -30,9 +36,6 @@ class GameState:
         self.black_king_loc = (0, 4)
         self.check_mate, self.stale_mate = False, False
 
-
-
-
         # Here we will keep track of things such as right to castle etc.
 
     def make_move(self, move): # This will not work for pawn promotion, en passant and castleling
@@ -42,7 +45,7 @@ class GameState:
         elif move.piece_moved == 'bK':
             self.black_king_loc = (move.end_row, move.end_col)
 
-        if move.castle_move:
+        '''if move.castle_move:
             if move.end_col == 2:  # For left castle
                 if move.end_row == 7:  # For white
                     self.board[7][0] = '--'
@@ -61,14 +64,14 @@ class GameState:
                 elif move.end_row == 0:
                     self.board[0][7] = '--'
                     self.board[0][5] = 'bR'
-                    self.b_l_c = self.w_r_c = False
+                    self.b_l_c = self.w_r_c = False'''
 
 
         self.board[move.start_row][move.start_col] = '--'
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.moveLog.append(move)
 
-        if self.w_r_c or self.w_l_c or self.b_l_c or self.b_r_c:
+        '''if self.w_r_c or self.w_l_c or self.b_l_c or self.b_r_c:
             if self.board[move.start_row][move.start_col][1] == 'K':
                 if self.white_to_move:
                     self.w_l_c, self.w_r_c = False, False
@@ -85,7 +88,7 @@ class GameState:
                     if move.start_col == 0:
                         self.w_l_c = False
                     elif move.start_col == 7:
-                        self.w_r_c = False
+                        self.w_r_c = False'''
 
         self.white_to_move = not self.white_to_move # Swap the player's move
 
@@ -93,7 +96,7 @@ class GameState:
         if len(self.moveLog) > 0:
             move = self.moveLog.pop()
 
-            if move.castle_move:
+            '''if move.castle_move:
                 if move.end_col == 6 and move.end_row == 7:
                     self.w_r_c = True
                     self.board[7][7] = 'wR'
@@ -112,7 +115,7 @@ class GameState:
                 elif move.end_col == 2 and move.end_row == 7:
                     self.w_l_c = True
                     self.board[7][0] = 'wR'
-                    self.board[7][3] = '--'
+                    self.board[7][3] = '--' '''
 
             self.board[move.start_row][move.start_col] = move.piece_moved
             self.board[move.end_row][move.end_col] = move.piece_captured
@@ -182,14 +185,14 @@ class GameState:
                     if piece == 'P':
                         self.get_pawn_moves(r, c, moves)
                     elif piece == 'R':
-                        self.get_rook_moves(r, c, moves)
+                        self.sliding_pieces_moves(r, c, moves, ROOK_MOVES)
                     elif piece == 'N':
                         self.get_knight_moves(r, c, moves)
                     elif piece == 'B':
-                        self.get_bishop_moves(r, c, moves)
+                        self.sliding_pieces_moves(r, c, moves, BISHOP_MOVES)
                     elif piece == 'Q':
-                        self.get_bishop_moves(r, c, moves)
-                        self.get_rook_moves(r, c, moves)
+                        self.sliding_pieces_moves(r, c, moves, ROOK_MOVES)
+                        self.sliding_pieces_moves(r, c, moves, BISHOP_MOVES)
                     elif piece == 'K':
                         self.get_king_moves(r, c, moves)
 
@@ -218,104 +221,14 @@ class GameState:
                             if self.board[row - 2][col] == '--':
                                 moves_obj_list.append(Move((row, col), (row - 2, col), self.board))
                 else:
-                    if self.board[tup[0]][tup[1]] != piece_color and self.board[tup[0]][tup[1]] != '--':
+                    if self.board[tup[0]][tup[1]][0] != piece_color and self.board[tup[0]][tup[1]] != '--':
                         moves_obj_list.append(Move((row, col), tup , self.board))
 
-    def get_rook_moves(self, row, col, moves_obj_list):
 
-        if self.board[row][col][0] == 'w':
-            for north in range(1, len(self.board)): # Note North is going up in rows so -1
-                north = -1 * north
-                if north + row > -1:
-                    if self.board[row + north][col][0] == 'w':
-                        break
-                    elif self.board[row + north][col] == '--':
-                        moves_obj_list.append(Move((row, col), (row + north, col), self.board))
-                    elif self.board[row + north][col][0] == 'b':
-                        moves_obj_list.append(Move((row, col), (row + north, col), self.board))
-                        break
+    def sliding_pieces_moves(self, row, col, moves_obj_list, MOVES): # This does not consider castling
 
-            for south in range(1, len(self.board)):
-                if south + row < 8:
-                    if self.board[row + south][col][0] == 'w':
-                        break
-                    elif self.board[row + south][col] == '--':
-                        moves_obj_list.append(Move((row, col), (row + south, col), self.board))
-                    elif self.board[row + south][col][0] == 'b':
-                        moves_obj_list.append(Move((row, col), (row + south, col), self.board))
-                        break
-
-            for west in range(1, len(self.board)): # Note North is going up in rows so -1
-                west = -1 * west
-                if west + col > -1:
-                    if self.board[row][col + west][0] == 'w':
-                        break
-                    elif self.board[row][col + west] == '--':
-                        moves_obj_list.append(Move((row, col), (row, col + west), self.board))
-                    elif self.board[row][col + west][0] == 'b':
-                        moves_obj_list.append(Move((row, col), (row, col + west), self.board))
-                        break
-
-            for east in range(1, len(self.board)):  # Note North is going up in rows so -1
-                if east + col < 8:
-                    if self.board[row][col + east][0] == 'w':
-                        break
-                    elif self.board[row][col + east] == '--':
-                        moves_obj_list.append(Move((row, col), (row, col + east), self.board))
-                    elif self.board[row][col + east][0] == 'b':
-                        moves_obj_list.append(Move((row, col), (row, col + east), self.board))
-                        break
-
-        elif self.board[row][col][0] == 'b':
-
-            for north in range(1, len(self.board)):  # Note North is going up in rows so -1
-                north = -1 * north
-                if north + row > -1:
-                    if self.board[row + north][col][0] == 'b':
-                        break
-                    elif self.board[row + north][col] == '--':
-                        moves_obj_list.append(Move((row, col), (row + north, col), self.board))
-                    elif self.board[row + north][col][0] == 'w':
-                        moves_obj_list.append(Move((row, col), (row + north, col), self.board))
-                        break
-
-            for south in range(1, len(self.board)):
-                if south + row < 8:
-                    if self.board[row + south][col][0] == 'b':
-                        break
-                    elif self.board[row + south][col] == '--':
-                        moves_obj_list.append(Move((row, col), (row + south, col), self.board))
-                    elif self.board[row + south][col][0] == 'w':
-                        moves_obj_list.append(Move((row, col), (row + south, col), self.board))
-                        break
-
-            for west in range(1, len(self.board)):  # Note North is going up in rows so -1
-                west = -1 * west
-                if west + col > -1:
-                    if self.board[row][col + west][0] == 'b':
-                        break
-                    elif self.board[row][col + west] == '--':
-                        moves_obj_list.append(Move((row, col), (row, col + west), self.board))
-                    elif self.board[row][col + west][0] == 'w':
-                        moves_obj_list.append(Move((row, col), (row, col + west), self.board))
-                        break
-
-            for east in range(1, len(self.board)):  # Note North is going up in rows so -1
-                if east + col < 8:
-                    if self.board[row][col + east][0] == 'b':
-                        break
-                    elif self.board[row][col + east] == '--':
-                        moves_obj_list.append(Move((row, col), (row, col + east), self.board))
-                    elif self.board[row][col + east][0] == 'w':
-                        moves_obj_list.append(Move((row, col), (row, col + east), self.board))
-                        break
-
-
-    def get_bishop_moves(self, row, col, moves_obj_list):
-        possible_moves = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
         piece_color = self.board[row][col][0]
-
-        for tup in possible_moves:
+        for tup in MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 if self.board[row + tup[0]][col + tup[1]][0] == piece_color:
                     continue
@@ -325,7 +238,7 @@ class GameState:
                 else:
                     for mul in range(1, 8):
                         if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
-                            if self.board[row + (mul * tup[0])][col + (mul * tup[1])] == piece_color:
+                            if self.board[row + (mul * tup[0])][col + (mul * tup[1])][0] == piece_color:
                                 break
                             elif self.board[row + (mul * tup[0])][col + (mul * tup[1])] != '--':
                                 moves_obj_list.append(Move((row, col), (row + mul * tup[0], col + mul * tup[1]), self.board))
@@ -403,7 +316,7 @@ class GameState:
 
         # Castling check
 
-        if self.board[row][col][0] == 'w':
+        '''if self.board[row][col][0] == 'w':
             if self.w_l_c and self.board[row][1:4] == ['--', '--' ,'--']:
                 moves_obj_list.append(Move((row, col), (row, col - 2), self.board, castle_move=True))
             if self.w_r_c and self.board[row][5:7] == ['--', '--']:
@@ -414,7 +327,7 @@ class GameState:
             if self.b_l_c and self.board[row][1:4] == ['--', '--', '--']:
                 moves_obj_list.append(Move((row, col), (row, col - 2), self.board, castle_move=True))
             if self.b_r_c and self.board[row][5:7] == ['--', '--']:
-                moves_obj_list.append(Move((row, col), (row, col + 2), self.board, castle_move=True))
+                moves_obj_list.append(Move((row, col), (row, col + 2), self.board, castle_move=True))'''
 
 
 

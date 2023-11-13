@@ -112,17 +112,18 @@ def main(): # Standard game loop for a game
 
         if move_made:
 
-            #print(f'White to play: {gs.white_to_move}')
-            #starttime = timeit.default_timer()
+        #    print(f'White to play: {gs.white_to_move}')
 
             starttime = timeit.default_timer()
             valid_moves = gs.get_all_valid_moves()# Note this will need to be valid moves only in the future
             time = timeit.default_timer() - starttime
 
+
             avg_move_time.append(time)
             avg_num_moves.append(len(valid_moves))
-            #print("The time difference is :", timeit.default_timer() - starttime)
-            #print(len(valid_moves))
+
+            print(f"Calculated {len(valid_moves)} moves in:", timeit.default_timer() - starttime)
+            print(list(move.get_chess_notation(gs.board) for move in valid_moves if 'x' in move.get_chess_notation(gs.board)))
 
             move_made = False
 
@@ -181,5 +182,5 @@ def get_single_move_notation(move):
 
 if __name__ == '__main__':
     main()
-    print(np.average(avg_move_time))
-    print(np.average(avg_num_moves))
+    print(f'Avg move gen time: {np.average(avg_move_time)}')
+    print(f'Avg valid moves per turn: {np.average(avg_num_moves)}')
