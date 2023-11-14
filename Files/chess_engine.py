@@ -1,6 +1,9 @@
 # Stores information about current state of system, responsible for valid moves at the current state
 import numpy as np
 
+from itertools import chain
+
+
 KNIGHT_MOVES = [(2, 1), (2,-1), (-2,1), (-2,-1),
                 (1, 2), (1,-2), (-1,2), (-1,-2)]
 BISHOP_MOVES = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
@@ -129,26 +132,30 @@ class GameState:
     def get_all_valid_moves(self):  # This will take into account non-legal moves that put our king in check
         ''' As long as we switch turns an even number of times at the end we should be good'''
 
+        gen = self.gen_all_possible_moves()
 
-        gen_list = self.get_all_possible_moves()
-        moves = [list(gen) for gen in gen_list]
-        final_ans = []
+        final_moves = []
 
-        for lst in moves:
-            for item in lst:
-                final_ans.append(item)
+        for smaller_gen in gen:
 
-        for i in range(len(final_ans) - 1, -1, -1):  # Going backwards through loop
-            self.make_move(final_ans[i])
-            self.white_to_move = not self.white_to_move
+            moves = list(smaller_gen)
 
-            if self.in_check():
-                final_ans.remove(final_ans[i])
+            for i in range(len(moves) - 1, -1, -1):
 
-            self.white_to_move = not self.white_to_move
-            self.undo_move()
+                # Going backwards through loop
+                self.make_move(moves[i])
+                self.white_to_move = not self.white_to_move
 
-        if len(final_ans) == 0:
+                if self.in_check():
+                    moves.remove(moves[i])
+
+                self.white_to_move = not self.white_to_move
+                self.undo_move()
+
+            final_moves += moves
+
+
+        if len(final_moves) == 0:
             if self.in_check():
                 print(f'Check Mate on the Board, white wins: {not self.white_to_move}')
                 self.check_mate = True
@@ -158,7 +165,7 @@ class GameState:
         else:
             self.check_mate, self.stale_mate = False, False
 
-        return final_ans
+        return final_moves
 
     def in_check(self):  # Determine if the current player is in check
         if self.white_to_move:
@@ -169,38 +176,39 @@ class GameState:
     def sq_under_attack(self, r, c):  # Determine if the enemy can attack the square (r, c)
 
         self.white_to_move = not self.white_to_move
-        opp_moves = self.get_all_possible_moves()
+
+        opp_moves = self.gen_all_possible_moves()
+
         self.white_to_move = not self.white_to_move
 
-        for gen in opp_moves:
-            for move in gen:
+        for smaller_gen in opp_moves:
+            moves = list(smaller_gen)
+            for move in moves:
                 if (move.end_row == r) and (move.end_col == c):
                     return True
         return False
 
-    def get_all_possible_moves(
-            self):  # This will generate all possible moves, some might not be legal due to opening up our king to check etc
-        generators = []
+    def gen_all_possible_moves(self):
+        # This will generate all possible moves, some might not be legal due to opening up our king to check etc
         for r in range(len(self.board)):
             for c in range(len(self.board[r])):
                 col_piece = self.board[r][c][0]
                 if (col_piece == 'w' and self.white_to_move) or (col_piece == 'b' and not self.white_to_move):
                     piece = self.board[r][c][1]
                     if piece == 'P':
-                        generators.append(self.get_pawn_moves(r, c))
+                         yield self.get_pawn_moves(r, c)
                     elif piece == 'R':
-                        generators.append(self.sliding_pieces_moves(r, c, ROOK_MOVES))
+                         yield self.sliding_pieces_moves(r, c, ROOK_MOVES)
                     elif piece == 'N':
-                        generators.append(self.get_knight_moves(r, c))
+                        # Try and implement this so that you only work with one generator instead of a nested one
+                         yield self.get_knight_moves(r, c)
                     elif piece == 'B':
-                        generators.append(self.sliding_pieces_moves(r, c, BISHOP_MOVES))
+                         yield self.sliding_pieces_moves(r, c, BISHOP_MOVES)
                     elif piece == 'Q':
-                        generators.append(self.sliding_pieces_moves(r, c, ROOK_MOVES))
-                        generators.append(self.sliding_pieces_moves(r, c, BISHOP_MOVES))
+                         yield self.sliding_pieces_moves(r, c, ROOK_MOVES)
+                         yield self.sliding_pieces_moves(r, c, BISHOP_MOVES)
                     elif piece == 'K':
-                        generators.append(self.get_king_moves(r, c))
-
-        return generators
+                         yield self.get_king_moves(r, c)
 
     def get_pawn_moves(self, row, col):
         piece_color = self.board[row][col][0]
@@ -226,7 +234,6 @@ class GameState:
                 else:
                     if self.board[tup[0]][tup[1]][0] != piece_color and self.board[tup[0]][tup[1]] != '--':
                         yield (Move((row, col), tup, self.board))
-
 
     def sliding_pieces_moves(self, row, col, MOVES):  # This does not consider castling
         piece_color = self.board[row][col][0]

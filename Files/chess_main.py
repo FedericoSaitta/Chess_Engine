@@ -1,8 +1,8 @@
 # Handling user input and displaying the current GameState object
 import timeit
-
 import numpy as np
 import pygame as p
+
 
 from Files import chess_engine
 
@@ -102,8 +102,8 @@ def main():  # Standard game loop for a game
                     pass
 
                 elif e.key == p.K_r:  # To make random moves
-                    ind = np.random.randint(len(valid_moves))
-                    rnd_move = valid_moves[ind]
+                    rnd = int(len(valid_moves) * np.random.random())
+                    rnd_move = valid_moves[rnd]
                     gs.make_move(rnd_move)
                     move_made = True
 
