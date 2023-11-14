@@ -37,7 +37,7 @@ def main(): # Standard game loop for a game
 
     starttime = timeit.default_timer()
     valid_moves = gs.get_all_valid_moves()  # Note this will need to be valid moves only in the future
-    print("The time difference is :", timeit.default_timer() - starttime)
+    print(f"Calculated {len(valid_moves)} moves in:", timeit.default_timer() - starttime)
 
 
     move_made = False # Flag for when we want to generate this function
@@ -121,9 +121,8 @@ def main(): # Standard game loop for a game
 
             avg_move_time.append(time)
             avg_num_moves.append(len(valid_moves))
-
             print(f"Calculated {len(valid_moves)} moves in:", timeit.default_timer() - starttime)
-            print(list(move.get_chess_notation(gs.board) for move in valid_moves if 'x' in move.get_chess_notation(gs.board)))
+
 
             move_made = False
 

@@ -6,6 +6,8 @@ import numpy as np
 
 BISHOP_MOVES = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 ROOK_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+KING_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1),
+              (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
 
 
@@ -258,61 +260,12 @@ class GameState:
                 if self.board[tup[0]][tup[1]][0] != color:
                     moves_obj_list.append(Move((row, col), (tup[0], tup[1]), self.board))
 
-
     def get_king_moves(self, row, col, moves_obj_list):
-        if self.board[row][col][0] == 'w':
-            if row != 0:
-                if self.board[row - 1][col][0] != 'w': # just checking that it is not your own piece
-                    moves_obj_list.append(Move((row, col), (row - 1, col), self.board))
-                if col != 0:
-                    if self.board[row - 1][col - 1][0] != 'w':
-                        moves_obj_list.append(Move((row, col), (row - 1, col - 1), self.board))
-                if col != 7:
-                    if self.board[row - 1][col + 1][0] != 'w':
-                        moves_obj_list.append(Move((row, col), (row - 1, col + 1), self.board))
-
-            if row != 7:
-                if self.board[row + 1][col][0] != 'w':
-                    moves_obj_list.append(Move((row, col), (row + 1, col), self.board))
-                if col != 0:
-                    if self.board[row + 1][col - 1][0] != 'w':
-                        moves_obj_list.append(Move((row, col), (row + 1, col - 1), self.board))
-                if col != 7:
-                    if self.board[row + 1][col + 1][0] != 'w':
-                        moves_obj_list.append(Move((row, col), (row + 1, col + 1), self.board))
-            if col != 0:
-                if self.board[row ][col - 1][0] != 'w':
-                    moves_obj_list.append(Move((row, col), (row, col - 1), self.board))
-            if col != 7:
-                if self.board[row ][col + 1][0] != 'w':
-                    moves_obj_list.append(Move((row, col), (row, col + 1), self.board))
-
-        elif self.board[row][col][0] == 'b':
-            if row != 0:
-                if self.board[row - 1][col][0] != 'b':  # just checking that it is not your own piece
-                    moves_obj_list.append(Move((row, col), (row - 1, col), self.board))
-                if col != 0:
-                    if self.board[row - 1][col - 1][0] != 'b':
-                        moves_obj_list.append(Move((row, col), (row - 1, col - 1), self.board))
-                if col != 7:
-                    if self.board[row - 1][col + 1][0] != 'b':
-                        moves_obj_list.append(Move((row, col), (row - 1, col + 1), self.board))
-
-            if row != 7:
-                if self.board[row + 1][col][0] != 'b':
-                    moves_obj_list.append(Move((row, col), (row + 1, col), self.board))
-                if col != 0:
-                    if self.board[row + 1][col - 1][0] != 'b':
-                        moves_obj_list.append(Move((row, col), (row + 1, col - 1), self.board))
-                if col != 7:
-                    if self.board[row + 1][col + 1][0] != 'b':
-                        moves_obj_list.append(Move((row, col), (row + 1, col + 1), self.board))
-            if col != 0:
-                if self.board[row][col - 1][0] != 'b':
-                    moves_obj_list.append(Move((row, col), (row, col - 1), self.board))
-            if col != 7:
-                if self.board[row][col + 1][0] != 'b':
-                    moves_obj_list.append(Move((row, col), (row, col + 1), self.board))
+        piece_color = self.board[row][col][0]
+        for tup in KING_MOVES:
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                if self.board[row + tup[0]][col + tup[1]][0] != piece_color:
+                    moves_obj_list.append(Move((row, col), (row + tup[0], col + tup[1]), self.board))
 
         # Castling check
 
