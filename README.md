@@ -1,5 +1,5 @@
 # Chess
-Started on 1/11/2023
+Started on 1/11/2023. My first long term and proudest project so far.
 The aim to to write a chess engine that is at least around the 1700 level on chess.com. 
 
 ## Board Representation: 
