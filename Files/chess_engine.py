@@ -135,7 +135,7 @@ class GameState:
         ''' As long as we switch turns an even number of times at the end we should be good'''
 
         moves =  self.get_all_possible_moves()
-        for i in range(len(moves) - 1, -1, -1): # Going backwards through loop
+        '''for i in range(len(moves) - 1, -1, -1): # Going backwards through loop
             self.make_move(moves[i])
             self.white_to_move = not self.white_to_move
 
@@ -153,7 +153,7 @@ class GameState:
                 print(f'We have a Stale Mate on the board, none wins')
                 self.stale_mate = True
         else:
-            self.check_mate, self.stale_mate = False, False
+            self.check_mate, self.stale_mate = False, False'''
 
         return moves
 
