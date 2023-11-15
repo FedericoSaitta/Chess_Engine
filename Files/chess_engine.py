@@ -9,7 +9,8 @@ ROOK_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 KING_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1),
               (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-
+KNIGHT_MOVES = [(2, 1), (2,-1), (-2, 1), (-2, -1),
+               (1, 2), (1, -2), (-1, 2), (-1, -2)]
 
 
 class GameState:
@@ -142,6 +143,7 @@ class GameState:
             self.white_to_move = not self.white_to_move
 
             if self.in_check():
+                print(moves[i])
                 moves.remove(moves[i])
 
             self.white_to_move = not self.white_to_move
@@ -165,15 +167,82 @@ class GameState:
         else:
             return self.sq_under_attack(self.black_king_loc[0], self.black_king_loc[1])
 
-    def sq_under_attack(self, r, c): # Determine if the enemy can attack the square (r, c)
+    def sq_under_attack(self, row, col): # Determine if the enemy can attack the square (r, c)
 
-        self.white_to_move = not self.white_to_move
+        '''self.white_to_move = not self.white_to_move
         opp_moves = self.get_all_possible_moves()
         self.white_to_move = not self.white_to_move
 
         for move in opp_moves:
             if (move.end_row == r) and (move.end_col == c):
                 return True
+        return False'''
+        king_pos = (row, col)
+        king_color = self.board[row][col][0]
+
+        '''FOR THE BISHOP AND HALF THE QUEEN MOVES'''
+        for tup in BISHOP_MOVES:
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                if self.board[row + tup[0]][col + tup[1]][0] == king_color:
+                    continue
+                elif self.board[row + tup[0]][col + tup[1]][1] in 'BQ': # As these must be opposite coloured queens and bishops
+                    return True
+                else:
+                    for mul in range(1, 8):
+                        if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
+                            if self.board[row + mul * tup[0]][col + mul * tup[1]][0] == king_color:
+                                break
+                            elif self.board[row + mul * tup[0]][col + mul * tup[1]][1] in 'BQ':
+                                return True
+                        else:
+                            break
+
+        '''FOR THE ROOK AND THE OTHER HALF OF THE QUEEN MOVES'''
+        for tup in ROOK_MOVES:
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                if self.board[row + tup[0]][col + tup[1]][0] == king_color:
+                    continue
+                elif self.board[row + tup[0]][col + tup[1]][1] in 'RQ':
+                    return True
+                else:
+                    for mul in range(1, 8):
+                        if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
+                            if self.board[row + mul * tup[0]][col + mul * tup[1]][0] == king_color:
+                                break
+                            elif self.board[row + mul * tup[0]][col + mul * tup[1]][1] in 'RQ':
+                                return True
+                        else:
+                            break
+
+        '''FOR THE KNIGHT MOVES'''
+        for tup in KNIGHT_MOVES:
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                if self.board[row + tup[0]][col +tup[1]][0] != king_color:
+                    return False
+
+        '''FOR THE PAWN MOVES'''
+        white_squares = [(-1, 0), (-1, 1), (-1, -1)]
+        black_squares = [(1, 0), (1, 1), (1, 1)]
+        if king_color == 'w':
+            for tup in white_squares:
+                if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                    if self.board[row - 1][col] == 'bP':
+                        return False
+                    elif self.board[row - 1][col + 1] == 'bP':
+                        return False
+                    elif self.board[row - 1][col - 1] == 'bP':
+                        return False
+
+        else:
+            for tup in black_squares:
+                if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                    if self.board[row + 1][col] == 'wP':
+                        return False
+                    elif self.board[row + 1][col + 1] == 'wP':
+                        return False
+                    elif self.board[row + 1][col - 1] == 'wP':
+                        return False
+
         return False
 
 
@@ -226,7 +295,6 @@ class GameState:
                     if self.board[tup[0]][tup[1]][0] != piece_color and self.board[tup[0]][tup[1]] != '--':
                         moves_obj_list.append(Move((row, col), tup , self.board))
 
-
     def sliding_pieces_moves(self, row, col, moves_obj_list, MOVES): # This does not consider castling
 
         piece_color = self.board[row][col][0]
@@ -251,14 +319,12 @@ class GameState:
                             break
 
     def get_knight_moves(self, row, col, moves_obj_list):
-        possible_moves = [(row + 2, col + 1), (row + 2, col - 1), (row - 2, col + 1), (row - 2, col - 1),
-                         (row + 1, col + 2), (row + 1, col - 2), (row - 1, col + 2), (row - 1, col - 2)]
         color = self.board[row][col][0]
-
-        for tup in possible_moves:
-            if -1 < tup[0] < 8 and -1 < tup[1] < 8:
+        print('helli')
+        for tup in KNIGHT_MOVES:
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 if self.board[tup[0]][tup[1]][0] != color:
-                    moves_obj_list.append(Move((row, col), (tup[0], tup[1]), self.board))
+                    moves_obj_list.append(Move((row, col), (row + tup[0], col + tup[1]), self.board))
 
     def get_king_moves(self, row, col, moves_obj_list):
         piece_color = self.board[row][col][0]

@@ -174,10 +174,8 @@ def draw_pieces(screen, board): # Draws the pieces, need to draw them after the 
             if piece != '--':
                screen.blit(IMAGES[piece], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
-
 def get_single_move_notation(move):
     return cols_to_files[move[1]] + rows_to_ranks[move[0]]
-
 
 if __name__ == '__main__':
     main()
