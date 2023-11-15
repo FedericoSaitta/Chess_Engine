@@ -35,8 +35,8 @@ class GameState:
         self.w_l_c, self.b_l_c = True, True # Castling rights for white and black
         self.w_r_c, self.b_r_c = True, True
 
-        self.white_king_loc = (7, 4)
-        self.black_king_loc = (0, 4)
+        self.white_king_loc = (0, 4) # Make sure to change these once you change to a new board
+        self.black_king_loc = (7, 4)
         self.check_mate, self.stale_mate = False, False
 
         # Here we will keep track of things such as right to castle etc.
@@ -143,7 +143,6 @@ class GameState:
             self.white_to_move = not self.white_to_move
 
             if self.in_check():
-                print(moves[i])
                 moves.remove(moves[i])
 
             self.white_to_move = not self.white_to_move
@@ -177,7 +176,6 @@ class GameState:
             if (move.end_row == r) and (move.end_col == c):
                 return True
         return False'''
-        king_pos = (row, col)
         king_color = self.board[row][col][0]
 
         '''FOR THE BISHOP AND HALF THE QUEEN MOVES'''
@@ -217,31 +215,31 @@ class GameState:
         '''FOR THE KNIGHT MOVES'''
         for tup in KNIGHT_MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
-                if self.board[row + tup[0]][col +tup[1]][0] != king_color:
-                    return False
+                if self.board[row + tup[0]][col +tup[1]][0] != king_color and self.board[row + tup[0]][col +tup[1]][1] == 'N':
+                    return True
 
         '''FOR THE PAWN MOVES'''
-        white_squares = [(-1, 0), (-1, 1), (-1, -1)]
-        black_squares = [(1, 0), (1, 1), (1, 1)]
+        white_squares = [(-1, 1), (-1, -1)]
+        black_squares = [(1, 1), (1, -1)]
+
         if king_color == 'w':
             for tup in white_squares:
                 if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
-                    if self.board[row - 1][col] == 'bP':
-                        return False
-                    elif self.board[row - 1][col + 1] == 'bP':
-                        return False
-                    elif self.board[row - 1][col - 1] == 'bP':
-                        return False
+                    if self.board[row + tup[0]][col + tup[1]] == 'bP':
+                        return True
 
         else:
             for tup in black_squares:
                 if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
-                    if self.board[row + 1][col] == 'wP':
-                        return False
-                    elif self.board[row + 1][col + 1] == 'wP':
-                        return False
-                    elif self.board[row + 1][col - 1] == 'wP':
-                        return False
+                    if self.board[row + tup[0]][col + tup[1]] == 'wP':
+                        return True
+
+        '''FOR THE KING EATING KING MOVES'''
+
+        for tup in KING_MOVES:
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                if self.board[row + tup[0]][col + tup[1]][0] != king_color and self.board[row + tup[0]][col + tup[1]][1] == 'K':
+                    return True
 
         return False
 
@@ -320,7 +318,6 @@ class GameState:
 
     def get_knight_moves(self, row, col, moves_obj_list):
         color = self.board[row][col][0]
-        print('helli')
         for tup in KNIGHT_MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 if self.board[tup[0] + row][tup[1] + col][0] != color:
