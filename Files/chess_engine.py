@@ -323,7 +323,7 @@ class GameState:
         print('helli')
         for tup in KNIGHT_MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
-                if self.board[tup[0]][tup[1]][0] != color:
+                if self.board[tup[0] + row][tup[1] + col][0] != color:
                     moves_obj_list.append(Move((row, col), (row + tup[0], col + tup[1]), self.board))
 
     def get_king_moves(self, row, col, moves_obj_list):
