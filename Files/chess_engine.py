@@ -6,11 +6,8 @@ import numpy as np
 
 BISHOP_MOVES = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 ROOK_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-KING_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1),
-              (1, 1), (1, -1), (-1, 1), (-1, -1)]
-
-KNIGHT_MOVES = [(2, 1), (2,-1), (-2, 1), (-2, -1),
-               (1, 2), (1, -2), (-1, 2), (-1, -2)]
+KING_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1),(1, 1), (1, -1), (-1, 1), (-1, -1)]
+KNIGHT_MOVES = [(2, 1), (2,-1), (-2, 1), (-2, -1),(1, 2), (1, -2), (-1, 2), (-1, -2)]
 
 
 class GameState:
@@ -39,14 +36,40 @@ class GameState:
         self.black_king_loc = (7, 4)
         self.check_mate, self.stale_mate = False, False
 
+
+        self.white_en_passant_sq, self.black_en_passant_sq = (None, None), (None, None)
+
         # Here we will keep track of things such as right to castle etc.
 
     def make_move(self, move): # This will not work for pawn promotion, en passant and castleling
 
+        '''To keep location of both kings at all times'''
         if move.piece_moved == 'wK':
             self.white_king_loc = (move.end_row, move.end_col)
         elif move.piece_moved == 'bK':
             self.black_king_loc = (move.end_row, move.end_col)
+
+        '''Checks for possibility of enpassant'''
+        if move.piece_moved[1] == 'P':
+            if move.start_row == 1 and move.end_row == 3:
+                self.black_en_passant_sq = (2, move.start_col)
+            elif move.start_row == 6 and move.end_row == 4:
+                self.white_en_passant_sq = (5, move.start_col)
+        else:
+            self.black_en_passant_sq, self.white_en_passant_sq = (None, None), (None, None)
+
+        '''If the move is an en-passant'''
+        if move.en_passant:
+            if move.piece_moved[0] == 'w':
+                self.board[move.end_row + 1][move.end_col] = '--'
+                print('ihi')
+            else:
+                self.board[move.end_row - 1][move.end_col] = '--'
+                print('hisdf')
+
+        self.board[move.start_row][move.start_col] = '--'
+        self.board[move.end_row][move.end_col] = move.piece_moved
+        self.moveLog.append(move)
 
         '''if move.castle_move:
             if move.end_col == 2:  # For left castle
@@ -68,11 +91,6 @@ class GameState:
                     self.board[0][7] = '--'
                     self.board[0][5] = 'bR'
                     self.b_l_c = self.w_r_c = False'''
-
-
-        self.board[move.start_row][move.start_col] = '--'
-        self.board[move.end_row][move.end_col] = move.piece_moved
-        self.moveLog.append(move)
 
         '''if self.w_r_c or self.w_l_c or self.b_l_c or self.b_r_c:
             if self.board[move.start_row][move.start_col][1] == 'K':
@@ -120,6 +138,16 @@ class GameState:
                     self.board[7][0] = 'wR'
                     self.board[7][3] = '--' '''
 
+            if move.en_passant:
+                if move.piece_moved[0] == 'w':
+                    self.board[move.end_row + 1][move.end_col] = 'bP'
+                    self.black_en_passant_sq = (move.end_row, move.end_col)
+
+                else:
+                    self.board[move.end_row - 1][move.end_col] = 'wP'
+                    self.white_en_passant_sq = (move.end_row, move.end_col)
+
+
             self.board[move.start_row][move.start_col] = move.piece_moved
             self.board[move.end_row][move.end_col] = move.piece_captured
             self.white_to_move = not self.white_to_move
@@ -129,9 +157,6 @@ class GameState:
                 self.white_king_loc = (move.start_row, move.start_col)
             elif self.board[move.start_row][move.start_col] == 'bK':
                 self.black_king_loc = (move.start_row, move.start_col)
-
-
-
 
 
     def get_all_valid_moves(self): # This will take into account non-legal moves that put our king in check
@@ -293,6 +318,13 @@ class GameState:
                     if self.board[tup[0]][tup[1]][0] != piece_color and self.board[tup[0]][tup[1]] != '--':
                         moves_obj_list.append(Move((row, col), tup , self.board))
 
+                    elif piece_color == 'w':
+                        if (tup[0], tup[1]) == self.black_en_passant_sq:
+                            moves_obj_list.append(Move((row, col), tup, self.board, en_passant=True))
+                    elif (tup[0], tup[1]) == self.white_en_passant_sq: # As the piece is definetely black
+                        moves_obj_list.append(Move((row, col), tup, self.board,en_passant=True))
+
+
     def sliding_pieces_moves(self, row, col, moves_obj_list, MOVES): # This does not consider castling
 
         piece_color = self.board[row][col][0]
@@ -356,7 +388,7 @@ class Move:
                      'e':4, 'f':5, 'g':6, 'h':7 }
     cols_to_files = {v: k for k,v in files_to_cols.items()}
 
-    def __init__(self, start_sq, end_sq, board, castle_move=False):
+    def __init__(self, start_sq, end_sq, board, castle_move=False, en_passant = False):
         self.start_row, self.start_col = start_sq # Tuple
         self.end_row, self.end_col = end_sq # Tuple
 
@@ -367,6 +399,7 @@ class Move:
         self.piece_captured = board[self.end_row][self.end_col]
 
         self.castle_move = castle_move
+        self.en_passant = en_passant
 
 
 
@@ -392,6 +425,10 @@ class Move:
             if (self.move_ID == other.move_ID) and other.castle_move:
                 self.castle_move = True
                 return True
+            elif (self.move_ID == other.move_ID) and other.en_passant:
+                self.en_passant = True
+                return True
+
             elif (self.move_ID == other.move_ID):
                 return True
         return False
