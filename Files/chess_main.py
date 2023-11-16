@@ -72,8 +72,11 @@ def main():  # Standard game loop for a game
                     current_sq = get_single_move_notation(player_clicks[0])
                     highlight_sq.append(current_sq)
 
+
                     for move in valid_moves:
+
                         notation = move.get_chess_notation(gs.board)
+
                         if notation[1:3] == get_single_move_notation(player_clicks[0]):
                             highlight_sq.append(notation[-2:])
 
@@ -164,12 +167,15 @@ def draw_highlights(screen, highlight_sq_list):
 
 
 def draw_pieces(screen, board):  # Draws the pieces, need to draw them after the board
+
+    dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -300: 'bB', 300: 'wB',
+            -293: 'bN', 293:'wN', -900:'bQ', 900: 'wQ', -1: 'bK', 1:'wK'}
     for r in range(DIMENSION):
         for c in range(DIMENSION):
 
             piece = board[8 * r + c]
-            if piece != '--':
-                screen.blit(IMAGES[piece], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            if piece != 0:
+                screen.blit(IMAGES[dict[piece]], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 
 def get_single_move_notation(move):

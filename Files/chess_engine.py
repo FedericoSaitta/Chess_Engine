@@ -1,4 +1,5 @@
 import timeit
+from numpy import abs
 
 
 N = -8
@@ -78,7 +79,7 @@ class GameState:
             self.black_king_loc = (move.end_ind)
 
         '''Checks for possibility of enpassant'''
-        if move.piece_moved[1] == 'P':
+        if move.piece_moved == 100 or move.piece_moved == -100:
             if move.start_ind // 8 == 1 and move.end_ind // 8 == 3:
                 self.black_en_passant_sq = (move.end_ind - 8)
             elif move.start_ind // 8 == 6 and move.end_ind // 8 == 4:
@@ -88,12 +89,12 @@ class GameState:
 
         '''If the move is an en-passant'''
         if move.en_passant:
-            if move.piece_moved[0] == 'w':
-                self.board[move.end_ind + 8] = '--'
+            if move.piece_moved > 0:
+                self.board[move.end_ind + 8] = 0
             else:
-                self.board[move.end_ind - 8] = '--'
+                self.board[move.end_ind - 8] = 0
 
-        self.board[move.start_ind] = '--'
+        self.board[move.start_ind] = 0
         self.board[move.end_ind] = move.piece_moved
         self.moveLog.append(move)
         self.white_to_move = not self.white_to_move  # Swap the player's move
@@ -103,12 +104,12 @@ class GameState:
             move = self.moveLog.pop()
 
             if move.en_passant:
-                if move.piece_moved[0] == 'w':
-                    self.board[move.end_ind + 8] = 'bP'
+                if move.piece_moved > 0:
+                    self.board[move.end_ind + 8] = -100
                     self.black_en_passant_sq = (move.end_ind)
 
                 else:
-                    self.board[move.end_ind - 8] = 'wP'
+                    self.board[move.end_ind - 8] = 100
                     self.white_en_passant_sq = (move.end_ind)
 
             self.board[move.start_ind] = move.piece_moved
@@ -117,9 +118,9 @@ class GameState:
             self.white_to_move = not self.white_to_move
             # Keep track of white_king loc and black one too if you implement this  # Doesnt yet work with castling
 
-            if self.board[move.start_ind] == 'wK':
+            if self.board[move.start_ind] == 1:
                 self.white_king_loc = (move.start_ind)
-            elif self.board[move.start_ind] == 'bK':
+            elif self.board[move.start_ind] == -1:
                 self.black_king_loc = (move.start_ind)
 
     def get_all_valid_moves(self):  # This will take into account non-legal moves that put our king in check
@@ -258,35 +259,36 @@ class GameState:
     def get_all_possible_moves(self):  # This will generate all possible moves, some might not be legal due to opening up our king to check etc
         moves = []
         for ind in range(len(self.board)):
-            if self.board[ind] == '--':
+            if self.board[ind] == 0:
                 continue
 
-            piece_color = self.board[ind][0]
+            if (self.board[ind] > 0 and self.white_to_move) or (self.board[ind] < 0and not self.white_to_move):
 
-            if (piece_color == 'w' and self.white_to_move) or (piece_color == 'b' and not self.white_to_move):
-                piece = self.board[ind][1]
-                if piece == 'P':
-                    self.get_pawn_moves(ind, moves, piece_color)
-                elif piece == 'R':
-                    self.sliding_pieces_moves(ind, moves, piece_color, ROOK_MOVES_tup)
-                elif piece == 'N':
-                    self.get_knight_moves(ind, moves, piece_color)
-                elif piece == 'B':
-                    self.sliding_pieces_moves(ind, moves, piece_color, BISHOP_MOVES_tup)
-                elif piece == 'Q':
-                    self.sliding_pieces_moves(ind, moves, piece_color, ROOK_MOVES_tup)
-                    self.sliding_pieces_moves(ind, moves, piece_color, BISHOP_MOVES_tup)
-                elif piece == 'K':
-                    self.get_king_moves(ind, moves, piece_color)
+                piece = abs(self.board[ind])
+                piece_col = 'w' if self.board[ind] > 0 else 'b'# True for
+
+                if piece == 100:
+                    self.get_pawn_moves(ind, moves)
+                elif piece == 500:
+                    self.sliding_pieces_moves(ind, moves, piece_col, ROOK_MOVES_tup)
+                elif piece == 293:
+                    self.get_knight_moves(ind, moves, piece_col)
+                elif piece == 300:
+                    self.sliding_pieces_moves(ind, moves, piece_col, BISHOP_MOVES_tup)
+                elif piece == 900:
+                    self.sliding_pieces_moves(ind, moves, piece_col, ROOK_MOVES_tup)
+                    self.sliding_pieces_moves(ind, moves, piece_col, BISHOP_MOVES_tup)
+                elif piece == 1:
+                    self.get_king_moves(ind, moves, piece_col)
 
         return moves
 
-    def get_pawn_moves(self, ind, moves_obj_list, piece_color):
+    def get_pawn_moves(self, ind, moves_obj_list):
 
         col = ind % 8
         row = ind // 8
 
-        if piece_color == 'w':
+        if self.board[ind] > 0:
             poss_moves = [(row - 1, col), (row - 1, col - 1), (row - 1, col + 1)]
         else:
             poss_moves = [(row + 1, col), (row + 1, col - 1), (row + 1, col + 1)]
@@ -295,46 +297,48 @@ class GameState:
             if -1 < tup[0] < 8 and -1 < tup[1] < 8:
                 square = 8 * tup[0] + tup[1]
                 if index == 0:
-                    if self.board[square] == '--':
+                    if self.board[square] == 0:
                         moves_obj_list.append(Move(ind, square, self.board))
 
-                        if row == 1 and piece_color == 'b':  # Checking for double move
+                        if row == 1 and self.board[ind] < 0:  # Checking for double move
                             square = 8 * tup[0] + tup[1] + 8
-                            if self.board[square] == '--':
+                            if self.board[square] == 0:
                                 moves_obj_list.append((Move(ind, square, self.board)))
 
-                        elif row == 6 and piece_color == 'w':
+                        elif row == 6 and self.board[ind] > 0:
                             square = 8 * tup[0] + tup[1] - 8
-                            if self.board[square] == '--':
+                            if self.board[square] == 0:
                                 moves_obj_list.append((Move(ind, square, self.board)))
                 else:
-                    if self.board[square][0] != piece_color and self.board[square] != '--':
+                    if self.board[square] != self.board[ind] and self.board[square] != 0:
                         moves_obj_list.append((Move(ind, square, self.board)))
 
-                    elif piece_color == 'w':
+                    elif self.board[ind] > 0:
                         if square == self.black_en_passant_sq:
                             moves_obj_list.append((Move(ind, square, self.board, en_passant=True)))
                     elif square == self.white_en_passant_sq:     # As the piece is definetely black
                         moves_obj_list.append((Move(ind, square, self.board, en_passant=True)))
 
-    def sliding_pieces_moves(self, ind, moves_obj_list, piece_color, MOVES):
+    def sliding_pieces_moves(self, ind, moves_obj_list, piece_col, MOVES):
         col = ind % 8
         row = ind // 8
+
+        colour = 'w' if self.board[ind] > 0 else 'b'
         for tup in MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 square = 8 * (row + tup[0]) + (col + tup[1])
-                if self.board[square][0] == piece_color:
+                if (self.board[square] != 0) and (self.board[square] > 0) == (self.board[ind] > 0):
                     continue
-                elif self.board[square] != '--':
+                elif self.board[square] != 0:
                     moves_obj_list.append(Move(ind, square, self.board))
                     continue
                 else:
                     for mul in range(1, 8):
                         if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
                             square = 8 * (row + mul * tup[0]) + (col + mul * tup[1])
-                            if self.board[square][0] == piece_color:
+                            if (self.board[square] != 0) and (self.board[square] > 0) == (self.board[ind] > 0):
                                 break
-                            elif self.board[square] != '--':
+                            elif self.board[square] != 0:
                                 moves_obj_list.append(Move(ind, square, self.board))
                                 break
                             else:
@@ -342,23 +346,24 @@ class GameState:
                         else:
                             break
 
-    def get_knight_moves(self, ind, moves_obj_list, piece_color):
+    def get_knight_moves(self, ind, moves_obj_list, piece_col):
         col = ind % 8
         row = ind // 8
+        colour = 'w' if self.board[ind] > 0 else 'b'
         for tup in KNIGHT_MOVES_tup:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 square = 8 * (row + tup[0]) + (col + tup[1])
-                if self.board[square][0] != piece_color:
+                if (self.board[square] == 0) or (self.board[square] >  0) != (self.board[ind] > 0):
                     moves_obj_list.append(Move(ind, square, self.board))
 
-    def get_king_moves(self, ind, moves_obj_list, piece_color):
+    def get_king_moves(self, ind, moves_obj_list, piece_col):
         col = ind % 8
         row = ind // 8
 
         for tup in KING_MOVES_tup:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 square = 8 * (row + tup[0]) + (col + tup[1])
-                if self.board[square][0] != piece_color:
+                if (self.board[square] == 0) or (self.board[square] >  0) != (self.board[ind] > 0):
                     moves_obj_list.append(Move(ind, square, self.board))
 
 
@@ -383,18 +388,21 @@ class Move:
         self.en_passant = en_passant
 
     def get_chess_notation(self, board):
-        piece = board[self.start_ind][1]
+        dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -300: 'bB', 300: 'wB',
+                -293: 'bN', 293: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
+
+        piece = board[self.start_ind]
         start_rank_file = self.get_rank_file(self.start_ind)
         end_rank_file = self.get_rank_file(self.end_ind)
 
-        if piece == 'P':
-            if board[self.end_ind] != '--':
-                return piece + start_rank_file + ' x ' + end_rank_file
+        if abs(piece) == 100:
+            if board[self.end_ind] != 0:
+                return dict[piece][1:] + start_rank_file + ' x ' + end_rank_file
 
-        if board[self.end_ind] != '--':
-            return piece + start_rank_file + ' x ' + end_rank_file
+        if board[self.end_ind] != 0:
+            return dict[piece][1:] + start_rank_file + ' x ' + end_rank_file
 
-        return piece + start_rank_file + ' to ' + end_rank_file
+        return dict[piece][1:] + start_rank_file + ' to ' + end_rank_file
 
     def get_rank_file(self, index):
         c = index % 8
