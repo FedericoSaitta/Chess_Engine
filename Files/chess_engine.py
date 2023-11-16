@@ -72,9 +72,9 @@ class GameState:
     def make_move(self, move):  # This will not work for pawn promotion, en passant and castleling
 
         '''To keep location of both kings at all times'''
-        if move.piece_moved == 'wK':
+        if move.piece_moved == 1:
             self.white_king_loc = (move.end_ind)
-        elif move.piece_moved == 'bK':
+        elif move.piece_moved == -1:
             self.black_king_loc = (move.end_ind)
 
         '''Checks for possibility of enpassant'''
