@@ -3,6 +3,9 @@ import pygame as p
 from Files import chess_engine
 import timeit
 import numpy as np
+import cProfile
+import pstats
+
 
 
 WIDTH = HEIGHT = 512
@@ -178,6 +181,12 @@ def get_single_move_notation(move):
     return cols_to_files[move[1]] + rows_to_ranks[move[0]]
 
 if __name__ == '__main__':
-    main()
-    print(f'Avg move gen time: {np.average(avg_move_time)}')
-    print(f'Avg valid moves per turn: {np.average(avg_num_moves)}')
+    with cProfile.Profile() as profile:
+        main()
+        print(f'total thinking time {np.sum(avg_move_time)}')
+        print(f'Avg move gen time: {np.average(avg_move_time)}')
+        print(f'Avg valid moves per turn: {np.average(avg_num_moves)}')
+
+    results = pstats.Stats(profile)
+    results.sort_stats(pstats.SortKey.TIME)
+    results.print_stats()

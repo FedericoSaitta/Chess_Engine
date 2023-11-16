@@ -1,16 +1,19 @@
-# Stores information about current state of system, responsible for valid moves at the current state
-# Will also keep a move log
-# dskjfhsdf
-import numpy
-import numpy as np
+
 
 BISHOP_MOVES = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 ROOK_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-KING_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1),(1, 1), (1, -1), (-1, 1), (-1, -1)]
+KING_MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1), # These are moves that look forwards
+              (-1, -1), (1, -1), (1, 1), (1, -1)] # These look diagonally
 KNIGHT_MOVES = [(2, 1), (2,-1), (-2, 1), (-2, -1),(1, 2), (1, -2), (-1, 2), (-1, -2)]
 
 
+
 class GameState:
+
+    __slots__ = ('board', 'white_to_move', 'moveLog', 'w_l_c', 'b_l_c',
+                 'w_r_c', 'b_r_c', 'white_king_loc', 'black_king_loc',
+                'check_mate', 'stale_mate', 'white_en_passant_sq', 'black_en_passant_sq')
+
     def __init__(self):
         # Each element of 8x8 has two chars, first char represents colour of piece,
         # The second one represent the type of the piece
@@ -62,11 +65,8 @@ class GameState:
         if move.en_passant:
             if move.piece_moved[0] == 'w':
                 self.board[move.end_row + 1][move.end_col] = '--'
-                print('ihi')
             else:
                 self.board[move.end_row - 1][move.end_col] = '--'
-                print('hisdf')
-
         self.board[move.start_row][move.start_col] = '--'
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.moveLog.append(move)
@@ -185,22 +185,17 @@ class GameState:
 
         return moves
 
+
+
     def in_check(self): # Determine if the current player is in check
         if self.white_to_move:
             return self.sq_under_attack(self.white_king_loc[0], self.white_king_loc[1])
         else:
             return self.sq_under_attack(self.black_king_loc[0], self.black_king_loc[1])
 
+
     def sq_under_attack(self, row, col): # Determine if the enemy can attack the square (r, c)
 
-        '''self.white_to_move = not self.white_to_move
-        opp_moves = self.get_all_possible_moves()
-        self.white_to_move = not self.white_to_move
-
-        for move in opp_moves:
-            if (move.end_row == r) and (move.end_col == c):
-                return True
-        return False'''
         king_color = self.board[row][col][0]
 
         '''FOR THE BISHOP AND HALF THE QUEEN MOVES'''
@@ -273,28 +268,31 @@ class GameState:
         moves = []
         for r in range(len(self.board)):
             for c in range(len(self.board[r])):
-                col_piece = self.board[r][c][0]
-                if (col_piece == 'w' and self.white_to_move) or (col_piece == 'b' and not self.white_to_move):
+                if self.board[r][c] == '--':
+                    continue
+
+                piece_color = self.board[r][c][0]
+
+                if (piece_color == 'w' and self.white_to_move) or (piece_color == 'b' and not self.white_to_move):
                     piece = self.board[r][c][1]
                     if piece == 'P':
-                        self.get_pawn_moves(r, c, moves)
+                        self.get_pawn_moves(r, c, moves, piece_color)
                     elif piece == 'R':
-                        self.sliding_pieces_moves(r, c, moves, ROOK_MOVES)
+                        self.sliding_pieces_moves(r, c, moves, piece_color,ROOK_MOVES)
                     elif piece == 'N':
-                        self.get_knight_moves(r, c, moves)
+                        self.get_knight_moves(r, c, moves, piece_color)
                     elif piece == 'B':
-                        self.sliding_pieces_moves(r, c, moves, BISHOP_MOVES)
+                        self.sliding_pieces_moves(r, c, moves, piece_color,BISHOP_MOVES)
                     elif piece == 'Q':
-                        self.sliding_pieces_moves(r, c, moves, ROOK_MOVES)
-                        self.sliding_pieces_moves(r, c, moves, BISHOP_MOVES)
+                        self.sliding_pieces_moves(r, c, moves, piece_color,ROOK_MOVES)
+                        self.sliding_pieces_moves(r, c, moves, piece_color,BISHOP_MOVES)
                     elif piece == 'K':
-                        self.get_king_moves(r, c, moves)
+                        self.get_king_moves(r, c, moves, piece_color)
 
         return moves
 
-# Piece functions dont need to return anything as they are just appending
-    def get_pawn_moves(self, row, col, moves_obj_list):
-        piece_color = self.board[row][col][0]
+
+    def get_pawn_moves(self, row, col, moves_obj_list, piece_color):
 
         if piece_color == 'w':
             poss_moves = [(row - 1, col), (row -  1, col -1), (row - 1, col + 1)]
@@ -309,25 +307,23 @@ class GameState:
 
                         if row == 1 and piece_color == 'b': # Checking for double move
                             if self.board[row + 2][col] == '--':
-                                moves_obj_list.append(Move((row, col), (row + 2, col), self.board))
+                                moves_obj_list.append( (Move((row, col), (row + 2, col), self.board)))
 
                         elif row == 6 and piece_color == 'w':
                             if self.board[row - 2][col] == '--':
-                                moves_obj_list.append(Move((row, col), (row - 2, col), self.board))
+                                moves_obj_list.append( (Move((row, col), (row - 2, col), self.board)))
                 else:
                     if self.board[tup[0]][tup[1]][0] != piece_color and self.board[tup[0]][tup[1]] != '--':
-                        moves_obj_list.append(Move((row, col), tup , self.board))
+                        moves_obj_list.append( (Move((row, col), tup , self.board)))
 
                     elif piece_color == 'w':
                         if (tup[0], tup[1]) == self.black_en_passant_sq:
-                            moves_obj_list.append(Move((row, col), tup, self.board, en_passant=True))
+                            moves_obj_list.append( (Move((row, col), tup, self.board, en_passant=True)))
                     elif (tup[0], tup[1]) == self.white_en_passant_sq: # As the piece is definetely black
-                        moves_obj_list.append(Move((row, col), tup, self.board,en_passant=True))
+                        moves_obj_list.append( (Move((row, col), tup, self.board,en_passant=True)))
 
 
-    def sliding_pieces_moves(self, row, col, moves_obj_list, MOVES): # This does not consider castling
-
-        piece_color = self.board[row][col][0]
+    def sliding_pieces_moves(self, row, col, moves_obj_list, piece_color, MOVES): # This does not consider castling
         for tup in MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 if self.board[row + tup[0]][col + tup[1]][0] == piece_color:
@@ -348,15 +344,13 @@ class GameState:
                         else:
                             break
 
-    def get_knight_moves(self, row, col, moves_obj_list):
-        color = self.board[row][col][0]
+    def get_knight_moves(self, row, col, moves_obj_list, piece_color):
         for tup in KNIGHT_MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
-                if self.board[tup[0] + row][tup[1] + col][0] != color:
+                if self.board[tup[0] + row][tup[1] + col][0] != piece_color:
                     moves_obj_list.append(Move((row, col), (row + tup[0], col + tup[1]), self.board))
 
-    def get_king_moves(self, row, col, moves_obj_list):
-        piece_color = self.board[row][col][0]
+    def get_king_moves(self, row, col, moves_obj_list, piece_color):
         for tup in KING_MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 if self.board[row + tup[0]][col + tup[1]][0] != piece_color:
@@ -378,7 +372,6 @@ class GameState:
                 moves_obj_list.append(Move((row, col), (row, col + 2), self.board, castle_move=True))'''
 
 
-
 class Move:
     ranks_to_rows = {'1':7, '2':6, '3':5, '4':4,
                      '5':3, '6':2, '7':1, '8':0}
@@ -387,6 +380,9 @@ class Move:
     files_to_cols = {'a':0, 'b':1, 'c':2, 'd':3,
                      'e':4, 'f':5, 'g':6, 'h':7 }
     cols_to_files = {v: k for k,v in files_to_cols.items()}
+
+    __slots__ = ('start_row', 'start_col', 'end_row', 'end_col', 'move_ID',
+                 'piece_moved', 'piece_captured', 'castle_move', 'en_passant')
 
     def __init__(self, start_sq, end_sq, board, castle_move=False, en_passant = False):
         self.start_row, self.start_col = start_sq # Tuple
@@ -432,3 +428,4 @@ class Move:
             elif (self.move_ID == other.move_ID):
                 return True
         return False
+
