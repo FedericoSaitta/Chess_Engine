@@ -126,7 +126,6 @@ def main():  # Standard game loop for a game
 
 
 ''' Responsible for all the graphics '''
-
 def load_images():
     path = '/Users/federicosaitta/PycharmProjects/Chess/Images/'
     pieces = ['wP', 'bP', 'wR', 'bR', 'wN', 'bN', 'wB', 'bB', 'wQ', 'bQ', 'wK', 'bK']

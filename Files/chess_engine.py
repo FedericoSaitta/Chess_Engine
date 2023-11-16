@@ -46,14 +46,14 @@ class GameState:
         # '--' represents that no piece is present
 
         self.board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-            'bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR',  # 0 to 7
-            'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP',  # 8 to 15
-            '--', '--', '--', '--', '--', '--', '--', '--',  # 16 to 23
-            '--', '--', '--', '--', '--', '--', '--', '--',  # 24 to 31
-            '--', '--', '--', '--', '--', '--', '--', '--',  # 32 to 39
-            '--', '--', '--', '--', '--', '--', '--', '--',  # 40 to 47
-            'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP',  # 48 to 55
-            'wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']  # 56 to 63
+            -500, -293, -300, -900, -1, -300, -293, -500,    # 0 to 7
+            -100, -100, -100, -100,-100,-100, -100, -100,    # 8 to 15
+              0,    0,    0,    0,   0,   0,    0,    0,     # 16 to 23
+              0,    0,    0,    0,   0,   0,    0,    0,     # 24 to 31
+              0,    0,    0,    0,   0,   0,    0,    0,     # 32 to 39
+              0,    0,    0,    0,   0,   0,    0,    0,     # 40 to 47
+             100,  100,  100,  100, 100, 100,  100,  100,    # 0 to 7
+             500,  293,  300,  900,  1,  300,  293,  500]    # 56 to 63
 
         self.white_to_move = True
         self.moveLog = []
@@ -96,7 +96,6 @@ class GameState:
         self.board[move.start_ind] = '--'
         self.board[move.end_ind] = move.piece_moved
         self.moveLog.append(move)
-
         self.white_to_move = not self.white_to_move  # Swap the player's move
 
     def undo_move(self):  # To reverse a move
@@ -125,7 +124,7 @@ class GameState:
 
     def get_all_valid_moves(self):  # This will take into account non-legal moves that put our king in check
         ''' As long as we switch turns an even number of times at the end we should be good'''
-        self.get_all_attacked_sq()
+
         moves = self.get_all_possible_moves()
         for i in range(len(moves) - 1, -1, -1):  # Going backwards through loop
             self.make_move(moves[i])
@@ -155,26 +154,16 @@ class GameState:
         else:
             return self.sq_under_attack(self.black_king_loc)
 
-    def get_all_attacked_sq(self):
-        starttime = timeit.default_timer()
-
-        self.white_to_move = not self.white_to_move
-        moves = self.get_all_possible_moves()
-        self.white_to_move = not self.white_to_move
-
-        attacked_sq = {move.end_ind for move in moves}
-
-        print(attacked_sq)
-        print(f"In:", timeit.default_timer() - starttime)
 
     def sq_under_attack(self, index):  # Determine if the enemy can attack the square (r, c)
-
+        '''
         king_color = self.board[index][0]
 
         col = index % 8
         row = index // 8
 
-        '''FOR THE BISHOP, ROOK AND QUEEN MOVES'''
+        starttime = timeit.default_timer()
+
         for pos, tup in enumerate(QUEEN_MOVES_tup):
             if pos < 4:
                 if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
@@ -214,15 +203,26 @@ class GameState:
                                     return True
                             else:
                                 break
+        print(f"QBR validation:", timeit.default_timer() - starttime)
 
-        '''FOR THE KNIGHT MOVES'''
+        starttime = timeit.default_timer()
+        FOR
+        THE
+        KNIGHT
+        MOVES
         for tup in KNIGHT_MOVES_tup:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 piece = self.board[8 * (row + tup[0]) + col + tup[1]]
                 if piece[0] != king_color and piece[1] == 'N':
                     return True
 
-        '''FOR THE PAWN MOVES'''
+        print(f"KNIGHT validation:", timeit.default_timer() - starttime)
+        starttime = timeit.default_timer()
+
+        FOR
+        THE
+        PAWN
+        MOVES
         white_squares = [(-1, 1), (-1, -1)]
         black_squares = [(1, 1), (1, -1)]
 
@@ -240,7 +240,9 @@ class GameState:
                     if self.board[ind] == 'wP':
                         return True
 
-        '''FOR THE KING EATING KING MOVES'''
+        print(f"PAWN validation:", timeit.default_timer() - starttime)
+        starttime = timeit.default_timer()
+
 
         for tup in KING_MOVES_tup:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
@@ -249,10 +251,11 @@ class GameState:
                 if self.board[ind][0] != king_color and self.board[ind][1] == 'K':
                     return True
 
+        print(f"KING validation:", timeit.default_timer() - starttime)'''
+
         return False
 
-    def get_all_possible_moves(
-            self):  # This will generate all possible moves, some might not be legal due to opening up our king to check etc
+    def get_all_possible_moves(self):  # This will generate all possible moves, some might not be legal due to opening up our king to check etc
         moves = []
         for ind in range(len(self.board)):
             if self.board[ind] == '--':
@@ -311,10 +314,10 @@ class GameState:
                     elif piece_color == 'w':
                         if square == self.black_en_passant_sq:
                             moves_obj_list.append((Move(ind, square, self.board, en_passant=True)))
-                    elif square == self.white_en_passant_sq:  # As the piece is definetely black
+                    elif square == self.white_en_passant_sq:     # As the piece is definetely black
                         moves_obj_list.append((Move(ind, square, self.board, en_passant=True)))
 
-    def sliding_pieces_moves(self, ind, moves_obj_list, piece_color, MOVES):  # This does not consider castling
+    def sliding_pieces_moves(self, ind, moves_obj_list, piece_color, MOVES):
         col = ind % 8
         row = ind // 8
         for tup in MOVES:
@@ -357,7 +360,6 @@ class GameState:
                 square = 8 * (row + tup[0]) + (col + tup[1])
                 if self.board[square][0] != piece_color:
                     moves_obj_list.append(Move(ind, square, self.board))
-
 
 
 class Move:
@@ -411,3 +413,5 @@ class Move:
             elif (self.move_ID == other.move_ID):
                 return True
         return False
+
+
