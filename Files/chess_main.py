@@ -6,6 +6,9 @@ import numpy as np
 import cProfile
 import pstats
 
+
+
+
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
@@ -34,16 +37,16 @@ def main():  # Standard game loop for a game
     screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
-    gs = chess_engine.GameState()
+
+    board = chess_engine.board
 
     starttime = timeit.default_timer()
-    valid_moves = gs.get_all_valid_moves()  # Note this will need to be valid moves only in the future
+    valid_moves = chess_engine.get_all_valid_moves(board)  # Note this will need to be valid moves only in the future
     print(f"Calculated {len(valid_moves)} moves in:", timeit.default_timer() - starttime)
 
     move_made = False  # Flag for when we want to generate this function
 
     load_images()  # important to do this only once (expensive process)
-
     running = True
     sq_selected = ()  # keep track of last input from user
     player_clicks = []  # keep track of player clicks, two tuples
@@ -75,17 +78,17 @@ def main():  # Standard game loop for a game
 
                     for move in valid_moves:
 
-                        notation = move.get_chess_notation(gs.board)
+                        notation = move.get_chess_notation(chess_engine.board)
 
                         if notation[1:3] == get_single_move_notation(player_clicks[0]):
                             highlight_sq.append(notation[-2:])
 
                 if len(player_clicks) == 2:
                     highlight_sq = []
-                    move = chess_engine.Move(player_clicks[0], player_clicks[1], gs.board)
+                    move = chess_engine.Move(player_clicks[0], player_clicks[1], board)
 
                     if move in valid_moves:
-                        gs.make_move(move)
+                        board = chess_engine.make_move(board.board, move)
                         move_made = True
 
                     sq_selected = ()
@@ -95,7 +98,7 @@ def main():  # Standard game loop for a game
 
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # Do not allow for undo moves for now
-                    gs.undo_move()
+                    board = chess_engine.undo_move(board)
                     move_made = True
 
                 if e.key == p.K_LEFT:  # Use these to go through previous moves
@@ -107,14 +110,14 @@ def main():  # Standard game loop for a game
                 elif e.key == p.K_r:  # To make random moves
                     ind = np.random.randint(len(valid_moves))
                     rnd_move = valid_moves[ind]
-                    gs.make_move(rnd_move)
+                    board = chess_engine.make_move(board, rnd_move)
                     move_made = True
 
         if move_made:
             #    print(f'White to play: {gs.white_to_move}')
 
             starttime = timeit.default_timer()
-            valid_moves = gs.get_all_valid_moves()  # Note this will need to be valid moves only in the future
+            valid_moves = chess_engine.get_all_valid_moves(board)  # Note this will need to be valid moves only in the future
             time = timeit.default_timer() - starttime
 
             avg_move_time.append(time)
@@ -123,7 +126,7 @@ def main():  # Standard game loop for a game
 
             move_made = False
 
-        draw_game_state(screen, gs, highlight_sq)
+        draw_game_state(screen, board, highlight_sq)
         clock.tick(MAX_FPS)
         p.display.flip()
 
@@ -136,11 +139,11 @@ def load_images():
         IMAGES[piece] = p.transform.scale(p.image.load(path + piece + '.png'), (SQ_SIZE, SQ_SIZE))
 
 
-def draw_game_state(screen, gs, highlight_sq_list):  # Drawing is done once per frame
+def draw_game_state(screen, board, highlight_sq_list):  # Drawing is done once per frame
     draw_board(screen)
     if len(highlight_sq_list) > 1:
         draw_highlights(screen, highlight_sq_list)
-    draw_pieces(screen, gs.board)
+    draw_pieces(screen, board)
 
 
 def draw_board(screen):  # Draws the squares on the board
@@ -187,10 +190,11 @@ def get_single_move_notation(move):
 if __name__ == '__main__':
     with cProfile.Profile() as profile:
         main()
-        print(f'total thinking time {np.sum(avg_move_time)}')
         print(f'Avg move gen time: {np.average(avg_move_time)}')
         print(f'Avg valid moves per turn: {np.average(avg_num_moves)}')
 
     results = pstats.Stats(profile)
-    results.sort_stats(pstats.SortKey.TIME)
-    results.print_stats()
+ #   results.sort_stats(pstats.SortKey.TIME)
+  #  results.print_stats()
+
+
