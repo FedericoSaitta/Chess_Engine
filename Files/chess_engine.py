@@ -1,11 +1,9 @@
-import timeit
-from numpy import abs
+from math import fabs
 
+import numpy as np
 
-N = -8
-S = 8
-E = 1
-W = -1
+N, S, E, W = -8, 8, 1, -1
+
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4,
                  '5': 3, '6': 2, '7': 1, '8': 0}
@@ -45,7 +43,6 @@ class GameState:
         # Each element of 8x8 has two chars, first char represents colour of piece,
         # The second one represent the type of the piece
         # '--' represents that no piece is present
-
         self.board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
             -500, -293, -300, -900, -1, -300, -293, -500,    # 0 to 7
             -100, -100, -100, -100,-100,-100, -100, -100,    # 8 to 15
@@ -54,7 +51,7 @@ class GameState:
               0,    0,    0,    0,   0,   0,    0,    0,     # 32 to 39
               0,    0,    0,    0,   0,   0,    0,    0,     # 40 to 47
              100,  100,  100,  100, 100, 100,  100,  100,    # 0 to 7
-             500,  293,  300,  900,  1,  300,  293,  500]    # 56 to 63
+             500,  293,  300,  900,  1,  300,  293,  500]
 
         self.white_to_move = True
         self.moveLog = []
@@ -256,16 +253,18 @@ class GameState:
 
         return False
 
+
     def get_all_possible_moves(self):  # This will generate all possible moves, some might not be legal due to opening up our king to check etc
         moves = []
-        for ind in range(len(self.board)):
+
+        for ind in range(64):
             if self.board[ind] == 0:
                 continue
 
-            if (self.board[ind] > 0 and self.white_to_move) or (self.board[ind] < 0and not self.white_to_move):
+            if (self.board[ind] > 0 and self.white_to_move) or (self.board[ind] < 0 and not self.white_to_move):
 
-                piece = abs(self.board[ind])
-                piece_col = 'w' if self.board[ind] > 0 else 'b'# True for
+                piece = fabs(self.board[ind])
+                piece_col = 'w' if self.board[ind] > 0 else 'b'  # True for
 
                 if piece == 100:
                     self.get_pawn_moves(ind, moves)
@@ -283,12 +282,16 @@ class GameState:
 
         return moves
 
-    def get_pawn_moves(self, ind, moves_obj_list):
 
+
+
+
+    def get_pawn_moves(self, ind, moves_obj_list):
+        board = self.board
         col = ind % 8
         row = ind // 8
 
-        if self.board[ind] > 0:
+        if board[ind] > 0:
             poss_moves = [(row - 1, col), (row - 1, col - 1), (row - 1, col + 1)]
         else:
             poss_moves = [(row + 1, col), (row + 1, col - 1), (row + 1, col + 1)]
@@ -297,52 +300,55 @@ class GameState:
             if -1 < tup[0] < 8 and -1 < tup[1] < 8:
                 square = 8 * tup[0] + tup[1]
                 if index == 0:
-                    if self.board[square] == 0:
-                        moves_obj_list.append(Move(ind, square, self.board))
+                    if board[square] == 0:
+                        moves_obj_list.append(Move(ind, square, board))
 
                         if row == 1 and self.board[ind] < 0:  # Checking for double move
                             square = 8 * tup[0] + tup[1] + 8
-                            if self.board[square] == 0:
-                                moves_obj_list.append((Move(ind, square, self.board)))
+                            if board[square] == 0:
+                                moves_obj_list.append((Move(ind, square, board)))
 
-                        elif row == 6 and self.board[ind] > 0:
+                        elif row == 6 and board[ind] > 0:
                             square = 8 * tup[0] + tup[1] - 8
-                            if self.board[square] == 0:
-                                moves_obj_list.append((Move(ind, square, self.board)))
+                            if board[square] == 0:
+                                moves_obj_list.append((Move(ind, square, board)))
                 else:
-                    if self.board[square] != self.board[ind] and self.board[square] != 0:
-                        moves_obj_list.append((Move(ind, square, self.board)))
+                    if board[square] != board[ind] and board[square] != 0:
+                        moves_obj_list.append((Move(ind, square, board)))
 
-                    elif self.board[ind] > 0:
+                    elif board[ind] > 0:
                         if square == self.black_en_passant_sq:
-                            moves_obj_list.append((Move(ind, square, self.board, en_passant=True)))
+                            moves_obj_list.append((Move(ind, square, board, en_passant=True)))
                     elif square == self.white_en_passant_sq:     # As the piece is definetely black
-                        moves_obj_list.append((Move(ind, square, self.board, en_passant=True)))
+                        moves_obj_list.append((Move(ind, square, board, en_passant=True)))
 
     def sliding_pieces_moves(self, ind, moves_obj_list, piece_col, MOVES):
+
+        board = self.board
+
         col = ind % 8
         row = ind // 8
 
-        colour = 'w' if self.board[ind] > 0 else 'b'
+        colour = 'w' if board[ind] > 0 else 'b'
         for tup in MOVES:
             if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
                 square = 8 * (row + tup[0]) + (col + tup[1])
-                if (self.board[square] != 0) and (self.board[square] > 0) == (self.board[ind] > 0):
+                if (board[square] != 0) and (board[square] > 0) == (board[ind] > 0):
                     continue
-                elif self.board[square] != 0:
-                    moves_obj_list.append(Move(ind, square, self.board))
+                elif board[square] != 0:
+                    moves_obj_list.append(Move(ind, square, board))
                     continue
                 else:
                     for mul in range(1, 8):
                         if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
                             square = 8 * (row + mul * tup[0]) + (col + mul * tup[1])
-                            if (self.board[square] != 0) and (self.board[square] > 0) == (self.board[ind] > 0):
+                            if (board[square] != 0) and (board[square] > 0) == (board[ind] > 0):
                                 break
-                            elif self.board[square] != 0:
-                                moves_obj_list.append(Move(ind, square, self.board))
+                            elif board[square] != 0:
+                                moves_obj_list.append(Move(ind, square, board))
                                 break
                             else:
-                                moves_obj_list.append(Move(ind, square, self.board))
+                                moves_obj_list.append(Move(ind, square, board))
                         else:
                             break
 
@@ -395,7 +401,7 @@ class Move:
         start_rank_file = self.get_rank_file(self.start_ind)
         end_rank_file = self.get_rank_file(self.end_ind)
 
-        if abs(piece) == 100:
+        if fabs(piece) == 100:
             if board[self.end_ind] != 0:
                 return dict[piece][1:] + start_rank_file + ' x ' + end_rank_file
 
@@ -421,5 +427,3 @@ class Move:
             elif (self.move_ID == other.move_ID):
                 return True
         return False
-
-
