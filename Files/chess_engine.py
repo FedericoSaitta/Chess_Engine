@@ -1,5 +1,5 @@
 from math import fabs
-from numba import njit
+
 
 '''CONSTANTS needed for look-ups'''
 N, S, E, W = -8, 8, 1, -1
@@ -35,16 +35,15 @@ QUEEN_MOVES_tup = [(1, 1), (1, -1), (-1, 1), (-1, -1),  # Diagonal
 
 '''Here are the variables that will be re-assigned and changed during run time'''
 
-board = [  # 1D Board                                     # Left right is +/- 1 and up and down is +/- 8
-         -500, -293, -300, -900, -1, -300, -293, -500,    # 0 to 7
-         -100, -100, -100, -100,-100,-100, -100, -100,    # 8 to 15
-            0,    0,    0,    0,   0,   0,    0,   0,     # 16 to 23
-            0,    0,    0,    0,   0,   0,    0,   0,     # 24 to 31
-            0,    0,    0,    0,   0,   0,    0,   0,     # 32 to 39
-            0,    0,    0,    0,   0,   0,    0,   0,     # 40 to 47
-           100,  100,  100,  100, 100, 100,  100, 100,    # 48 to 55
-           500,  293,  300,  900,  1,  300,  293, 500     # 56 to 63
-        ]
+board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
+    500, 293, -300, -900, -1, -300, -293, -500,  # 0 to 7
+    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
+    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
+    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
+    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
+    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
+    100, 100, 100, 100, 100, 100, 100, 100,  # 0 to 7
+    500, 293, 300, 900, 1, 300, 293, 500]
 
 
 white_to_move = True
@@ -224,11 +223,9 @@ def in_check(board):
     else:
         return sq_under_attack(board, black_king_loc)
 
-
 def get_pawn_moves(board, ind):
     global white_en_passant_sq, black_en_passant_sq
 
-    moves = []
     col = ind % 8
     row = ind // 8
 
@@ -242,31 +239,28 @@ def get_pawn_moves(board, ind):
             square = 8 * tup[0] + tup[1]
             if index == 0:
                 if board[square] == 0:
-                    moves.append((ind, square, board))
+                    yield ((ind, square, board))
 
                     if row == 1 and board[ind] < 0:  # Checking for double move
                         square = 8 * tup[0] + tup[1] + 8
                         if board[square] == 0:
-                            moves.append((ind, square, board))
+                            yield ((ind, square, board))
 
                     elif row == 6 and board[ind] > 0:
                         square = 8 * tup[0] + tup[1] - 8
                         if board[square] == 0:
-                            moves.append((ind, square, board))
+                            yield ((ind, square, board))
             else:
                 if board[square] != board[ind] and board[square] != 0:
-                    moves.append((ind, square, board))
+                    yield ((ind, square, board))
 
 #                elif board[ind] > 0:
 #                    if square == black_en_passant_sq:
 #                        moves.append((ind, square, board, en_passant=True))
 #                    elif square == white_en_passant_sq:  # As the piece is definetely black
 #                        moves.append((ind, square, board, en_passant=True))
-    return moves
-
 
 def sliding_pieces_moves(board, ind, MOVES):
-    moves = []
 
     col = ind % 8
     row = ind // 8
@@ -278,7 +272,7 @@ def sliding_pieces_moves(board, ind, MOVES):
             if (board[square] != 0) and (board[square] > 0) == (board[ind] > 0):
                 continue
             elif board[square] != 0:
-                    moves.append((ind, square, board))
+                    yield ((ind, square, board))
                     continue
             else:
                 for mul in range(1, 8):
@@ -287,17 +281,15 @@ def sliding_pieces_moves(board, ind, MOVES):
                         if (board[square] != 0) and (board[square] > 0) == (board[ind] > 0):
                             break
                         elif board[square] != 0:
-                            moves.append((ind, square, board))
+                            yield ((ind, square, board))
                             break
                         else:
-                            moves.append((ind, square, board))
+                            yield ((ind, square, board))
                     else:
                         break
 
-    return moves
 
 def get_knight_moves(board, ind):
-    moves = []
     col = ind % 8
     row = ind // 8
 
@@ -305,12 +297,10 @@ def get_knight_moves(board, ind):
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * (row + tup[0]) + (col + tup[1])
             if (board[square] == 0) or (board[square] >  0) != (board[ind] > 0):
-                    moves.append((ind, square, board))
+                    yield ((ind, square, board))
 
-    return moves
 
 def get_king_moves(board, ind):
-    moves = []
     col = ind % 8
     row = ind // 8
 
@@ -318,8 +308,7 @@ def get_king_moves(board, ind):
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * (row + tup[0]) + (col + tup[1])
             if (board[square] == 0) or (board[square] >  0) != (board[ind] > 0):
-                moves.append((ind, square, board))
-    return moves
+                yield((ind, square, board))
 
 def get_all_possible_moves(board):
     global white_to_move
@@ -337,15 +326,20 @@ def get_all_possible_moves(board):
             if piece == 100:
                 moves.extend(get_pawn_moves(board, ind))
             elif piece == 500:
+
                 moves.extend(sliding_pieces_moves(board, ind, ROOK_MOVES_tup))
             elif piece == 293:
+
                 moves.extend(get_knight_moves(board, ind))
             elif piece == 300:
+
                 moves.extend(sliding_pieces_moves(board, ind, BISHOP_MOVES_tup))
             elif piece == 900:
+
                 moves.extend(sliding_pieces_moves(board, ind, ROOK_MOVES_tup))
                 moves.extend(sliding_pieces_moves(board, ind,  BISHOP_MOVES_tup))
             elif piece == 1:
+
                 moves.extend(get_king_moves(board, ind))
 
     moves = [Move(tup[0], tup[1], tup[2]) for tup in moves]
@@ -378,10 +372,6 @@ def get_all_valid_moves(board):  # This will take into account non-legal moves t
             check_mate, stale_mate = False, False
 
     return moves
-
-
-
-
 
 class Move:
 

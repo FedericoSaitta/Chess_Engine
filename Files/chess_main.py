@@ -1,13 +1,10 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
-from Files import chess_engine
+import chess_engine
 import timeit
 import numpy as np
 import cProfile
 import pstats
-
-
-
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
@@ -116,13 +113,13 @@ def main():  # Standard game loop for a game
         if move_made:
             #    print(f'White to play: {gs.white_to_move}')
 
-            starttime = timeit.default_timer()
+            start = timeit.default_timer()
             valid_moves = chess_engine.get_all_valid_moves(board)  # Note this will need to be valid moves only in the future
-            time = timeit.default_timer() - starttime
+            time = timeit.default_timer() - start
 
             avg_move_time.append(time)
             avg_num_moves.append(len(valid_moves))
-            print(f"Calculated {len(valid_moves)} moves in:", timeit.default_timer() - starttime)
+            print(f"Calculated {len(valid_moves)} moves in:", time)
 
             move_made = False
 
@@ -186,6 +183,8 @@ def get_single_move_notation(move):
     r = move // 8
     return cols_to_files[c] + rows_to_ranks[r]
 
+def dsflsdfj(sdkjfh):
+    pass
 
 if __name__ == '__main__':
     with cProfile.Profile() as profile:
