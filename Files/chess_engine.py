@@ -36,7 +36,7 @@ QUEEN_MOVES_tup = [(1, 1), (1, -1), (-1, 1), (-1, -1),  # Diagonal
 '''Here are the variables that will be re-assigned and changed during run time'''
 
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    500, 293, -300, -900, -1, -300, -293, -500,  # 0 to 7
+    -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
     -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
     0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
     0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
