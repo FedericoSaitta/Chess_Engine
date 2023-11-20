@@ -36,9 +36,10 @@ def main():  # Standard game loop for a game
     screen.fill(p.Color('white'))
 
     board = chess_engine.board
+    dict = chess_engine.general_dict
 
     starttime = timeit.default_timer()
-    valid_moves = chess_engine.get_all_valid_moves(board)  # Note this will need to be valid moves only in the future
+    valid_moves = chess_engine.get_all_valid_moves(board, dict)  # Note this will need to be valid moves only in the future
     print(f"Calculated {len(valid_moves)} moves in:", timeit.default_timer() - starttime)
 
     move_made = False  # Flag for when we want to generate this function
@@ -85,7 +86,7 @@ def main():  # Standard game loop for a game
                     move = chess_engine.Move(player_clicks[0], player_clicks[1], board)
 
                     if move in valid_moves:
-                        board = chess_engine.make_move(board.board, move)
+                        board, dict = chess_engine.make_move(board, move, dict)
                         move_made = True
 
                     sq_selected = ()
@@ -95,7 +96,7 @@ def main():  # Standard game loop for a game
 
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # Do not allow for undo moves for now
-                    board = chess_engine.undo_move(board)
+                    board, dict = chess_engine.undo_move(board, dict)
                     move_made = True
 
                 if e.key == p.K_LEFT:  # Use these to go through previous moves
@@ -107,14 +108,14 @@ def main():  # Standard game loop for a game
                 elif e.key == p.K_r:  # To make random moves
                     ind = np.random.randint(len(valid_moves))
                     rnd_move = valid_moves[ind]
-                    board = chess_engine.make_move(board, rnd_move)
+                    board, dict = chess_engine.make_move(board, rnd_move, dict)
                     move_made = True
 
         if move_made:
             #    print(f'White to play: {gs.white_to_move}')
 
             start = timeit.default_timer()
-            valid_moves = chess_engine.get_all_valid_moves(board)  # Note this will need to be valid moves only in the future
+            valid_moves = chess_engine.get_all_valid_moves(board, dict)  # Note this will need to be valid moves only in the future
             time = timeit.default_timer() - start
 
             avg_move_time.append(time)
