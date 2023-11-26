@@ -27,10 +27,10 @@ WHITE_PAWN_MOVES = ( (-1, 0), (- 1, -1), (-1, 1) )
 BLACK_PAWN_MOVES = ( (1, 0), (1, -1), (1, 1) )
 
 
-WHITE_CASTLE_SQ = ( (-1, -1), (-1, 1), (-1, 0),          # Diagonal and vertical moves
+WHITE_CASTLE_SQ = ( (-1, -1, {300, 900}), (-1, 1, {300, 900}), (-1, 0, {500, 900}),          # Diagonal and vertical moves
                     (-1, -2), (-1, 2), (-2, -1), (-2, 1) )  # Knight moves
 
-BLACK_CASTLE_SQ = ( (1, -1), (1, 1), (1, 0),          # Diagonal and vertical moves
+BLACK_CASTLE_SQ = ( (1, -1, {300, 900}), (1, 1, {300, 900}), (1, 0, {500, 900}),          # Diagonal and vertical moves
                     (1, -2), (1, 2), (2, -1), (2, 1) )  # Knight moves
 
 
@@ -39,12 +39,12 @@ BLACK_CASTLE_SQ = ( (1, -1), (1, 1), (1, 0),          # Diagonal and vertical mo
 
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
     -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
-    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
+    0, 0, 0, 0, -100, 0, 0, 0,  # 8 to 15
       0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
       0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
       0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
       0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-     100, 100, 100, 100, 100, 100, 100, 100,  # 0 to 7
+     0, 0, 0, 0, 100, 0, 0, 0,  # 0 to 7
      500, 293, 300, 900, 1, 300, 293, 500]
 
 # Dictionary with kwargs needed
@@ -124,55 +124,43 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
 
 # There are some problems with this function
     for index, tup in enumerate(MOVES):
-        if index < 2:  # Diagonals
+        if index < 3:  # Diagonals
             square = 8 * (row + tup[0]) + tup[1] + col
             if ((board[square] > 0) != king_color) and board[square] != 0: # Checks for colour
                 piece = fabs(board[square])
-                if piece == 100 or piece == 300 or piece == 900 or piece == 1:
+                if piece in tup[2] or (index < 2 and (piece == 100 or piece == 1)):
                     return False                                   # So that side cannot castle
             elif board[square] != 0:
-                print('there is an allied piece protecting')
                 continue # As there is a piece of your own colour
             else: # We need to keep looking ahead
-                for mul in range(2, 7):
-                    print('we are looking at futher squares')
+                for mul in range(2, 8):
                     if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
                         square = 8 * (row + mul * tup[0]) + (col + mul * tup[1])
-
-                        print(square)
-
                         if ((board[square] > 0) != king_color) and board[square] != 0:
-                            print('we are looking at an enemy piece')
                             piece = fabs(board[square])
-                            if piece == 300 or piece == 900:
+                            if piece in tup[2]:
                                 return False
                             else:
                                 break  # We need to break out as enemy piece that cant capture is blocking
                         elif board[square] == 0:
-                            print('there is a blank space')
                             continue
                         else:
                             break
                     else:
                         break
-
-        elif index == 2: # Verticals
-            pass
-
         else:  # Knight moves
-            pass
-
-
-
-
+            square = 8 * (row + tup[0]) + tup[1] + col
+            if ((board[square] > 0) != king_color) and board[square] != 0:  # Checks for colour
+                piece = fabs(board[square])
+                if piece == 293:
+                    return False  # So that side cannot castle
     return True
 
 def in_check(board, dict):
-
     if dict['white_to_move']:
         return un_attacked_sq(board, dict['white_king_loc'])
     else:
-        return un_attacked_sq(board, dict['blakc_king_loc'])
+        return un_attacked_sq(board, dict['black_king_loc'])
 
 def get_P_moves(moves, board, ind, row, col, dict, MOVES):
     for index, tup in enumerate(MOVES):
@@ -213,6 +201,7 @@ def get_Sliding_moves(moves, board, ind, row, col, MOVES):
                     moves.append(Move(ind, square, board))
                     continue  # Means that it is an enemy piece
             else:
+
                 moves.append(Move(ind, square, board))
 
                 for mul in range(2, 8):
@@ -235,11 +224,12 @@ def get_N_moves(moves, board, ind, row, col):
             if (board[square] == 0) or (board[square] >  0) != (board[ind] > 0):
                     moves.append(Move(ind, square, board))
 
+
 def get_K_moves(moves, board, ind, row, col, dict):
     for tup in KING_MOVES:
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * (row + tup[0]) + (col + tup[1])
-            if (board[square] == 0) or (board[square] >  0) != (board[ind] > 0):
+            if (board[square] == 0) or ((board[square] >  0) != (board[ind] > 0)):
                 moves.append(Move(ind, square, board))
 
     # Now checking for castling
@@ -248,16 +238,20 @@ def get_K_moves(moves, board, ind, row, col, dict):
             if board[61] == 0 and board[62] == 0:
                 if (un_attacked_sq(board, 61, 7, 5, dict, True)) and (un_attacked_sq(board, 62, 7, 6, dict, True)):
                     moves.append(Move(ind, 62, board, (True, False)))
-        elif dict['white_castle'][1]:
-            pass
 
+        if dict['white_castle'][1]:
+            if board[59] == 0 and board[58] == 0:
+                if (un_attacked_sq(board, 59, 7, 3, dict, True)) and (un_attacked_sq(board, 58, 7, 2, dict, True)):
+                    moves.append(Move(ind, 58, board, (True, False)))
     else:
         if dict['black_castle'][0]:
             if board[5] == 0 and board[6] == 0:
-                if (un_attacked_sq(board, 5, 0, 5, dict, True)) and (un_attacked_sq(board, 6, 0, 6, dict, True)):
+                if (un_attacked_sq(board, 5, 0, 5, dict, False)) and (un_attacked_sq(board, 6, 0, 6, dict, False)):
                     moves.append(Move(ind, 6, board, (True, False)))
-        elif dict['black_castle'][1]:
-            pass
+        if dict['black_castle'][1]:
+            if board[3] == 0 and board[2] == 0:
+                if (un_attacked_sq(board, 3, 0, 3, dict, False)) and (un_attacked_sq(board, 2, 0, 2, dict, False)):
+                    moves.append(Move(ind, 2, board, (True, False)))
 
 def get_all_possible_moves(board, dict): # Using all these if statements as it is fastest
     moves = []
