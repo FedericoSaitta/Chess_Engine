@@ -39,13 +39,13 @@ BLACK_CASTLE_SQ = ( (1, -1, {300, 900}), (1, 1, {300, 900}), (1, 0, {500, 900}),
 
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
     -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
-    0, 0, 0, 0, -100, 0, 0, 0,  # 8 to 15
-      0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
-      0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
-      0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
-      0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-     0, 0, 0, 0, 100, 0, 0, 0,  # 0 to 7
-     500, 293, 300, 900, 1, 300, 293, 500]
+    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
+    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
+    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
+    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
+    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
+    100, 100, 100, 100, 100, 100, 100, 100,  # 0 to 7
+    500, 293, 300, 900, 1, 300, 293, 500]
 
 # Dictionary with kwargs needed
 general_dict = {'white_to_move': True,
@@ -57,8 +57,12 @@ general_dict = {'white_to_move': True,
                 'stale_mate': False,
                 'move_log': [],
                 'white_castle': [True, True],  #[Left, Right]
-                'black_castle': [True, True]   # These simply state wether the right is still there, not if the move
-}                                              # is possible at the current turn
+                'black_castle': [True, True], # These simply state wether the right is still there, not if the move
+                'white_lost_castle': None,
+                'black_lost_castle': None
+}
+
+
 
 
 def make_move(board, move, dict):
@@ -80,8 +84,6 @@ def make_move(board, move, dict):
         if move.piece_moved == 1:
             dict['white_castle'] = [False, False]
         if move.piece_moved == 500:
-            print('white moved a rook')
-            print(move.start_ind)
             if move.start_ind == 63:
                 dict['white_castle'][1] = False
             else:
