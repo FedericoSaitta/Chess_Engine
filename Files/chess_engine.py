@@ -75,6 +75,36 @@ def make_move(board, move, dict):
         elif move.start_ind // 8 == 6 and move.end_ind // 8 == 4:
             dict['white_en_passant_sq'] = move.end_ind + 8
 
+    '''Checks if castling rights should be removed'''
+    if fabs(move.piece_moved) == 500 or fabs(move.piece_moved) == 1 or fabs(move.piece_captured) == 500:
+        if move.piece_moved == 1:
+            dict['white_castle'] = [False, False]
+        if move.piece_moved == 500:
+            print('white moved a rook')
+            print(move.start_ind)
+            if move.start_ind == 63:
+                dict['white_castle'][1] = False
+            else:
+                dict['white_castle'][0] = False
+        if move.piece_captured == 500:
+            if move.end_ind == 63:
+                dict['white_castle'][1] = False
+            else:
+                dict['white_castle'][0] = False
+
+        if move.piece_moved == -1:
+            dict['black_castle'] = [False, False]
+        if move.piece_moved == -500:
+            if move.start_ind == 7:
+                dict['black_castle'][1] = False
+            else:
+                dict['black_castle'][0] = False
+        if move.piece_captured == -500:
+            if move.end_ind == 7:
+                dict['black_castle'][1] = False
+            else:
+                dict['black_castle'][0] = False
+
     '''If the move is an en-passant'''
     if move.en_passant:
         if move.piece_moved > 0:
@@ -82,15 +112,32 @@ def make_move(board, move, dict):
         else:
             board[move.end_ind - 8] = 0
 
-    board[move.start_ind], board[move.end_ind] = 0, move.piece_moved
+    '''If the move is a castling move'''
+    if move.castle_move:
+        if move.piece_moved > 0:
+            if move.end_ind == 62:  # Right castle
+                dict['white_castle'][1] = False
+                board[63], board[61] = 0, 500
+            else:
+                dict['white_castle'][0] = False
+                board[56], board[59] = 0, 500
 
+        else:
+            if move.end_ind == 6: # Right castle
+                dict['black_castle'][1] = False
+                board[7], board[5] = 0, -500
+            else:
+                dict['black_castle'][0] = False
+                board[0], board[3] = 0, -500
+
+    board[move.start_ind], board[move.end_ind] = 0, move.piece_moved
     dict['move_log'].append(move)
     dict['white_to_move'] = not dict['white_to_move']  # Swap the player's move
 
     return board, dict
 
-def undo_move(board, dict):
-
+def undo_move(board, dict): # This method doesn't need to be super efficient as it should not be used anyway, unless the
+                            # player needs to, engine should not use it to see for checks
     if len(dict['move_log']) > 0:
         move = dict['move_log'].pop()
         if move.en_passant:
@@ -102,7 +149,36 @@ def undo_move(board, dict):
         board[move.start_ind], board[move.end_ind] = move.piece_moved, move.piece_captured
         dict['white_to_move'] = not dict['white_to_move']
 
-        # Keep track of white_king loc and black one too if you implement this  # Doesnt yet work with castling
+        '''Keep track of castling'''
+        if move.castle_move:
+            if move.end_ind == 62:
+                board[61], board[63] = 0, 500
+                dict['white_castle'][1] = True
+
+            elif move.end_ind == 59:
+                board[59], board[56] = 0, 500
+                dict['white_castle'][0] = True
+
+            elif move.end_ind == 6:
+                board[5], board[7] = 0, -500
+                dict['black_castle'][1] = True
+            else:
+                board[3], board[0] = 0, -500
+                dict['black_castle'][0] = True
+
+        '''Need to give back rights if it was a king move or a rook move/capture'''
+        if move.piece_moved == 1:
+            pass
+
+        elif move.piece_moved == -1:
+            pass
+        if move.piece_moved == 500 or move.piece_captured == 500:
+            pass
+        elif move.piece_moved == -500 or move.piece_captured == -500:
+            pass
+
+
+
 
         if move.piece_moved == 1:
             dict['white_king_loc'] = move.start_ind
@@ -224,7 +300,6 @@ def get_N_moves(moves, board, ind, row, col):
             if (board[square] == 0) or (board[square] >  0) != (board[ind] > 0):
                     moves.append(Move(ind, square, board))
 
-
 def get_K_moves(moves, board, ind, row, col, dict):
     for tup in KING_MOVES:
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
@@ -234,21 +309,21 @@ def get_K_moves(moves, board, ind, row, col, dict):
 
     # Now checking for castling
     if dict['white_to_move']:
-        if dict['white_castle'][0]:
+        if dict['white_castle'][1]:
             if board[61] == 0 and board[62] == 0:
                 if (un_attacked_sq(board, 61, 7, 5, dict, True)) and (un_attacked_sq(board, 62, 7, 6, dict, True)):
                     moves.append(Move(ind, 62, board, (True, False)))
 
-        if dict['white_castle'][1]:
+        if dict['white_castle'][0]:
             if board[59] == 0 and board[58] == 0:
                 if (un_attacked_sq(board, 59, 7, 3, dict, True)) and (un_attacked_sq(board, 58, 7, 2, dict, True)):
                     moves.append(Move(ind, 58, board, (True, False)))
     else:
-        if dict['black_castle'][0]:
+        if dict['black_castle'][1]:
             if board[5] == 0 and board[6] == 0:
                 if (un_attacked_sq(board, 5, 0, 5, dict, False)) and (un_attacked_sq(board, 6, 0, 6, dict, False)):
                     moves.append(Move(ind, 6, board, (True, False)))
-        if dict['black_castle'][1]:
+        if dict['black_castle'][0]:
             if board[3] == 0 and board[2] == 0:
                 if (un_attacked_sq(board, 3, 0, 3, dict, False)) and (un_attacked_sq(board, 2, 0, 2, dict, False)):
                     moves.append(Move(ind, 2, board, (True, False)))
