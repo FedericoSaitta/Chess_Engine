@@ -110,7 +110,7 @@ def main():
 
             avg_move_time.append(time)
             avg_num_moves.append(len(valid_moves))
-            print(f"Calculated {len(valid_moves)} moves in:", time)
+            print("Calculated {} moves in: {}".format(len(valid_moves), time))
 
             move_made = False
 
@@ -174,7 +174,7 @@ def get_single_move_notation(move):
 if __name__ == '__main__':
     with cProfile.Profile() as profile:
         main()
-        print(f'Moves per sec: {(1 / np.average(avg_move_time)) * np.average(avg_num_moves)}')
+        print('Moves per sec: {}'.format((1 / np.average(avg_move_time)) * np.average(avg_num_moves)))
 
     #results = pstats.Stats(profile)
     #results.sort_stats(pstats.SortKey.TIME)
