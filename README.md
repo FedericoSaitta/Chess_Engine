@@ -9,7 +9,7 @@ The aim to to write a chess engine that is at least around the 1700 level on che
 - Generates all possible moves for each piece by looping until an obstacle or enemy piece is hit
 - Removes the moves which dont stop an enemy piece from attacking your own kind (not legal moves due to check)
 - legal moves are validated by keeping track of pins
-- 180 000 moves/sec (pseudo-legal) with Cython compilation. 
+- Can generate 180 000 moves/sec (pseudo-legal) with Cython compilation. 
 
 ## Board Evaluation: 
 -To be implemented soon
