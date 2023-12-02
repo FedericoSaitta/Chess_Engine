@@ -27,10 +27,10 @@ WHITE_PAWN_MOVES = ( (-1, 0), (- 1, -1), (-1, 1) )
 BLACK_PAWN_MOVES = ( (1, 0), (1, -1), (1, 1) )
 
 
-WHITE_CASTLE_SQ = ( (-1, -1, {300, 900}), (-1, 1, {300, 900}), (-1, 0, {500, 900}),          # Diagonal and vertical moves
+WHITE_CASTLE_SQ = ( (-1, -1, {300, 900}), (-1, 1, {300, 900}), (-1, 0, {500, 900}), # Diagonal and vertical moves
                     (-1, -2), (-1, 2), (-2, -1), (-2, 1) )  # Knight moves
 
-BLACK_CASTLE_SQ = ( (1, -1, {300, 900}), (1, 1, {300, 900}), (1, 0, {500, 900}),          # Diagonal and vertical moves
+BLACK_CASTLE_SQ = ( (1, -1, {300, 900}), (1, 1, {300, 900}), (1, 0, {500, 900}), # Diagonal and vertical moves
                     (1, -2), (1, 2), (2, -1), (2, 1) )  # Knight moves
 
 
@@ -38,16 +38,16 @@ BLACK_CASTLE_SQ = ( (1, -1, {300, 900}), (1, 1, {300, 900}), (1, 0, {500, 900}),
 '''Here are the variables that will be re-assigned and changed during run time'''
 
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
+    -500, -293, -300, -900,   -1, -300, -293, -500,  # 0 to 7
     -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
-    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
-    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
-    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
-    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-    100, 100, 100, 100, 100, 100, 100, 100,  # 0 to 7
-    500, 293, 300, 900, 1, 300, 293, 500]
+      0 ,   0 ,   0 ,   0 ,   0 ,   0 ,   0 ,   0 ,  # 16 to 23
+      0 ,   0 ,   0 ,   0 ,   0 ,   0 ,   0 ,   0 ,  # 24 to 31
+      0 ,   0 ,   0 ,   0 ,   0 ,   0 ,   0 ,   0 ,  # 32 to 39
+      0 ,   0 ,   0 ,   0 ,   0 ,   0 ,   0 ,   0 ,  # 40 to 47
+     100,  100,  100,  100,  100,  100,  100,  100,  # 48 to 55
+     500,  293,  300,  900,   1 ,  300,  293,  500]  # 56 to 63
 
-# Dictionary with kwargs needed
+# Dictionary with kwargs needed during a game
 general_dict = {'white_to_move': True,
                 'white_king_loc': 60,
                 'black_king_loc': 4,
@@ -60,7 +60,6 @@ general_dict = {'white_to_move': True,
                 'black_castle': [True, True], # These simply state whether the right is still there, not if the move
                 'castle_rights_log': []  # [left, right], even means white, odd means black, each turn a tuple of two
                                                            # values is added
-
 }
 
 def make_move(board, move, dict):
