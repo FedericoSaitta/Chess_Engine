@@ -391,7 +391,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
             valid_squares = []
 
             if fabs(piece_checking) == 293:
-                valid_squares = [(check_row * 8 + check_col)]
+                valid_squares = [(check_sq)]
             else:
                 for mul in range(1, 8):
                     valid_sq = (king_sq + mul * check[2] * 8 + mul * check[3] )
@@ -464,7 +464,7 @@ def check_pins_and_checks(board, col, row, dict):
             end_piece = board[end_col + end_row * 8]
             if end_piece == enemy_col and fabs(end_piece == 293):
                 in_check = True
-                checks.append(end_row, end_col, tup[0], tup[1])
+                checks.append((end_row, end_col, tup[0], tup[1]))
 
     dict['in_check'], dict['pins_list'], dict['checks_list'] = in_check, pins, checks
     return dict
