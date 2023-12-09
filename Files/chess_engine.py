@@ -175,7 +175,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
     # if there is a queen or a rook, do pawns separately, should also check knights separately
 
     # Need to make sure this works well
-    # And with all the pieces
+    # And with all the piece
     if king_color: # Means that it is a white king
         MOVES = WHITE_CASTLE_SQ
     else:
