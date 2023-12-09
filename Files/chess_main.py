@@ -72,7 +72,6 @@ def main():
 
 
                     for move in valid_moves:
-
                         notation = move.get_chess_notation(chess_engine.board)
 
                         if notation[1:3] == get_single_move_notation(player_clicks[0]):
@@ -83,7 +82,7 @@ def main():
                     move = chess_engine.Move(player_clicks[0], player_clicks[1], board)
 
                     if move in valid_moves:
-                        board, dict = chess_engine.make_move(board, move, dict)
+                        board = chess_engine.make_move(board, move, dict)
                         move_made = True
 
                     sq_selected = ()
@@ -93,13 +92,13 @@ def main():
 
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # Do not allow for undo moves for now
-                    board, dict = chess_engine.undo_move(board, dict)
+                    board = chess_engine.undo_move(board, dict)
                     move_made = True
 
                 elif e.key == p.K_r:  # To make random moves
                     ind = np.random.randint(len(valid_moves))
                     rnd_move = valid_moves[ind]
-                    board, dict = chess_engine.make_move(board, rnd_move, dict)
+                    board = chess_engine.make_move(board, rnd_move, dict)
                     move_made = True
 
         if move_made:
