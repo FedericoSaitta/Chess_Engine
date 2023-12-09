@@ -14,7 +14,7 @@ BISHOP_MOVES = ( (1, 1), (1, -1), (-1, 1), (-1, -1) )
 ROOK_MOVES = ( (1, 0), (-1, 0), (0, 1), (0, -1) )
 
 KING_MOVES = ( (1, 0), (-1, 0), (0, 1), (0, -1),  # These are moves that look forwards
-               (-1, -1), (1, -1), (1, 1), (-1, 1) )   # These look diagonally
+               (-1, -1), (-1, 1), (1, 1), (1, -1) )   # These look diagonally
 
 DIRECTIONS_WITH_PIECES = ( (-1, -1, {300, 900}), (-1, 1, {300, 900}), ( 1, -1, {300, 900}), ( 1,  1, {300, 900}),
                            (-1,  0, {500, 900}), ( 1, 0, {500, 900}), ( 0,  1, {500, 900}), ( 0, -1, {500, 900}) )
@@ -182,11 +182,13 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
     '''Sometimes if a piece is attacking king, then the king can eat that piece even though it is defended'''
 
     for index, tup in enumerate(DIRECTIONS_WITH_PIECES):  # First 4 are diagonals, last 4 are verticals
+        print(row, col)
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * (row + tup[0]) + tup[1] + col
             if ((board[square] > 0) != king_color) and board[square] != 0: # Checks for colour
                 piece = fabs(board[square])
-                if piece in tup[2] or (index < 2 and (piece == 100 and king_color)) or (1 < index < 4 and (piece == 100 and not king_color)) or piece == 1:
+                print(piece)
+                if (piece in tup[2]) or (index < 2 and (piece == 100 and king_color)) or (1 < index < 4 and (piece == 100 and not king_color)) or piece == 1:
                     return False
             elif board[square] != 0:
                 continue # As there is a piece of your own colour
@@ -326,7 +328,8 @@ def get_K_moves(moves, board, ind, row, col, dict):
 
     king_color = True if board[ind] == 1 else False
 
-    for move in local_moves:
+    for i in range(len(local_moves) - 1, -1, -1):
+        move = local_moves[i]
         index = move.end_ind
         column, horizontal = index % 8, index // 8
         # Now we need to check these as they are pseudo legal
@@ -430,7 +433,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
         moves = get_all_possible_moves(board, dict)
 
     available_moves = [move.get_chess_notation(board) for move in moves]
-   # print(dict['checks_list'], dict['pins_list'], dict['in_check'] )
+    print(dict['checks_list'], dict['pins_list'], dict['in_check'] )
 
     if len(moves) == 0:
         if dict['in_check']:
@@ -468,7 +471,7 @@ def check_pins_and_checks(board, col, row, dict):
                     type = fabs(end_piece)
 
                     if (index <= 3 and type == 500) or (index >= 4 and type == 300) or \
-                        (mul == 1 and type == 100 and ( (enemy_col == 1 and (4 <= index <= 5)) or (enemy_col == -1 and (6 <= index <= 7)) ) )  \
+                        (mul == 1 and type == 100 and ( (enemy_col == -1 and (4 <= index <= 5)) or (enemy_col == 1 and (6 <= index <= 7)) ) )  \
                         or (type == 900) or (mul == 1 and type == 1):
 
                         if possible_pin == ():  # No piece blocking so it is a check
