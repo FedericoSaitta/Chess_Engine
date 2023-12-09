@@ -164,6 +164,7 @@ def undo_move(board, dict): # This method doesn't need to be super efficient as 
             else: board[3], board[0] = 0, -500
 
         '''Need to give back the previous castling rights'''
+        dict['castle_rights_log'].pop()
         dict['white_castle'] = dict['castle_rights_log'][-1][0]
         dict['black_castle'] = dict['castle_rights_log'][-1][1]
 
@@ -178,6 +179,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
     # Should check if diagonally one space away there is a king, and diagonally queen and bishop and vertically and horizontally
     # if there is a queen or a rook, do pawns separately, should also check knights separately
 
+    '''Sometimes if a piece is attacking king, then the king can eat that piece even though it is defended'''
 
     for index, tup in enumerate(DIRECTIONS_WITH_PIECES):  # First 4 are diagonals, last 4 are verticals
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
@@ -340,6 +342,7 @@ def get_K_moves(moves, board, ind, row, col, dict):
     if dict['white_to_move']:
         if dict['white_castle'][1]:
             if board[61] == 0 and board[62] == 0:
+                print('checking for right castle')
                 if (un_attacked_sq(board, 61, 7, 5, dict, True)) and (un_attacked_sq(board, 62, 7, 6, dict, True)):
                     moves.append(Move(ind, 62, board, (True, False)))
 
@@ -429,6 +432,14 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
     available_moves = [move.get_chess_notation(board) for move in moves]
    # print(dict['checks_list'], dict['pins_list'], dict['in_check'] )
 
+    if len(moves) == 0:
+        if dict['in_check']:
+            colour = 'white' if not dict['white_to_move'] else 'black'
+            print(f"Check-Mate on the board for: {colour}")
+        else:
+            print("Stale-Mate on the board")
+
+
     return moves
 
 def check_pins_and_checks(board, col, row, dict):
@@ -477,12 +488,14 @@ def check_pins_and_checks(board, col, row, dict):
         end_col = col + tup[1]
         if -1 < end_row < 8 and -1 < end_col < 8:
             end_piece = board[end_col + end_row * 8]
-            if end_piece == enemy_col and fabs(end_piece == 293):
+            if ( (end_piece > 0) == (enemy_col > 0) and end_piece != 0) and (fabs(end_piece) == 293):
                 in_check = True
                 checks.append((end_row, end_col, tup[0], tup[1]))
 
     dict['in_check'], dict['pins_list'], dict['checks_list'] = in_check, pins, checks
     return dict
+
+
 
 
 class Move:
