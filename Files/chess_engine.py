@@ -525,7 +525,7 @@ class Move:
         r = index // 8
         return cols_to_files[c] + rows_to_ranks[r]
 
-    def __eq__(self, other):  # Note the other move is the one stored in the valid_moves list
+    def __eq__(self, other):  # Note the other move is the one stored in the valid_move list
         if isinstance(other, Move):
             if (self.move_ID == other.move_ID) and other.castle_move:
                 self.castle_move = True
