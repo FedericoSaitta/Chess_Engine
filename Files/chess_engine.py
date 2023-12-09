@@ -58,8 +58,10 @@ general_dict = {'white_to_move': True,
                 'move_log': [],
                 'white_castle': [True, True],  #  [Left, Right]
                 'black_castle': [True, True], # These simply state whether the right is still there, not if the move
-                'castle_rights_log': []  # [left, right], even means white, odd means black, each turn a tuple of two
-                                                           # values is added
+                'castle_rights_log': [],  # [left, right], even means white, odd means black, each turn a tuple of two
+                'in_check': False,                                        # values is added
+                'pins_list': [],
+                'checks_list': []
 }
 
 def make_move(board, move, dict):
@@ -172,7 +174,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
     # Should check if diagonally one space away there is a king, and diagonally queen and bishop and vertically and horizontally
     # if there is a queen or a rook, do pawns separately, should also check knights separately
 
-    # As this only needs to check very few possible configurations there is no need to run a full checking search
+
     if king_color: # Means that it is a white king
         MOVES = WHITE_CASTLE_SQ
     else:
@@ -334,29 +336,79 @@ def get_all_possible_moves(board, dict): # Using all these if statements as it i
 
 def get_all_valid_moves(board, dict):  # This will take into account non-legal moves that put our king in check
 
+    # Before generating all possible moves we should check for pins and checks
+    moves = []
+    in_check, pins_list, checks_list = dict['in_check'], dict['pins_list'], dict['checks_list']
+    if dict['white_to_move']:
+        king_sq = dict['white_king_loc']
+    else:
+        king_sq = dict['black_king_loc']
+
+
+
+
+
+
     moves = get_all_possible_moves(board, dict)
-    '''
-    for i in range(len(moves) - 1, -1, -1):  # Going backwards through loop
-        board = make_move(board, moves[i])
-        white_to_move = not white_to_move
-
-        if in_check(board):
-            moves.remove(moves[i])
-
-        white_to_move = not white_to_move
-        board = undo_move(board)
-
-        if len(moves) == 0:
-            if in_check():
-                print(f'Check Mate on the Board, white wins: {not white_to_move}')
-                check_mate = True
-            else:
-                print(f'We have a Stale Mate on the board, none wins')
-                stale_mate = True
-        else:
-            check_mate, stale_mate = False, False
-        '''
     return moves
+
+def check_pins_and_checks(dict):
+    pins, checks, in_check = [], [], False
+    if dict['white_to_move']:
+        enemy_col, ally_col = -1, 1
+        start_sq = dict['white_king_loc']
+    else:
+        enemy_col, ally_col = 1, -1
+        start_sq = dict['black_king_loc']
+
+    col, row = king_sq % 8, king_sq // 8
+    for index, tup in enumerate(KING_MOVES):
+        possible_pin = ()
+        for mul in range(1, 8):
+            end_row = row + tup[0] * mul
+            end_col = col + tup[1] * mul
+            if -1 < end_row < 8 and -1 < end_col < 8:
+                end_piece = board[end_col + end_row * 8]
+                if ( (end_piece > 0) == ally_col > 0 ) and end_piece != 0:
+                    if possible_pin == ():
+                        possible_pin = (end_row, end_col, tup[0], tup[1] )
+                    else:
+                        break   # As this is the second piece so double walling the pin
+                elif ( (end_piece > 0) != ally_col > 0 ) and end_piece != 0:
+                    type = fabs(end_piece)
+
+                    if (index <= 3 and type == 500) or (index >= 4 and type == 300) or \
+                        (mul == 1 and type == 100 and ( (enemy_col == 1 and (4 <= index <= 5)) or (enemy_col == -1 and (6 <= index <= 7)) ) )  \
+                        or (type == 900) or (mul == 1 and type == 1):
+
+                        if possible_pin == ():  # No piece blocking so it is a check
+                            dict['in_check'] = True
+                            checks.append(end_row, end_col, tup[0], tup[1])
+                            break
+                        else: # Piece blocking so its a pin
+                            pins.append(possible_pin)
+                            break
+
+                    else:
+                        break # Enemy piece not applying check
+            else:
+                break # We are outside the board
+
+    for tup in KNIGHT_MOVES:
+        end_row = row + tup[0]
+        end_col = col + tup[1]
+        if -1 < end_row < 8 and -1 < end_col < 8:
+            end_piece = board[end_col + end_row * 8]
+            if end_piece == enemy_col and fabs(end_piece == 293):
+                in_check = True
+                checks.append(end_row, end_col, tup[0], tup[1])
+
+    dict['in_check'], dict['pins_list'], dict['checks_list'] = in_check, pins, checks
+
+    return dict
+
+
+
 
 class Move:
 
