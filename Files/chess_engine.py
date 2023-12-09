@@ -174,49 +174,49 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
     # Should check if diagonally one space away there is a king, and diagonally queen and bishop and vertically and horizontally
     # if there is a queen or a rook, do pawns separately, should also check knights separately
 
+    # Need to make sure this works well
+    # And with all the pieces
     if king_color: # Means that it is a white king
         MOVES = WHITE_CASTLE_SQ
     else:
         MOVES = BLACK_CASTLE_SQ
 
+    MOVES = KING_MOVES
+
     for index, tup in enumerate(MOVES):
-        if index < 3:  # Diagonals
-            square = 8 * (row + tup[0]) + tup[1] + col
-            if ((board[square] > 0) != king_color) and board[square] != 0: # Checks for colour
-                piece = fabs(board[square])
-                if piece in tup[2] or (index < 2 and (piece == 100 or piece == 1)):
-                    return False                                   # So that side cannot castle
-            elif board[square] != 0:
-                continue # As there is a piece of your own colour
-            else: # We need to keep looking ahead
-                for mul in range(2, 8):
-                    if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
-                        square = 8 * (row + mul * tup[0]) + (col + mul * tup[1])
-                        if ((board[square] > 0) != king_color) and board[square] != 0:
-                            piece = fabs(board[square])
-                            if piece in tup[2]:
-                                return False
+        if index < 4:  # Diagonals
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                square = 8 * (row + tup[0]) + tup[1] + col
+                if ((board[square] > 0) != king_color) and board[square] != 0: # Checks for colour
+                    piece = fabs(board[square])
+                    if piece in tup[2] or (index < 2 and (piece == 100 or piece == 1)):
+                        return False                                   # So that side cannot castle
+                elif board[square] != 0:
+                    continue # As there is a piece of your own colour
+                else: # We need to keep looking ahead
+                    for mul in range(2, 8):
+                        if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
+                            square = 8 * (row + mul * tup[0]) + (col + mul * tup[1])
+                            if ((board[square] > 0) != king_color) and board[square] != 0:
+                                piece = fabs(board[square])
+                                if piece in tup[2]:
+                                    return False
+                                else:
+                                    break  # We need to break out as enemy piece that cant capture is blocking
+                            elif board[square] == 0:
+                                continue
                             else:
-                                break  # We need to break out as enemy piece that cant capture is blocking
-                        elif board[square] == 0:
-                            continue
+                                break
                         else:
                             break
-                    else:
-                        break
         else:  # Knight moves
-            square = 8 * (row + tup[0]) + tup[1] + col
-            if ((board[square] > 0) != king_color) and board[square] != 0:  # Checks for colour
-                piece = fabs(board[square])
-                if piece == 293:
-                    return False  # So that side cannot castle
+            if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
+                square = 8 * (row + tup[0]) + tup[1] + col
+                if ((board[square] > 0) != king_color) and board[square] != 0:  # Checks for colour
+                    piece = fabs(board[square])
+                    if piece == 293:
+                        return False  # So that side cannot castle
     return True
-
-def in_check(board, dict):
-    if dict['white_to_move']:
-        return un_attacked_sq(board, dict['white_king_loc'])
-    else:
-        return un_attacked_sq(board, dict['black_king_loc'])
 
 def get_P_moves(moves, board, ind, row, col, dict, MOVES):
     piece_pinned = False
@@ -318,12 +318,27 @@ def get_N_moves(moves, board, ind, row, col, dict):
 def get_K_moves(moves, board, ind, row, col, dict):
 
     '''NEED TO FIX THIS BECAUSE FOR NOW KING CAN WALK INTO CHECK '''
+    local_moves = []
 
     for tup in KING_MOVES:
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * (row + tup[0]) + (col + tup[1])
             if (board[square] == 0) or ((board[square] >  0) != (board[ind] > 0)):
-                moves.append(Move(ind, square, board))
+                local_moves.append(Move(ind, square, board))
+
+
+    king_color = True if board[ind] == 1 else False
+
+    for move in local_moves:
+        # Now we need to check these as they are pseudo legal
+        board, dict = make_move(board, move, dict)
+        if not un_attacked_sq(board, ind, row, col, dict, king_color):
+            print(move.get_chess_notation(board))
+            local_moves.remove(move)
+
+        board, dict = undo_move(board, dict)
+    moves.extend(local_moves)
+
 
     # Now checking for castling
     if dict['white_to_move']:
@@ -345,6 +360,8 @@ def get_K_moves(moves, board, ind, row, col, dict):
             if board[3] == 0 and board[2] == 0:
                 if (un_attacked_sq(board, 3, 0, 3, dict, False)) and (un_attacked_sq(board, 2, 0, 2, dict, False)):
                     moves.append(Move(ind, 2, board, (True, False)))
+
+
 
 def get_all_possible_moves(board, dict): # Using all these if statements as it is fastest
     moves = []
@@ -379,6 +396,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
         king_sq = dict['white_king_loc']
     else:
         king_sq = dict['black_king_loc']
+
     col, row = king_sq % 8, king_sq // 8
 
     dict = check_pins_and_checks(board, col, row, dict)  # Returns updated dictionary
@@ -413,7 +431,6 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
         moves = get_all_possible_moves(board, dict)
 
     available_moves = [move.get_chess_notation(board) for move in moves]
- #   print(available_moves, len(available_moves))
     print(dict['checks_list'], dict['pins_list'], dict['in_check'] )
 
     return moves
@@ -435,12 +452,12 @@ def check_pins_and_checks(board, col, row, dict):
             end_col = col + tup[1] * mul
             if -1 < end_row < 8 and -1 < end_col < 8:
                 end_piece = board[end_col + end_row * 8]
-                if ( (end_piece > 0) == ally_col > 0 ) and end_piece != 0:
+                if ( (end_piece > 0) == (ally_col > 0) ) and end_piece != 0:
                     if possible_pin == ():
                         possible_pin = (end_row, end_col, tup[0], tup[1] )
                     else:
                         break   # As this is the second piece so double walling the pin
-                elif ( (end_piece > 0) != ally_col > 0 ) and end_piece != 0:
+                elif ( (end_piece > 0) != (ally_col > 0) ) and end_piece != 0:
                     type = fabs(end_piece)
 
                     if (index <= 3 and type == 500) or (index >= 4 and type == 300) or \
