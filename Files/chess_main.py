@@ -118,7 +118,6 @@ def main():
         clock.tick(MAX_FPS)
         p.display.flip()
 
-
 ''' Responsible for all the graphics '''
 def load_images():
     path = '/Users/federicosaitta/PycharmProjects/Chess/Images/'
