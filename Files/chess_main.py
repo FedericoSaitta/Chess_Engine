@@ -82,7 +82,7 @@ def main():
                     move = chess_engine.Move(player_clicks[0], player_clicks[1], board)
 
                     if move in valid_moves:
-                        board = chess_engine.make_move(board, move, dict)
+                        chess_engine.make_move(board, move, dict)
                         move_made = True
 
                     sq_selected = ()
@@ -92,13 +92,13 @@ def main():
 
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # Do not allow for undo moves for now
-                    board = chess_engine.undo_move(board, dict)
+                    chess_engine.undo_move(board, dict)
                     move_made = True
 
                 elif e.key == p.K_r:  # To make random moves
                     ind = np.random.randint(len(valid_moves))
                     rnd_move = valid_moves[ind]
-                    board = chess_engine.make_move(board, rnd_move, dict)
+                    chess_engine.make_move(board, rnd_move, dict)
                     move_made = True
 
         if move_made:
@@ -174,6 +174,8 @@ if __name__ == '__main__':
         main()
         print('Moves per sec: {}'.format((1 / np.average(avg_move_time)) * np.average(avg_num_moves)))
 
-    #results = pstats.Stats(profile)
-    #results.sort_stats(pstats.SortKey.TIME)
-    #results.print_stats()
+    profiler_stats = pstats.Stats(profile)
+
+    specific_file = 'chess_engine.py'
+
+    profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
