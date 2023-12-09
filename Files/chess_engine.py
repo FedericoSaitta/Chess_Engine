@@ -264,10 +264,12 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES):
 def get_Sliding_moves(moves, board, ind, row, col, MOVES, dict):
     piece_pinned = False
     pin_direction = ()
+
     for i in range(len(dict['pins_list']) - 1, -1, -1):
         if dict['pins_list'][i][0] == row and dict['pins_list'][i][1] == col:
             piece_pinned = True
-            pin_direction = (dict['pins_list'][2], dict['pins_list'][3])
+            print(dict['pins_list'][i])
+            pin_direction = (dict['pins_list'][i][2], dict['pins_list'][i][3])
             dict['pins_list'].remove(dict['pins_list'][i])
             break
 
