@@ -224,7 +224,7 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES):
     for i in range(len(dict['pins_list']) - 1, -1, -1):
         if dict['pins_list'][i][0] == row and dict['pins_list'][i][1] == col:
             piece_pinned = True
-            pin_direction = (dict['pins_list'][2], dict['pins_list'][3])
+            pin_direction = (dict['pins_list'][i][2], dict['pins_list'][i][3])
             dict['pins_list'].remove(dict['pins_list'][i])
             break
 
@@ -387,7 +387,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
             moves = get_all_possible_moves(board, dict)
             check = checks_list[0]
             check_sq = check[0] * 8 + check[1]
-            piece_checking = board[check_col + check_row * 8]
+            piece_checking = board[check_sq]
             valid_squares = []
 
             if fabs(piece_checking) == 293:
@@ -401,7 +401,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
 
             for i in range(len(moves) - 1, -1, -1):
                 if fabs(moves[i].piece_moved) != 1: # Move doesn't move king so must block or capture
-                    if not(moves[i].end_sq) in valid_squares:
+                    if not(moves[i].end_ind) in valid_squares:
                         moves.remove(moves[i])
 
         else: # double check so king has to move
@@ -411,7 +411,8 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
         moves = get_all_possible_moves(board, dict)
 
     available_moves = [move.get_chess_notation(board) for move in moves]
-    print(available_moves, len(available_moves))
+ #   print(available_moves, len(available_moves))
+    print(dict['checks_list'], dict['pins_list'], dict['in_check'] )
 
     return moves
 
@@ -445,7 +446,7 @@ def check_pins_and_checks(board, col, row, dict):
                         or (type == 900) or (mul == 1 and type == 1):
 
                         if possible_pin == ():  # No piece blocking so it is a check
-                            dict['in_check'] = True
+                            in_check = True
                             checks.append((end_row, end_col, tup[0], tup[1]))
                             break
                         else: # Piece blocking so its a pin
