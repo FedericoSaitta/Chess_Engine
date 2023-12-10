@@ -176,6 +176,6 @@ if __name__ == '__main__':
 
     profiler_stats = pstats.Stats(profile)
 
-    specific_file = 'chess_engine.py'
+    specific_file = ('chess_engine.py')
 
     profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
