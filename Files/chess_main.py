@@ -174,8 +174,6 @@ if __name__ == '__main__':
         main()
         print('Moves per sec: {}'.format((1 / np.average(avg_move_time)) * np.average(avg_num_moves)))
 
-    profiler_stats = pstats.Stats(profile)
-
-    specific_file = ('chess_engine.py')
-
-    profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
+    #profiler_stats = pstats.Stats(profile)
+    #specific_file = ('chess_engine.py')
+    #profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
