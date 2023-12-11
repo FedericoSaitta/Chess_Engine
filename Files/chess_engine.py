@@ -1,7 +1,6 @@
 from math import fabs
 
 '''CONSTANTS needed for look-ups'''
-
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4,
                  '5': 3, '6': 2, '7': 1, '8': 0}
 rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dictionary
@@ -34,25 +33,24 @@ BLACK_PAWN_MOVES = ( (1, 0), (1, -1), (1, 1) )
 FABS = fabs
 
 '''Here are the variables that will be re-assigned and changed during run time'''
-
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-        -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
-        -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
-            0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
-            0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
-            0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
-            0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-         100, 100, 100, 100, 100, 100, 100, 100,  # 48 to 55
-         500, 293, 300, 900, 1, 300, 293, 500]  # 56 to 63
+    -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
+    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
+    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
+    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
+    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
+    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
+    100, 100, 100, 100, 100, 100, 100, 100,  # 48 to 55
+    500, 293, 300, 900, 1, 300, 293, 500]  # 56 to 63
+
 
 # Dictionary with kwargs needed during a game
-general_dict = {'white_to_move': True,
+general_dict = {
+        'white_to_move': True,
         'white_king_loc': 60,
         'black_king_loc': 4,
         'white_en_passant_sq': None,
         'black_en_passant_sq': None,
-        'check_mate': False,
-        'stale_mate': False,
         'move_log': [],
         'white_castle': [True, True],  #  [Left, Right]
         'black_castle': [True, True], # These simply state whether the right is still there, not if the move
@@ -64,7 +62,6 @@ general_dict = {'white_to_move': True,
 }
 
 def make_move(board, move, dict):
-    #print(f'{move.piece_moved} wants to make a move to {move.end_ind}')
 
     dict['black_en_passant_sq'], dict['white_en_passant_sq'] = None, None # Start by assuming there are no en passants
     if move.piece_moved == 1:
@@ -139,8 +136,7 @@ def make_move(board, move, dict):
     dict['en_passant_log'].append(tup_2)
 
 
-def undo_move(board, dict): # This method doesn't need to be super efficient as it should not be used anyway, unless the
-                            # player needs to, engine should not use it to see for checks
+def undo_move(board, dict):
 
     if len(dict['move_log']) > 0:
         move = dict['move_log'].pop()
@@ -204,7 +200,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
                     if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
                         square = 8 * (row + mul * tup[0]) + (col + mul * tup[1])
                         if ((board[square] > 0) != king_color) and (board[square] != 0):
-                            piece = fabs(board[square])
+                            piece = FABS(board[square])
                             if piece in tup[2]:
                                 return False
                             else:
@@ -220,7 +216,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * (row + tup[0]) + tup[1] + col
             if ((board[square] > 0) != king_color) and board[square] != 0:  # Checks for colour
-                piece = fabs(board[square])
+                piece = FABS(board[square])
                 if piece == 293:
                     return False  # So that side cannot castle
 
@@ -377,7 +373,7 @@ def get_all_possible_moves(board, dict): # Using all these if statements as it i
         if board[ind] == 0: continue
 
         if (board[ind] > 0 and dict['white_to_move']) or (board[ind] < 0 and not dict['white_to_move']):
-            piece = fabs(board[ind])
+            piece = FABS(board[ind])
 
             if piece == 100:
                 if board[ind] > 0:
@@ -415,7 +411,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
             piece_checking = board[check_sq]
             valid_squares = []
 
-            if fabs(piece_checking) == 293:
+            if FABS(piece_checking) == 293:
                 valid_squares = [(check_sq)]
             else:
                 for mul in range(1, 8):
@@ -425,7 +421,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
                         break
 
             for i in range(len(moves) - 1, -1, -1):
-                if fabs(moves[i].piece_moved) != 1: # Move doesn't move king so must block or capture
+                if FABS(moves[i].piece_moved) != 1: # Move doesn't move king so must block or capture
                     if moves[i].en_passant:
                         if moves[i].piece_moved > 0:
                             if not (moves[i].end_ind + 8) in valid_squares:
@@ -480,7 +476,7 @@ def check_pins_and_checks(board, ind, col, row, dict):
                     else:
                         break   # As this is the second piece so double walling the pin
                 elif ( (end_piece > 0) != (ally_col > 0) ) and end_piece != 0:
-                    type = fabs(end_piece)
+                    type = FABS(end_piece)
 
                     if (index <= 3 and type == 500) or (index >= 4 and type == 300) or \
                         (mul == 1 and type == 100 and ( (enemy_col == -1 and (4 <= index <= 5)) or (enemy_col == 1 and (6 <= index <= 7)) ) )  \
@@ -503,7 +499,7 @@ def check_pins_and_checks(board, ind, col, row, dict):
         end_col = col + tup[1]
         if -1 < end_row < 8 and -1 < end_col < 8:
             end_piece = board[end_col + end_row * 8]
-            if ( (end_piece > 0) == (enemy_col > 0) and end_piece != 0) and (fabs(end_piece) == 293):
+            if ( (end_piece > 0) == (enemy_col > 0) and end_piece != 0) and (FABS(end_piece) == 293):
                 in_check = True
                 checks.append((end_row, end_col, tup[0], tup[1]))
 
@@ -533,7 +529,7 @@ class Move:
         start_rank_file = self.get_rank_file(self.start_ind)
         end_rank_file = self.get_rank_file(self.end_ind)
 
-        if fabs(piece) == 100:
+        if FABS(piece) == 100:
             if board[self.end_ind] != 0:
                 return dict[piece][1:] + start_rank_file + ' x ' + end_rank_file
 
