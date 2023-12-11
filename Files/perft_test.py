@@ -15,66 +15,62 @@ DEPTH = 4
 board = chess_engine.board
 dict = chess_engine.general_dict
 
-#
+
+def perft(board, dict, depth):
+    nodes = 0
+    moves = chess_engine.get_all_valid_moves(board, dict)
+
+    if depth == 1:
+        all_moves.extend(moves)
+        return len(moves)
+
+    for move in moves:
+        chess_engine.make_move(board, move, dict)
+        nodes += perft(board, dict, depth - 1)
+        chess_engine.undo_move(board, dict)
+    return nodes
+
+def divide_perft(board, dict, depth): # This is slower, so should be used only for debugging
+    moves = chess_engine.get_all_valid_moves(board, dict)
+    for move in moves:
+        leafs = 0
+        key = get_chess_notation((move.start_ind, move.end_ind))
+
+        chess_engine.make_move(board, move, dict)
+        leafs += (perft(board, dict, depth - 1))
+        chess_engine.undo_move(board, dict)
+
+        list_of_parents[key] = leafs
+    tot = [ind for key, ind in list_of_parents.items()]
+    return sum(tot)
+
+def get_chess_notation(tuple):
+    start, end = tuple
+    start_row, start_col = start // 8, start % 8
+    end_row, end_col = end // 8, end % 8
+
+    first = cols_to_files[start_col] + rows_to_ranks[start_row]
+    second = cols_to_files[end_col] + rows_to_ranks[end_row]
+    return (first + second)
+
 def main():
-    def perft(board, dict, depth):
-        nodes = 0
-        moves = chess_engine.get_all_valid_moves(board, dict)
-
-        if depth == 1:
-            all_moves.extend(moves)
-            return len(moves)
-
-        for move in moves:
-            chess_engine.make_move(board, move, dict)
-            nodes += perft(board, dict, depth - 1)
-            chess_engine.undo_move(board, dict)
-        return nodes
-
-    all_moves = []
-
-    list_of_parents = {}
-    def divide_perft(board, dict, depth):
-        moves = chess_engine.get_all_valid_moves(board, dict)
-        for move in moves:
-            leafs = 0
-            key = get_chess_notation((move.start_ind, move.end_ind))
-
-            chess_engine.make_move(board, move, dict)
-            leafs += (perft(board, dict, depth - 1))
-            chess_engine.undo_move(board, dict)
-
-            list_of_parents[key] = leafs
-
-        tot = [ind for key, ind in list_of_parents.items()]
-        return sum(tot)
-
-
-
-    def get_chess_notation(tuple):
-        start, end = tuple
-        start_row, start_col = start // 8, start % 8
-        end_row, end_col = end // 8, end % 8
-
-        first = cols_to_files[start_col] + rows_to_ranks[start_row]
-        second = cols_to_files[end_col] + rows_to_ranks[end_row]
-        return (first + second)
-
+    all_moves, list_of_parents = [], {}
 
     start = timeit.default_timer()
     nodes = perft(board, dict, DEPTH)
     end = timeit.default_timer() - start
 
-    print(f'Searched {nodes} nodes, in {end} seconds')
-    print(f'Nodes per second: {int(nodes/end)}')
+    print(f'Searched {nodes} nodes, in {end} seconds, Nodes per second: {int(nodes/end)}')
+
+    #for key, value in list_of_parents.items():
+        #print(f'{key}: {value}')
 
 
-    for key, value in list_of_parents.items():
-        print(f'{key}: {value}')
-
-with cProfile.Profile() as profile:
-    main()
-    profiler_stats = pstats.Stats(profile)
-    specific_file = ('chess_engine.py')
-    profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
-    # This only profiles the code if it hasnt been compiled in Cython
+if __name__ == '__main__':
+    with cProfile.Profile() as profile:
+        for i in range(5):
+            main()
+        profiler_stats = pstats.Stats(profile)
+        specific_file = ('chess_engine.py')
+        profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
+        # This only profiles the code if it hasnt been compiled in Cython
