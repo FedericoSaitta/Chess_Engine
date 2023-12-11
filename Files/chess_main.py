@@ -171,10 +171,7 @@ def get_single_move_notation(move):
     return cols_to_files[c] + rows_to_ranks[r]
 
 if __name__ == '__main__':
-    with cProfile.Profile() as profile:
-        main()
-        print('Moves per sec: {}'.format((1 / np.average(avg_move_time)) * np.average(avg_num_moves)))
+    main()
 
-    #profiler_stats = pstats.Stats(profile)
-    #specific_file = ('chess_engine.py')
-    #profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
+
+
