@@ -1,6 +1,5 @@
 import chess_engine
 import timeit
-import numpy as np
 import cProfile
 import pstats
 from collections import Counter
@@ -21,7 +20,6 @@ def perft(board, dict, depth):
     moves = chess_engine.get_all_valid_moves(board, dict)
 
     if depth == 1:
-        all_moves.extend(moves)
         return len(moves)
 
     for move in moves:
@@ -54,7 +52,7 @@ def get_chess_notation(tuple):
     return (first + second)
 
 def main():
-    all_moves, list_of_parents = [], {}
+    list_of_parents = {}
 
     start = timeit.default_timer()
     nodes = perft(board, dict, DEPTH)
