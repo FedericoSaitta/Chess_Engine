@@ -39,6 +39,7 @@ def main():
     dict = chess_engine.general_dict
 
     valid_moves = chess_engine.get_all_valid_moves(board, dict)
+    print(len(valid_moves))
 
     move_made = False  # Flag for when we want to generate this function
 

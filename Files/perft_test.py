@@ -25,17 +25,12 @@ def perft(board, dict, depth):
         chess_engine.make_move(board, move, dict)
         nodes += perft(board, dict, depth - 1)
         chess_engine.undo_move(board, dict)
-
     return nodes
 
 all_moves = []
 
 list_of_parents = {}
 def divide_perft(board, dict, depth):
-    #chess_engine.make_move(board, chess_engine.Move(33, 57, board),dict )
-    #chess_engine.make_move(board, chess_engine.Move(39, 38, board), dict)
-    #chess_engine.make_move(board, chess_engine.Move(24, 33, board), dict)
-
     moves = chess_engine.get_all_valid_moves(board, dict)
     for move in moves:
         leafs = 0
@@ -61,7 +56,7 @@ def get_chess_notation(tuple):
     second = cols_to_files[end_col] + rows_to_ranks[end_row]
     return (first + second)
 start = timeit.default_timer()
-nodes = divide_perft(board, dict, DEPTH)
+nodes = perft(board, dict, DEPTH)
 end = timeit.default_timer() - start
 print(nodes, f'done in {end} seconds')
 
@@ -75,42 +70,3 @@ print(count)
 for key, value in list_of_parents.items():
     print(f'{key}: {value}')
 
-''' same position, captures and en_passant is good, missing 35 moves though
-go perft 5
-e2e3: 45326 GOOD
-g2g3: 14747 GOOD
-a5a6: 59028 GOOD
-e2e4: 36889 GOOD
-g2g4: 53895 GOOD
-b4b1: 69665 GOOD
-b4b2: 48498 GOOD
-b4b3: 59719 GOOD
-b4a4: 45591 GOOD
-b4c4: 63781 FALSE, UNDERDOING 2
-b4d4: 59574 FALSE, UNDERDOING 3
-b4e4: 54192 GOOD
-b4f4: 10776 FALSE, UNDERDOING 14
-a5a4: 52943 FALSE, UNDERDOING 16 doing this one 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
