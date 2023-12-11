@@ -426,7 +426,15 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
 
             for i in range(len(moves) - 1, -1, -1):
                 if fabs(moves[i].piece_moved) != 1: # Move doesn't move king so must block or capture
-                    if not(moves[i].end_ind) in valid_squares:
+                    if moves[i].en_passant:
+                        if moves[i].piece_moved > 0:
+                            if not (moves[i].end_ind + 8) in valid_squares:
+                                moves.remove(moves[i])
+                        else:
+                            if not (moves[i].end_ind - 8) in valid_squares:
+                                moves.remove(moves[i])
+
+                    elif not (moves[i].end_ind) in valid_squares:
                         moves.remove(moves[i])
 
         else: # double check so king has to move

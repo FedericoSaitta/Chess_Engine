@@ -32,8 +32,9 @@ all_moves = []
 
 list_of_parents = {}
 def divide_perft(board, dict, depth):
-  #  chess_engine.make_move(board, chess_engine.Move(52, 36, board),dict )
-  #  chess_engine.make_move(board, chess_engine.Move(31, 23, board), dict)
+    #chess_engine.make_move(board, chess_engine.Move(33, 57, board),dict )
+    #chess_engine.make_move(board, chess_engine.Move(39, 38, board), dict)
+    #chess_engine.make_move(board, chess_engine.Move(24, 33, board), dict)
 
     moves = chess_engine.get_all_valid_moves(board, dict)
     for move in moves:
@@ -66,7 +67,7 @@ print(nodes, f'done in {end} seconds')
 
 count =0
 for move in all_moves:
-    if move.en_passant:
+    if move.piece_captured != 0:
         count +=1
 print(count)
 
@@ -74,42 +75,42 @@ print(count)
 for key, value in list_of_parents.items():
     print(f'{key}: {value}')
 
-'''go perft 4
-e2e3: 3107 check
-g2g3: 1014 check
-a5a6: 3653 check 
-e2e4: 2748 WRONG: 2792 is my value
-g2g4: 3702 WRONG: 3614 is my value
-b4b1: 4199 check
-b4b2: 3328 check
-b4b3: 3658 check
-b4a4: 3019 check
-b4c4: 3797 check
-b4d4: 3622 check
-b4e4: 3391 check
-b4f4: 606 check
-a5a4: 3394 check 
+''' same position, captures and en_passant is good, missing 35 moves though
+go perft 5
+e2e3: 45326 GOOD
+g2g3: 14747 GOOD
+a5a6: 59028 GOOD
+e2e4: 36889 GOOD
+g2g4: 53895 GOOD
+b4b1: 69665 GOOD
+b4b2: 48498 GOOD
+b4b3: 59719 GOOD
+b4a4: 45591 GOOD
+b4c4: 63781 FALSE, UNDERDOING 2
+b4d4: 59574 FALSE, UNDERDOING 3
+b4e4: 54192 GOOD
+b4f4: 10776 FALSE, UNDERDOING 14
+a5a4: 52943 FALSE, UNDERDOING 16 doing this one 
 
-Nodes searched: 43238
-'''
 
-# Lets explore on these moves
-# After doing e2 e4
-'''go perft 3
-f4f3: 174 t
-d6d5: 171 F
-c7c6: 179 F
-c7c5: 167 F
-h5b5: 52 False
-h5c5: 180 t
-h5d5: 176 t
-h5e5: 168 t
-h5f5: 180 t
-h5g5: 191 t
-h5h6: 161 t
-h5h7: 172 False
-h5h8: 205 False
-h4g3: 178 t
-h4g5: 195 t
-h4g4: 199 t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 '''
