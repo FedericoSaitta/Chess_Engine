@@ -76,3 +76,4 @@ with cProfile.Profile() as profile:
     profiler_stats = pstats.Stats(profile)
     specific_file = ('chess_engine.py')
     profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
+    # This only profiles the code if it hasnt been compiled in Cython
