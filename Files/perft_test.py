@@ -15,6 +15,7 @@ DEPTH = 4
 board = chess_engine.board
 dict = chess_engine.general_dict
 
+#
 def main():
     def perft(board, dict, depth):
         nodes = 0
