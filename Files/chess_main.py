@@ -109,7 +109,7 @@ def main():
 
             avg_move_time.append(time)
             avg_num_moves.append(len(valid_moves))
-            print("Calculated {} moves in: {}".format(len(valid_moves), time))
+         #   print("Calculated {} moves in: {}".format(len(valid_moves), time))
 
             move_made = False
 

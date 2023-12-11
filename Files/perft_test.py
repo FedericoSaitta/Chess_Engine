@@ -9,7 +9,7 @@ rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dicti
 files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
 cols_to_files = {v: k for k, v in files_to_cols.items()}
 
-DEPTH = 5
+DEPTH = 6
 board = chess_engine.board
 dict = chess_engine.general_dict
 
@@ -75,6 +75,10 @@ for move in all_moves:
 all_moves = all_moves[bool]
 print(len(all_moves))
 
+'''Somwthing is wrong with my en_passant, I have extra 215 en passants possible at depth 5
+
+I believe you can push through with this metod and keep going not much is left
+'''
 
 #squares = [1 for num in all_moves if num == True]
 # So one captures is missing

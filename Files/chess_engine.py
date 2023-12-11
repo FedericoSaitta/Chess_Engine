@@ -64,6 +64,7 @@ general_dict = {'white_to_move': True,
 }
 
 def make_move(board, move, dict):
+    #print(f'{move.piece_moved} wants to make a move to {move.end_ind}')
 
     if move.piece_moved == 1:
         dict['white_king_loc'] = move.end_ind
@@ -74,10 +75,16 @@ def make_move(board, move, dict):
 
     # Checks for possibility of enpassant
     elif move.piece_moved == 100 or move.piece_moved == -100:
-        if (move.start_ind // 8) == 1 and (move.end_ind // 8 == 3):
+        if (move.start_ind // 8 == 1 ) and (move.end_ind // 8 == 3):
             dict['black_en_passant_sq'] = move.end_ind - 8
-        elif (move.start_ind // 8 == 6) and (move.end_ind // 8 == 4):
+        else:
+            dict['black_en_passant_sq'] = None
+
+        if (move.start_ind // 8 == 6) and (move.end_ind // 8 == 4):
             dict['white_en_passant_sq'] = move.end_ind + 8
+        else:
+            dict['white_en_passant_sq'] = None
+
 
     # Checks if castling rights should be removed
     elif move.piece_moved == 500:
@@ -138,15 +145,19 @@ def make_move(board, move, dict):
 
 def undo_move(board, dict): # This method doesn't need to be super efficient as it should not be used anyway, unless the
                             # player needs to, engine should not use it to see for checks
+
     if len(dict['move_log']) > 0:
         move = dict['move_log'].pop()
+        #print(f'{move.piece_moved} takes back his move from {move.end_ind}')
         if move.en_passant:
             if dict['white_to_move']: # Means that white made an en-passant move
                 board[move.end_ind - 8], dict['white_en_passant_sq'] = 100, move.end_ind
             else:
                 board[move.end_ind + 8], dict['black_en_passant_sq'] = -100, move.end_ind
+            board[move.start_ind], board[move.end_ind]= move.piece_moved, 0
+        else:
+            board[move.start_ind], board[move.end_ind] = move.piece_moved, move.piece_captured
 
-        board[move.start_ind], board[move.end_ind] = move.piece_moved, move.piece_captured
         dict['white_to_move'] = not dict['white_to_move']
 
         '''Bring back rooks if the last move was a castling move'''
@@ -254,7 +265,6 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES):
                     if not piece_pinned or pin_direction == tup:
                         moves.append(Move(ind, square, board))
 
-
                 elif board[ind] > 0 and (square == dict['black_en_passant_sq']):
                     move = Move(ind, square, board, (False, True))
                     make_move(board, move, dict)
@@ -262,7 +272,7 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES):
                     horizontal, vertical = king_position // 8, king_position % 8
                     if un_attacked_sq(board, king_position, horizontal, vertical, dict, True):
                         moves.append(move)
-                    undo_move(board, dict)
+                        undo_move(board, dict)
                 elif board[ind] < 0 and (square == dict['white_en_passant_sq']):  # As the piece is definetely black
                     move = Move(ind, square, board, (False, True))
                     make_move(board, move, dict)
