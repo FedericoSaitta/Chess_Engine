@@ -13,6 +13,7 @@ cols_to_files = {v: k for k, v in files_to_cols.items()}
 DEPTH = 4
 board = chess_engine.board
 dict = chess_engine.general_dict
+list_of_parents = {}
 
 
 def perft(board, dict, depth):
@@ -29,6 +30,7 @@ def perft(board, dict, depth):
     return nodes
 
 def divide_perft(board, dict, depth): # This is slower, so should be used only for debugging
+   # chess_engine.make_move(board, chess_engine.Move(28, 43, board), dict)
     moves = chess_engine.get_all_valid_moves(board, dict)
     for move in moves:
         leafs = 0
@@ -52,7 +54,7 @@ def get_chess_notation(tuple):
     return (first + second)
 
 def main():
-    list_of_parents = {}
+
 
     start = timeit.default_timer()
     nodes = perft(board, dict, DEPTH)
@@ -60,7 +62,7 @@ def main():
 
     print(f'Searched {nodes} nodes, in {end} seconds, Nodes per second: {int(nodes/end)}')
 
-    #for key, value in list_of_parents.items():
+   # for key, value in list_of_parents.items():
         #print(f'{key}: {value}')
 
 
@@ -72,3 +74,53 @@ if __name__ == '__main__':
         specific_file = ('chess_engine.py')
         profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
         # This only profiles the code if it hasnt been compiled in Cython
+
+'''go perft 3
+go perft 2
+b4b3: 43
+e6e5: 40
+g6g5: 41
+c7c6: 43
+d7d6: 41
+c7c5: 43
+h3g2: 40
+e6d5: 42
+b4c3: 41
+b6a4: 41
+b6c4: 42
+b6d5: 42
+b6c8: 42
+f6e4: 44
+f6g4: 41
+f6d5: 43
+f6h5: 43
+f6h7: 43
+f6g8: 43
+a6d3: 40
+a6c4: 42
+a6b5: 42
+a6b7: 42
+a6c8: 42
+g7h6: 42
+g7f8: 42
+a8b8: 42
+a8c8: 42
+a8d8: 42
+h8h4: 42
+h8h5: 42
+h8h6: 42
+h8h7: 42
+h8f8: 42
+h8g8: 42
+e7c5: 42
+e7d6: 41
+e7d8: 42
+e7f8: 42
+e8d8: 42
+e8f8: 42
+e8g8: 42
+e8c8: 42
+
+Nodes searched: 1803
+
+'''
