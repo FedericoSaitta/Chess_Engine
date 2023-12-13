@@ -34,14 +34,14 @@ FABS = fabs
 
 '''Here are the variables that will be re-assigned and changed during run time'''
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
-    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
-    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
+    -500, -293, -300, -900, 0, -1, 0, -500,  # 0 to 7
+    -100, -100, 0, 100, -300, -100, -100, -100,  # 8 to 15
+    0, 0, -100, 0, 0, 0, 0, 0,  # 16 to 23
     0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
-    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
+    0, 0, 300, 0, 0, 0, 0, 0,  # 32 to 39
     0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-    100, 100, 100, 100, 100, 100, 100, 100,  # 48 to 55
-    500, 293, 300, 900, 1, 300, 293, 500]  # 56 to 63
+    100, 100, 100, 0, 293, -293, 100, 100,  # 48 to 55
+    500, 293, 300, 900, 1, 0, 0, 500]  # 56 to 63
 
 
 # Dictionary with kwargs needed during a game
@@ -61,6 +61,9 @@ general_dict = {
 }
 
 def make_move(board, move, dict):
+    board[move.start_ind], board[move.end_ind] = 0, move.piece_moved
+    dict['move_log'].append(move)
+
     dict['en_passant_sq'] = None # Start by assuming there are no en passants
     if move.piece_moved == 1:
         dict['white_king_loc'] = move.end_ind
@@ -111,8 +114,8 @@ def make_move(board, move, dict):
         else:
             board[move.end_ind - 8] = 0
 
-    '''If the move is a castling move'''
-    if move.castle_move:
+   # '''If the move is a castling move'''
+    elif move.castle_move:
         if move.piece_moved > 0:
             if move.end_ind == 62:  # Right castle
                 board[63], board[61] = 0, 500
@@ -124,8 +127,13 @@ def make_move(board, move, dict):
             else:
                 board[0], board[3] = 0, -500
 
-    board[move.start_ind], board[move.end_ind] = 0, move.piece_moved
-    dict['move_log'].append(move)
+    elif move.promotion:
+        if dict['white_to_move']: # White made the move
+            board[move.end_ind] = move.prom_piece
+        else:
+            board[move.end_ind] = -move.prom_piece
+
+
     dict['white_to_move'] = not dict['white_to_move']  # Swap the player's move
 
     tup = (dict['white_castle'], dict['black_castle'])
@@ -134,7 +142,6 @@ def make_move(board, move, dict):
 
 
 def undo_move(board, dict):
-
     if len(dict['move_log']) > 0:
         move = dict['move_log'].pop()
 
@@ -145,6 +152,9 @@ def undo_move(board, dict):
                 board[move.end_ind - 8]  = 100 # Black made the en_passant
             else:
                 board[move.end_ind + 8] = -100
+
+        elif move.promotion:
+            pass
         else:
             board[move.start_ind], board[move.end_ind] = move.piece_moved, move.piece_captured
 
@@ -181,36 +191,39 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
     # Should check if diagonally one space away there is a king, and diagonally queen and bishop and vertically and horizontally
     # if there is a queen or a rook, do pawns separately, should also check knights separately
 
-
     for index, tup in enumerate(DIRECTIONS_WITH_PIECES):  # First 4 are diagonals, last 4 are verticals
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
-            square = 8 * (row + tup[0]) + tup[1] + col
-            if ((board[square] > 0) != king_color) and board[square] != 0: # Checks for colour
-                piece = FABS(board[square])
-                if (piece in tup[2]) or (index < 2 and (piece == 100 and king_color)) or (1 < index < 4 and (piece == 100 and not king_color)) or piece == 1:
-                    return False
-            elif board[square] != 0:
-                continue # As there is a piece of your own colour
+            square = 8 * tup[0] + tup[1] + ind
+            loc = board[square]
+            if loc != 0: # Checks for colour
+                if (loc > 0) != king_color:
+                    piece = FABS(board[square])
+                    if ((piece in tup[2]) or (index < 2 and (piece == 100 and king_color)) or
+                            (1 < index < 4 and (piece == 100 and not king_color)) or piece == 1):
+                        return False
+
+                    # Automatically continues as there is a piece of your own colour
+
             else: # We need to keep looking ahead
                 for mul in range(2, 8):
                     if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
-                        square = 8 * (row + mul * tup[0]) + (col + mul * tup[1])
-                        if ((board[square] > 0) != king_color) and (board[square] != 0):
-                            piece = FABS(board[square])
-                            if piece in tup[2]:
-                                return False
-                            else:
-                                break  # We need to break out as enemy piece that cant capture is blocking
-                        elif board[square] == 0:
-                            continue
-                        else:
+                        square = 8 * (mul * tup[0]) + (mul * tup[1]) + ind
+                        loc = board[square]
+                        if loc != 0:
+                            if ((loc > 0) != king_color):
+                                piece = FABS(loc)
+                                if piece in tup[2]: return False
+                                else: break  # We need to break out as enemy piece that cant capture is blocking
                             break
+
+                        else:
+                            continue
                     else:
                         break
 
     for tup in KNIGHT_MOVES:  # Checks any knight moves
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
-            square = 8 * (row + tup[0]) + tup[1] + col
+            square = 8 * tup[0] + tup[1] + ind
             if ((board[square] > 0) != king_color) and board[square] != 0:  # Checks for colour
                 piece = FABS(board[square])
                 if piece == 293:
@@ -222,9 +235,9 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
 
     piece_pinned, pin_direction = False, ()
     for i in range(len(dict['pins_list']) - 1, -1, -1):
-        if dict['pins_list'][i][0] == row and dict['pins_list'][i][1] == col:
+        if dict['pins_list'][i][0] == ind:
             piece_pinned = True
-            pin_direction = (dict['pins_list'][i][2], dict['pins_list'][i][3])
+            pin_direction = (dict['pins_list'][i][1], dict['pins_list'][i][2])
             dict['pins_list'].remove(dict['pins_list'][i])
             break
 
@@ -236,7 +249,13 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
             if index == 0:
                 if board[square] == 0:
                     if not piece_pinned or pin_direction == tup:
-                        moves.append(Move(ind, square, board))
+                        if (row == 6 and not king_color) or (row == 0 and king_color):
+                            moves.append(Move(ind, square, board), (False, False, (True, 900)))
+                            moves.append(Move(ind, square, board), (False, False, (True, 500)))
+                            moves.append(Move(ind, square, board), (False, False, (True, 300)))
+                            moves.append(Move(ind, square, board), (False, False, (True, 293)))
+                        else:
+                            moves.append(Move(ind, square, board))
 
                         if (row == 6) and king_color:
                             if board[square - 8] == 0:  # Goes back one row
@@ -248,11 +267,17 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
             else:
                 if ((board[square] > 0) != king_color) and board[square] != 0:
                     if not piece_pinned or pin_direction == tup:
-                        moves.append(Move(ind, square, board))
+                        if (row == 6 and not king_color) or (row == 0 and king_color):
+                            moves.append(Move(ind, square, board), (False, False, (True, 900)))
+                            moves.append(Move(ind, square, board), (False, False, (True, 500)))
+                            moves.append(Move(ind, square, board), (False, False, (True, 300)))
+                            moves.append(Move(ind, square, board), (False, False, (True, 293)))
+                        else:
+                            moves.append(Move(ind, square, board))
 
 
                 elif (square == dict['en_passant_sq']) and king_color:
-                    move = Move(ind, square, board, (False, True))
+                    move = Move(ind, square, board, (False, True, (False, None)))
                     make_move(board, move, dict)
                     king_position = dict['white_king_loc']
                     horizontal, vertical = king_position // 8, king_position % 8
@@ -262,7 +287,7 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
                     undo_move(board, dict)
 
                 elif (square == dict['en_passant_sq']) and not king_color:  # As the piece is definetely black
-                    move = Move(ind, square, board, (False, True))
+                    move = Move(ind, square, board, (False, True, (False, None)))
                     make_move(board, move, dict)
                     king_position = dict['black_king_loc']
                     horizontal, vertical = king_position // 8, king_position % 8
@@ -273,13 +298,12 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
         index+= 1
 
 def get_Sliding_moves(moves, board, ind, row, col, MOVES, dict, king_color):
-    piece_pinned = False
-    pin_direction = ()
+    piece_can_move, pin_direction = True, ()
 
     for i in range(len(dict['pins_list']) - 1, -1, -1):
-        if dict['pins_list'][i][0] == row and dict['pins_list'][i][1] == col:
-            piece_pinned = True
-            pin_direction = (dict['pins_list'][i][2], dict['pins_list'][i][3])
+        if dict['pins_list'][i][0] == ind:
+            piece_can_move = False
+            pin_direction = (dict['pins_list'][i][1], dict['pins_list'][i][2])
             dict['pins_list'].remove(dict['pins_list'][i])
             break
 
@@ -287,23 +311,25 @@ def get_Sliding_moves(moves, board, ind, row, col, MOVES, dict, king_color):
         for mul in range(1, 8):
             if -1 < (row + (mul * tup[0])) < 8 and -1 < (col + (mul * tup[1])) < 8:
                 square = 8 * (mul * tup[0]) + (mul * tup[1]) + ind
-                if (board[square] != 0) and (board[square] > 0) == king_color:
+                loc = board[square]
+                if (loc != 0):
+                    if (loc > 0) == king_color:
                         break
-                elif board[square] != 0:  # Means that it is an enemy piece
-                    if (not piece_pinned) or (pin_direction == tup) or (pin_direction[0] * -1, pin_direction[1] * -1) == tup:
-                        moves.append(Move(ind, square, board))
+
+                    if piece_can_move or (pin_direction == tup) or (pin_direction[0] * -1, pin_direction[1] * -1) == tup:
+                        moves.append(Move(ind, square, board)) # It is an enemy piece
                         break
                 else:
-                    if (not piece_pinned) or (pin_direction == tup) or (pin_direction[0] * -1, pin_direction[1] * -1) == tup:
+                    if piece_can_move or (pin_direction == tup) or (pin_direction[0] * -1, pin_direction[1] * -1) == tup:
                         moves.append(Move(ind, square, board))
             else:
                 break
 
 def get_N_moves(moves, board, ind, row, col, dict, king_color):
-    piece_pinned = False
+    piece_can_move = True
     for i in range(len(dict['pins_list']) - 1, -1, -1):
-        if dict['pins_list'][i][0] == row and dict['pins_list'][i][1] == col:
-            piece_pinned = True
+        if dict['pins_list'][i][0] == ind:
+            piece_can_move = False
             dict['pins_list'].remove(dict['pins_list'][i])
             break
 
@@ -311,7 +337,7 @@ def get_N_moves(moves, board, ind, row, col, dict, king_color):
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * (row + tup[0]) + (col + tup[1])
             if (board[square] == 0) or (board[square] >  0) != king_color:
-                if not piece_pinned:
+                if piece_can_move:
                     moves.append(Move(ind, square, board))
 
 def get_K_moves(moves, board, ind, row, col, dict, king_color):
@@ -343,21 +369,21 @@ def get_K_moves(moves, board, ind, row, col, dict, king_color):
         if dict['white_castle'][1]:
             if board[61:63] == [0, 0]:
                 if (un_attacked_sq(board, 61, 7, 5, dict, True)) and (un_attacked_sq(board, 62, 7, 6, dict, True)):
-                    moves.append(Move(ind, 62, board, (True, False)))
+                    moves.append(Move(ind, 62, board, (True, False, (False, None))))
 
         if dict['white_castle'][0]:
             if board[57:60] == [0,0,0]:
                 if (un_attacked_sq(board, 59, 7, 3, dict, True)) and (un_attacked_sq(board, 58, 7, 2, dict, True)):
-                    moves.append(Move(ind, 58, board, (True, False)))
+                    moves.append(Move(ind, 58, board, (True, False, (False, None))))
     elif not dict['white_to_move'] and dict['black_king_loc'] == 4:
         if dict['black_castle'][1]:
             if board[5:7] == [0,0]:
                 if (un_attacked_sq(board, 5, 0, 5, dict, False)) and (un_attacked_sq(board, 6, 0, 6, dict, False)):
-                    moves.append(Move(ind, 6, board, (True, False)))
+                    moves.append(Move(ind, 6, board, (True, False, (False, None))))
         if dict['black_castle'][0]:
             if board[1:4] == [0,0,0]:
                 if (un_attacked_sq(board, 3, 0, 3, dict, False)) and (un_attacked_sq(board, 2, 0, 2, dict, False)):
-                    moves.append(Move(ind, 2, board, (True, False)))
+                    moves.append(Move(ind, 2, board, (True, False, (False, None))))
 
 def get_all_possible_moves(board, dict): # Using all these if statements as it is fastest
     moves = []
@@ -400,7 +426,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
         if len(checks_list) == 1:
             moves = get_all_possible_moves(board, dict)
             check = checks_list[0]
-            check_sq = check[0] * 8 + check[1]
+            check_sq = check[0]
             piece_checking = board[check_sq]
             valid_squares = []
 
@@ -408,7 +434,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
                 valid_squares = [(check_sq)]
             else:
                 for mul in range(1, 8):
-                    valid_sq = (king_sq + mul * check[2] * 8 + mul * check[3] )
+                    valid_sq = (king_sq + mul * check[1] * 8 + mul * check[2])
                     valid_squares.append(valid_sq)
                     if valid_sq == check_sq:
                         break
@@ -437,12 +463,11 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
     if len(moves) == 0:
         if dict['in_check']:
             colour = 'white' if not dict['white_to_move'] else 'black'
-
        #     print(f"Check-Mate on the board for: {colour}")
         else:
+            #     print("Stale-Mate on the board")
             pass
         return []
-       #     print("Stale-Mate on the board")
 
     return moves
 
@@ -455,17 +480,18 @@ def check_pins_and_checks(board, ind, col, row, dict):
 
     start_sq = ind
 
-
-    for index, tup in enumerate(KING_MOVES):
+    index = 0
+    for tup in (KING_MOVES):
         possible_pin = ()
         for mul in range(1, 8):
             end_row = row + tup[0] * mul
             end_col = col + tup[1] * mul
+            end_sq = end_row * 8 + end_col
             if -1 < end_row < 8 and -1 < end_col < 8:
-                end_piece = board[end_row * 8 + end_col]
+                end_piece = board[end_sq]
                 if ( (end_piece > 0) == (ally_col > 0) ) and end_piece != 0:
                     if possible_pin == ():
-                        possible_pin = (end_row, end_col, tup[0], tup[1])
+                        possible_pin = (end_sq, tup[0], tup[1])
                     else:
                         break   # As this is the second piece so double walling the pin
                 elif ( (end_piece > 0) != (ally_col > 0) ) and end_piece != 0:
@@ -477,7 +503,7 @@ def check_pins_and_checks(board, ind, col, row, dict):
 
                         if possible_pin == ():  # No piece blocking so it is a check
                             in_check = True
-                            checks.append((end_row, end_col, tup[0], tup[1]))
+                            checks.append((end_sq, tup[0], tup[1]))
                             break
                         else: # Piece blocking so it's a pin
                             pins.append(possible_pin)
@@ -486,6 +512,7 @@ def check_pins_and_checks(board, ind, col, row, dict):
                         break # Enemy piece not applying check
             else:
                 break # We are outside the board
+        index+= 1
 
     for tup in KNIGHT_MOVES:
         end_row = row + tup[0]
@@ -494,21 +521,21 @@ def check_pins_and_checks(board, ind, col, row, dict):
             end_piece = board[end_col + end_row * 8]
             if ( (end_piece > 0) == (enemy_col > 0) and end_piece != 0) and (FABS(end_piece) == 293):
                 in_check = True
-                checks.append((end_row, end_col, tup[0], tup[1]))
+                checks.append((end_row*8 + end_col, tup[0], tup[1]))
 
     dict['in_check'], dict['pins_list'], dict['checks_list'] = in_check, pins, checks
 
 
 class Move:
     __slots__ = ('start_ind', 'end_ind', 'move_ID',
-                 'piece_moved', 'piece_captured', 'castle_move', 'en_passant')
+                 'piece_moved', 'piece_captured', 'castle_move', 'en_passant',
+                 'promotion', 'prom_piece')
 
-    def __init__(self, start_sq, end_sq, board, tup = (False, False)):
+    def __init__(self, start_sq, end_sq, board, tup=(False, False, (False, None))):
 
         self.start_ind, self.end_ind = start_sq, end_sq
-        self.piece_moved = board[self.start_ind]
-        self.piece_captured = board[self.end_ind]
-        self.castle_move, self.en_passant = tup
+        self.piece_moved, self.piece_captured = board[self.start_ind], board[self.end_ind]
+        self.castle_move, self.en_passant, (self.promotion, self.prom_piece)  = tup
 
         # Similar idea to hash function
         self.move_ID = self.start_ind * 100 + self.end_ind
