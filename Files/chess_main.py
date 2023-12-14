@@ -82,9 +82,19 @@ def main():
                     highlight_sq = []
                     move = chess_engine.Move(player_clicks[0], player_clicks[1], board)
 
-                    if move in valid_moves:
-                        chess_engine.make_move(board, move, dict)
-                        move_made = True
+                    for engine_move in valid_moves:
+                        if move == engine_move:
+                            if engine_move.promotion:
+                                index = int(input('Promotion piece, type the index: [Q, R, B, N] \n'))
+                                piece = (['Q: 900', 'R: 500', 'B: 300', 'N: 293'][index])[-3:]
+                                print(piece)
+                                if dict['white_to_move']: piece = int(piece)
+                                else: piece = - int(piece)
+                                move.prom_piece, move.promotion = piece, True
+
+                            chess_engine.make_move(board, move, dict)
+                            move_made = True
+                            break
 
                     sq_selected = ()
                     player_clicks = []
