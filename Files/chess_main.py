@@ -1,10 +1,8 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
-import chess_engine
+from Files import chess_engine
 import timeit
 import numpy as np
-import cProfile
-import pstats
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
