@@ -34,14 +34,14 @@ FABS = fabs
 
 '''Here are the variables that will be re-assigned and changed during run time'''
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
-    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
-    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
-    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
-    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
-    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-    100, 100, 100, 100, 100, 100, 100, 100,  # 48 to 55
-    500, 293, 300, 900, 1, 300, 293, 500]  # 56 to 63
+    -500, 0 , 0, 0,   -1, 0, 0, -500,  # 0 to 7
+    -100, 0 , -100, -100, -900, -100, -300, 0,  # 8 to 15
+      -300 ,   -293 ,   0 ,   0 ,   -100 ,   -293 ,   -100 ,   0 ,  # 16 to 23
+      0 ,   0 ,   0 ,   100 ,   293 ,   0 ,   0 ,   0 ,  # 24 to 31
+      0 ,   -100 ,   0 ,   0 ,   100 ,   0 ,   0 ,   0 ,  # 32 to 39
+      0 ,   0 ,   293 ,   0 ,   0 ,   900 ,   0 ,   -100 ,  # 40 to 47
+     100,  100,  100,  300,  300,  100,  100,  100,  # 48 to 55
+     500,  0,  0,  0,   1 ,  0,  0,  500]
 
 
 # Dictionary with kwargs needed during a game
@@ -85,26 +85,26 @@ def make_move(board, move, dict):
     elif move.piece_moved == 500:
         if move.start_ind == 63:
             dict['white_castle'] = (dict['white_castle'][0], False)
-        else:
+        elif move.start_ind == 56:
             dict['white_castle'] = (False, dict['white_castle'][1])
 
     elif move.piece_moved == -500:
         if move.start_ind == 7:
             dict['black_castle'] = (dict['black_castle'][0], False)
-        else:
+        elif move.start_ind == 0:
             dict['black_castle'] = (False, dict['black_castle'][1])
 
 
     if move.piece_captured == 500:
         if move.end_ind == 63:
             dict['white_castle'] = (dict['white_castle'][0], False)
-        else:
+        elif move.end_ind == 56:
             dict['white_castle'] = (False, dict['white_castle'][1])
 
     elif move.piece_captured == -500:
         if move.end_ind == 7:
             dict['black_castle'] = (dict['black_castle'][0], False)
-        else:
+        elif move.end_ind == 0:
             dict['black_castle'] = (False, dict['black_castle'][1])
 
 

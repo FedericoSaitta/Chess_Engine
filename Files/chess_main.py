@@ -1,8 +1,9 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
-from Files import chess_engine
+import chess_engine
 import timeit
-import numpy as np
+from random import randint
+
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
@@ -105,7 +106,7 @@ def main():
                     move_made = True
 
                 elif e.key == p.K_r:  # To make random moves
-                    ind = np.random.randint(len(valid_moves))
+                    ind = randint(0, len(valid_moves) - 1)
                     rnd_move = valid_moves[ind]
                     chess_engine.make_move(board, rnd_move, dict)
                     move_made = True

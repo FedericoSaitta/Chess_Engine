@@ -1,14 +1,7 @@
-
-from Files import chess_engine
+import chess_engine
 import timeit
-import subprocess
-
 #import pstats
 #from collections import Counter
-
-# Run the compiled chess engine with PyPy
-#subprocess.run(['pypy3', '__pycache__/chess_engine.pyc'])
-
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
 rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dictionary
@@ -18,7 +11,8 @@ cols_to_files = {v: k for k, v in files_to_cols.items()}
 
 piece_dict = {100: 'p', 500: 'r', 300: 'b', 293: 'n', 900: 'q'}
 
-DEPTH = 4
+
+DEPTH = 5
 board = chess_engine.board
 dict = chess_engine.general_dict
 list_of_parents = {}
@@ -39,17 +33,16 @@ def perft(board, dict, depth):
     return nodes
 
 def divide_perft(board, dict, depth): # This is slower, so should be used only for debugging
-   # chess_engine.make_move(board, chess_engine.Move(11, 2, board, (False, False, (True, 900))), dict)
-   # chess_engine.make_move(board, chess_engine.Move(53, 59, board), dict)
-   # chess_engine.make_move(board, chess_engine.Move(57, 57 - 16 + 1, board), dict)
+   # chess_engine.make_move(board, chess_engine.Move(63, 62, board), dict)
+   # chess_engine.make_move(board, chess_engine.Move(0, 1, board), dict)
+   # chess_engine.make_move(board, chess_engine.Move(62, 63, board), dict)
     moves = chess_engine.get_all_valid_moves(board, dict)
-    #print(len(moves))
     for move in moves:
         leafs = 0
         key = get_chess_notation((move.start_ind, move.end_ind), move.prom_piece)
 
         chess_engine.make_move(board, move, dict)
-        leafs += (perft(board, dict, depth - 1, key))
+        leafs += (perft(board, dict, depth - 1))
         chess_engine.undo_move(board, dict)
 
         list_of_parents[key] = leafs
