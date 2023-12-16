@@ -90,6 +90,8 @@ piece_sq_values = {100: PAWN_white, -100:PAWN_black,
                    900: QUEEN_white, -900: QUEEN_black,
                    1: KING_white, -1: KING_black}
 
+DEPTH = 2
+
 def find_random_move(moves):
     if moves != []:
         index = randint(0, len(moves) - 1)
@@ -101,32 +103,67 @@ def find_random_move(moves):
 def best_move_finder(moves, board, dict):
     ### From this alg perspective both black and white aim for high scores, this is maximizing algorithm
     turn_multiplier = 1 if dict['white_to_move'] else - 1
-    max_score = - CHECK_MATE
-    best_move = None
+    max_score, best_move = -CHECK_MATE, None
 
+    print(moves)
     for move in moves:
+
         chess_engine.make_move(board, move, dict)
-        score = evaluate_board(board, dict) * turn_multiplier
+        score = minimax(board, dict, DEPTH)  * turn_multiplier
         chess_engine.undo_move(board, dict)
-    #   print(move.get_chess_notation(board), 'score: ', score)
+
+        print(move.get_chess_notation(board), 'score: ', score)
 
         if score > max_score:
-            max_score = score
-            best_move = move
+            max_score, best_move = score, move
 
 
-    print('eval_bar: ', max_score * turn_multiplier)
+    print(best_move.get_chess_notation(board), 'eval_bar: ', max_score * turn_multiplier)
     return best_move
 
 
+
+
+def minimax(board, dict, depth):
+    if depth == 0:
+        return evaluate_board(board, dict)
+
+    moves = chess_engine.get_all_valid_moves(board, dict)
+
+    if dict['white_to_move']:
+        best = -CHECK_MATE
+
+        for move in moves:
+            chess_engine.make_move(board, move, dict)
+            score = minimax(board, dict, depth - 1)
+            chess_engine.undo_move(board, dict)
+
+            if score > best:
+                best = score
+    else:
+        best = CHECK_MATE
+
+        for move in moves:
+            chess_engine.make_move(board, move, dict)
+            score = minimax(board, dict, depth - 1)
+            chess_engine.undo_move(board, dict)
+
+            if score < best:
+                best = score
+
+    return best
+
+
+
+
+
+### This is returns the same value wheter it is white or black perspective, after the score is returned it should
+### be multiplied by the turn multiplier
 def evaluate_board(board, dict):
     ## Putting the dict here for now, will change later probs
-    # For now this is just a rudimentary method
     if dict['check_mate']: return CHECK_MATE
     elif dict['stale_mate']: return STALE_MATE
-
     else:
-
         eval_bar = 0
         index = 0
         for square in board:
