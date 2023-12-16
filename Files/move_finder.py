@@ -75,17 +75,13 @@ KING_white = (-30,-40,-40,-50,-50,-40,-40,-30,
 '''
 
 
-PAWN_black = tuple(reversed(PAWN_white))
+PAWN_black = [-item for item in tuple(reversed(PAWN_white))]
+KNIGHT_black = [-item for item in tuple(reversed(KNIGHT_white))]
+BISHOP_black = [-item for item in tuple(reversed(BISHOP_white))]
+ROOK_black = [-item for item in tuple(reversed(ROOK_white))]
+QUEEN_black  = [-item for item in tuple(reversed(QUEEN_white))]
+KING_black = [-item for item in tuple(reversed(KING_white))]
 
-print(PAWN_black)
-
-
-KNIGHT_black = tuple(reversed(KNIGHT_white))
-BISHOP_black = tuple(reversed(BISHOP_white))
-ROOK_black = tuple(reversed(ROOK_white))
-QUEEN_black  = tuple(reversed(QUEEN_white))
-KING_black = tuple(reversed(KING_white))
-print(KING_black)
 
 piece_sq_values = {100: PAWN_white, -100:PAWN_black,
                    293: KNIGHT_white, -293: KNIGHT_black,
@@ -104,21 +100,22 @@ def find_random_move(moves):
 
 def best_move_finder(moves, board, dict):
     ### From this alg perspective both black and white aim for high scores, this is maximizing algorithm
-    turn_multiplier = -1 if dict['white_to_move'] else 1
+    turn_multiplier = 1 if dict['white_to_move'] else - 1
     max_score = - CHECK_MATE
     best_move = None
 
     for move in moves:
-        print(move.get_chess_notation(board))
         chess_engine.make_move(board, move, dict)
         score = evaluate_board(board, dict) * turn_multiplier
         chess_engine.undo_move(board, dict)
-        print(score, max_score)
+    #   print(move.get_chess_notation(board), 'score: ', score)
+
         if score > max_score:
             max_score = score
             best_move = move
 
-    print('eval_bar: ', max_score)
+
+    print('eval_bar: ', max_score * turn_multiplier)
     return best_move
 
 
@@ -129,6 +126,7 @@ def evaluate_board(board, dict):
     elif dict['stale_mate']: return STALE_MATE
 
     else:
+
         eval_bar = 0
         index = 0
         for square in board:
@@ -136,7 +134,5 @@ def evaluate_board(board, dict):
                 eval_bar += (piece_sq_values[square])[index]
 
             index += 1
-
         eval_bar += sum(board)
-
         return eval_bar/100
