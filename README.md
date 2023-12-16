@@ -22,9 +22,9 @@ The aim is to write a chess engine that is at least around the 1700 level on che
     - Ply 4 in 8.82 s, 493 KNodes/s using Cython
     - Ply 4 in 3.16 s, 1.28 MNodes/s using PyPy3 
 
-  - Endgame position (8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -):
-    - Ply 4 in 7.48 s, 90 KNodes/s using CPython 
-    - Ply 4 in 2.86 s, 236 KNodes/s using Cython
+  - Endgame position (FEN: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -):
+    - Ply 5 in 7.48 s, 90 KNodes/s using CPython 
+    - Ply 5 in 2.86 s, 236 KNodes/s using Cython
     - Ply 5 in 1.74 s, 387 MNodes/s using PyPy3 
     
 ## Board Evaluation: 

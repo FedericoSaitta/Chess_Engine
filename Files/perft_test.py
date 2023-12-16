@@ -12,7 +12,7 @@ cols_to_files = {v: k for k, v in files_to_cols.items()}
 piece_dict = {100: 'p', 500: 'r', 300: 'b', 293: 'n', 900: 'q'}
 
 
-DEPTH = 5
+DEPTH = 4
 board = chess_engine.board
 dict = chess_engine.general_dict
 list_of_parents = {}
