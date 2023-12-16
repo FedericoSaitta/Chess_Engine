@@ -11,7 +11,7 @@ The aim is to write a chess engine that is at least around the 1700 level on che
 - Use of PyPy3 significantly increases performance, at deeper depths speeds increase, unlike for
   CPython and Cython which plateau.
  
-  # Perft Test results:
+  ### Perft Test results:
      Starting position:
        - Ply 5 in 31.8 s, 152 KNodes/s using CPython 
        - Ply 5 in 12.6 s, 386 KNodes/s using Cython

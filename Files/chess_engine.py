@@ -34,21 +34,21 @@ FABS = fabs
 
 '''Here are the variables that will be re-assigned and changed during run time'''
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    0, 0, 0, 0, 0, 0, 0, 0,  # 0 to 7
-    0, 0, -100, 0, 0, 0, 0, 0,  # 8 to 15
-    0, 0, 0, -100, 0, 0, 0, 0,  # 16 to 23
-    1, 100, 0, 0, 0, 0, 0, -500,  # 24 to 31
-    0, 500, 0, 0, 0, -100, 0, -1,  # 32 to 39
+    -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
+    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
+    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
+    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
+    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
     0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-    0, 0, 0, 0, 100, 0, 100, 0,  # 48 to 55
-    0, 0, 0, 0, 0, 0, 0, 0]  # 56 to 63
+    100, 100, 100, 100, 100, 100, 100, 100,  # 48 to 55
+    500, 293, 300, 900, 1, 300, 293, 500]  # 56 to 63
 
 
 # Dictionary with kwargs needed during a game
 general_dict = {
         'white_to_move': True,
-        'white_king_loc': 24,
-        'black_king_loc': 39,
+        'white_king_loc': 60,
+        'black_king_loc': 4,
         'en_passant_sq': None,
         'move_log': [],
         'white_castle': (True, True),  #  [Left, Right]
