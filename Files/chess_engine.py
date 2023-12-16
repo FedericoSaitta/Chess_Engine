@@ -57,7 +57,9 @@ general_dict = {
         'in_check': False,                                        # values is added
         'pins_list': [],
         'checks_list': [],
-        'en_passant_log': []
+        'en_passant_log': [],
+        'stale_mate': False,
+        'check_mate': False
 }
 
 def make_move(board, move, dict):
@@ -183,6 +185,7 @@ def undo_move(board, dict):
         elif move.piece_moved == -1: dict['black_king_loc'] = move.start_ind
 
         dict['white_to_move'] = not dict['white_to_move']
+        dict['check_mate'], dict['stale_mate'] = False, False
 
 
 def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the enemy can attack the square (r, c), used to determine validity of castling only
@@ -461,10 +464,11 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
     if len(moves) == 0:
         if dict['in_check']:
             colour = 'white' if not dict['white_to_move'] else 'black'
+            dict['check_mate'] = True
        #     print(f"Check-Mate on the board for: {colour}")
         else:
+            dict['stale_mate'] = True
             #     print("Stale-Mate on the board")
-            pass
         return []
 
     return moves

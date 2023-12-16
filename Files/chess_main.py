@@ -1,6 +1,7 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
 import chess_engine
+from move_finder import find_random_move, best_move_finder
 import timeit
 from random import randint
 
@@ -22,11 +23,11 @@ cols_to_files = {v: k for k, v in files_to_cols.items()}
 dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -300: 'bB', 300: 'wB',
         -293: 'bN', 293: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
 
-avg_move_time, avg_num_moves = [], []
 
 
 '''Handle user input, and graphics'''
 def main():
+
 
     highlight_sq = []
     p.init()
@@ -38,90 +39,96 @@ def main():
     dict = chess_engine.general_dict
 
     valid_moves = chess_engine.get_all_valid_moves(board, dict)
-    print(len(valid_moves))
-
     move_made = False  # Flag for when we want to generate this function
 
     load_images()  # Does this once at the start as it is expensive computation
     running = True
     sq_selected = ()  # keep track of last input from user
     player_clicks = []  # keep track of player clicks, list of two tuples
+    game_over = False
+
+    player_one = True # If a human is playing white it will be true
+    player_two = False # If a human is playing black it will be true
 
     while running:
+
+        is_human_turn = (dict['white_to_move'] and player_one) or (not dict['white_to_move'] and player_two)
+
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
 
             # Mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos()  # Note if you add extra panels note to keep track of those
-                col = int(location[0] // SQ_SIZE)
-                row = int(location[1] // SQ_SIZE)
+                if not game_over and is_human_turn:
+                    location = p.mouse.get_pos()  # Note if you add extra panels note to keep track of those
+                    col = int(location[0] // SQ_SIZE)
+                    row = int(location[1] // SQ_SIZE)
 
-                if sq_selected == (8 * row + col):
-                    sq_selected = ()  # Deselects if player clicks twice
-                    player_clicks, highlight_sq = [], []
+                    if sq_selected == (8 * row + col):
+                        sq_selected = ()  # Deselects if player clicks twice
+                        player_clicks, highlight_sq = [], []
 
-                else:
-                    sq_selected = (8 * row + col)
-                    player_clicks.append(sq_selected)  # Append both first and second clicks
+                    else:
+                        sq_selected = (8 * row + col)
+                        player_clicks.append(sq_selected)  # Append both first and second clicks
 
-                if len(player_clicks) == 1:
-                    current_sq = get_single_move_notation(player_clicks[0])
-                    highlight_sq.append(current_sq)
+                    if len(player_clicks) == 1:
+                        current_sq = get_single_move_notation(player_clicks[0])
+                        highlight_sq.append(current_sq)
 
 
-                    for move in valid_moves:
-                        notation = move.get_chess_notation(chess_engine.board)
+                        for move in valid_moves:
+                            notation = move.get_chess_notation(chess_engine.board)
+                            if notation[1:3] == get_single_move_notation(player_clicks[0]):
+                                highlight_sq.append(notation[-2:])
 
-                        if notation[1:3] == get_single_move_notation(player_clicks[0]):
-                            highlight_sq.append(notation[-2:])
+                    if len(player_clicks) == 2:
+                        highlight_sq = []
+                        move = chess_engine.Move(player_clicks[0], player_clicks[1], board)
 
-                if len(player_clicks) == 2:
-                    highlight_sq = []
-                    move = chess_engine.Move(player_clicks[0], player_clicks[1], board)
+                        for engine_move in valid_moves:
+                            if move == engine_move:
+                                if engine_move.promotion:
+                                    index = int(input('Promotion piece, type the index: [Q, R, B, N] \n'))
+                                    piece = (['Q: 900', 'R: 500', 'B: 300', 'N: 293'][index])[-3:]
+                                    print(piece)
+                                    if dict['white_to_move']: piece = int(piece)
+                                    else: piece = - int(piece)
+                                    move.prom_piece, move.promotion = piece, True
+                                    chess_engine.make_move(board, move, dict)
+                                else:
+                                    chess_engine.make_move(board, engine_move, dict)
+                                move_made = True
+                                break
 
-                    for engine_move in valid_moves:
-                        if move == engine_move:
-                            if engine_move.promotion:
-                                index = int(input('Promotion piece, type the index: [Q, R, B, N] \n'))
-                                piece = (['Q: 900', 'R: 500', 'B: 300', 'N: 293'][index])[-3:]
-                                print(piece)
-                                if dict['white_to_move']: piece = int(piece)
-                                else: piece = - int(piece)
-                                move.prom_piece, move.promotion = piece, True
+                        sq_selected = ()
+                        player_clicks = []
 
-                            chess_engine.make_move(board, move, dict)
-                            move_made = True
-                            break
-
-                    sq_selected = ()
-                    player_clicks = []
-
-                '''Key press handler'''
-
+            #'''Key press handler'''
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # Do not allow for undo moves for now
                     chess_engine.undo_move(board, dict)
                     move_made = True
+                    game_ended = False
 
-                elif e.key == p.K_r:  # To make random moves
-                    ind = randint(0, len(valid_moves) - 1)
-                    rnd_move = valid_moves[ind]
-                    chess_engine.make_move(board, rnd_move, dict)
-                    move_made = True
+        if not is_human_turn and not game_over:
+            #computer_move = find_random_move(valid_moves)
+            computer_move = best_move_finder(valid_moves, board, dict)
+            if computer_move is not None:
+                chess_engine.make_move(board, computer_move, dict)
 
-        if move_made:
+            move_made = True
 
+        if move_made and not game_over:
             start = timeit.default_timer()
             valid_moves = chess_engine.get_all_valid_moves(board, dict)  # Note this will need to be valid moves only in the future
             time = timeit.default_timer() - start
-
-            avg_move_time.append(time)
-            avg_num_moves.append(len(valid_moves))
-            print("Calculated {} moves in: {}".format(len(valid_moves), time))
-
             move_made = False
+
+            if valid_moves == []:
+                game_over = True
+                print('Game is Over')
 
         draw_game_state(screen, board, highlight_sq)
         clock.tick(MAX_FPS)
@@ -151,6 +158,7 @@ def draw_board(screen):  # Draws the squares on the board
 
 
 def draw_highlights(screen, highlight_sq_list):
+    # Need to fix visual bug of overdrawing some squares, maximum colour reached should be the same
     color_red = (255, 50, 50)
     color_yellow = (255, 255, 51)
 
