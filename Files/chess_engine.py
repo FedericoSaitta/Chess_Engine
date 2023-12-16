@@ -34,21 +34,21 @@ FABS = fabs
 
 '''Here are the variables that will be re-assigned and changed during run time'''
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    -500, 0 , 0, 0,   -1, 0, 0, -500,  # 0 to 7
-    -100, 0 , -100, -100, -900, -100, -300, 0,  # 8 to 15
-      -300 ,   -293 ,   0 ,   0 ,   -100 ,   -293 ,   -100 ,   0 ,  # 16 to 23
-      0 ,   0 ,   0 ,   100 ,   293 ,   0 ,   0 ,   0 ,  # 24 to 31
-      0 ,   -100 ,   0 ,   0 ,   100 ,   0 ,   0 ,   0 ,  # 32 to 39
-      0 ,   0 ,   293 ,   0 ,   0 ,   900 ,   0 ,   -100 ,  # 40 to 47
-     100,  100,  100,  300,  300,  100,  100,  100,  # 48 to 55
-     500,  0,  0,  0,   1 ,  0,  0,  500]
+    0, 0, 0, 0, 0, 0, 0, 0,  # 0 to 7
+    0, 0, -100, 0, 0, 0, 0, 0,  # 8 to 15
+    0, 0, 0, -100, 0, 0, 0, 0,  # 16 to 23
+    1, 100, 0, 0, 0, 0, 0, -500,  # 24 to 31
+    0, 500, 0, 0, 0, -100, 0, -1,  # 32 to 39
+    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
+    0, 0, 0, 0, 100, 0, 100, 0,  # 48 to 55
+    0, 0, 0, 0, 0, 0, 0, 0]  # 56 to 63
 
 
 # Dictionary with kwargs needed during a game
 general_dict = {
         'white_to_move': True,
-        'white_king_loc': 60,
-        'black_king_loc': 4,
+        'white_king_loc': 24,
+        'black_king_loc': 39,
         'en_passant_sq': None,
         'move_log': [],
         'white_castle': (True, True),  #  [Left, Right]
@@ -223,8 +223,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * tup[0] + tup[1] + ind
             if ((board[square] > 0) != king_color) and board[square] != 0:  # Checks for colour
-                piece = FABS(board[square])
-                if piece == 293:
+                if FABS(board[square]) == 293:
                     return False  # So that side cannot castle
 
     return True
@@ -241,12 +240,12 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
 
     index = 0
     for tup in (MOVES):
-        if -1 < (col + tup[1]) < 8:  # As pawns literally cant get of the board
+        if (col != 0 and col != 7) or -1 < (col + tup[1]) < 8: # As pawns literally cant get of the board
             square = 8 * tup[0]  + tup[1] + ind
 
             if index == 0:
                 if board[square] == 0:
-                    if not piece_pinned or pin_direction == tup:
+                    if not piece_pinned or pin_direction == tup or (pin_direction[0] * -1, pin_direction[1] * -1) == tup:
                         if (row == 6 and not king_color) or (row == 1 and king_color):
                             moves.append(Move(ind, square, board, (False, False, (True, 900))))
                             moves.append(Move(ind, square, board, (False, False, (True, 500))))

@@ -33,9 +33,10 @@ def perft(board, dict, depth):
     return nodes
 
 def divide_perft(board, dict, depth): # This is slower, so should be used only for debugging
-   # chess_engine.make_move(board, chess_engine.Move(63, 62, board), dict)
-   # chess_engine.make_move(board, chess_engine.Move(0, 1, board), dict)
-   # chess_engine.make_move(board, chess_engine.Move(62, 63, board), dict)
+   # chess_engine.make_move(board, chess_engine.Move(33, 36, board), dict)
+   # chess_engine.make_move(board, chess_engine.Move(39, 39 + 7, board), dict)
+   # chess_engine.make_move(board, chess_engine.Move(36, 36-8, board), dict)
+   # chess_engine.make_move(board, chess_engine.Move(39 + 7, 39 + 14, board), dict)
     moves = chess_engine.get_all_valid_moves(board, dict)
     for move in moves:
         leafs = 0
