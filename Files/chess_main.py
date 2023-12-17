@@ -1,8 +1,9 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
 import chess_engine
-from move_finder import find_random_move, best_move_finder
+from move_finder import find_random_move, root_negamax
 import timeit
+import time as t
 from random import randint
 
 
@@ -12,6 +13,8 @@ SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
 
+
+DEPTH = 3
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -47,7 +50,7 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = True # If a human is playing white it will be true
+    player_one = False # If a human is playing white it will be true
     player_two = False # If a human is playing black it will be true
 
     while running:
@@ -107,14 +110,17 @@ def main():
 
             #'''Key press handler'''
             elif e.type == p.KEYDOWN:
-                if e.key == p.K_z:  # Do not allow for undo moves for now
+                if e.key == p.K_z:  # Undoes twice so player can redo a move
+                    chess_engine.undo_move(board, dict)
                     chess_engine.undo_move(board, dict)
                     move_made = True
                     game_ended = False
 
         if not is_human_turn and not game_over:
             #computer_move = find_random_move(valid_moves)
-            computer_move = best_move_finder(valid_moves, board, dict)
+            computer_move = root_negamax(valid_moves, board, dict, DEPTH)
+            t.sleep(0.5)
+
             if computer_move is not None:
                 chess_engine.make_move(board, computer_move, dict)
 

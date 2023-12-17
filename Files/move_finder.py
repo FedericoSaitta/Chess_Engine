@@ -63,17 +63,6 @@ KING_white = (-30,-40,-40,-50,-50,-40,-40,-30,
              20, 20,  0,  0,  0,  0, 20, 20,
              20, 30, 10,  0,  0, 10, 30, 20)
 
-'''         (20, 30, 10, 0, 0, 10, 30, 20, 
-             20, 20, 0, 0, 0, 0, 20, 20, 
-            -10, -20, -20, -20, -20, -20, -20, -10, 
-            -20, -30, -30, -40, -40, -30, -30, -20, 
-            -30, -40, -40, -50, -50, -40, -40, -30, 
-            -30, -40, -40, -50, -50, -40, -40, -30, 
-            -30, -40, -40, -50, -50, -40, -40, -30, 
-            -30, -40, -40, -50, -50, -40, -40, -30)
-            
-'''
-
 
 PAWN_black = [-item for item in tuple(reversed(PAWN_white))]
 KNIGHT_black = [-item for item in tuple(reversed(KNIGHT_white))]
@@ -90,7 +79,8 @@ piece_sq_values = {100: PAWN_white, -100:PAWN_black,
                    900: QUEEN_white, -900: QUEEN_black,
                    1: KING_white, -1: KING_black}
 
-DEPTH = 3
+NODES_SEARCHED = 0
+
 
 def find_random_move(moves):
     if moves != []:
@@ -100,76 +90,70 @@ def find_random_move(moves):
         return None
 
 
-def best_move_finder(moves, board, dict):
+def root_negamax(moves, board, dict, DEPTH):
+    global NODES_SEARCHED
     ### From this alg perspective both black and white aim for high scores, this is maximizing algorithm
-    turn_multiplier = 1 if dict['white_to_move'] else - 1
+    turn_multiplier = 1 if dict['white_to_move'] else -1
     max_score, best_move = -CHECK_MATE, None
+
 
     for move in moves:
         chess_engine.make_move(board, move, dict)
-        score = minimax(board, dict, DEPTH)  * turn_multiplier
+        score = negamax(board, dict, DEPTH - 1, turn_multiplier)
         chess_engine.undo_move(board, dict)
-        print(move.get_chess_notation(board), 'score: ', score * turn_multiplier)
+        print(move.get_chess_notation(board), 'score: (higher better, colour blind)', score)
 
         if score > max_score:
             max_score, best_move = score, move
 
-
-    print(best_move.get_chess_notation(board), 'eval_bar: ', max_score * turn_multiplier)
     if best_move is None:
         best_move = find_random_move(moves)
 
+    print('Best move: ', best_move.get_chess_notation(board), 'eval_bar: (not colour-blind)', max_score * turn_multiplier)
+    print('Searched: ', NODES_SEARCHED)
+    NODES_SEARCHED = 0
     return best_move
 
 
+def negamax(board, dict, depth, multiplier):
+    global NODES_SEARCHED
 
-
-def minimax(board, dict, depth):
     if depth == 0:
-        return evaluate_board(board, dict)
+        NODES_SEARCHED += 1
+        return evaluate_board(board, dict) * multiplier
 
     moves = chess_engine.get_all_valid_moves(board, dict)
+    best = -CHECK_MATE
 
-    if dict['white_to_move']:
-        best = -CHECK_MATE
+    for move in moves:
+        chess_engine.make_move(board, move, dict)
+        score = negamax(board, dict, depth - 1, multiplier)
+        chess_engine.undo_move(board, dict)
 
-        for move in moves:
-            chess_engine.make_move(board, move, dict)
-            score = minimax(board, dict, depth - 1)
-            chess_engine.undo_move(board, dict)
+        best = max(best, score)
 
-            if score > best:
-                best = score
-    else:
-        best = CHECK_MATE
-
-        for move in moves:
-            chess_engine.make_move(board, move, dict)
-            score = minimax(board, dict, depth - 1)
-            chess_engine.undo_move(board, dict)
-
-            if score < best:
-                best = score
 
     return best
-
-
 
 
 
 ### This is returns the same value wheter it is white or black perspective, after the score is returned it should
 ### be multiplied by the turn multiplier
 def evaluate_board(board, dict):
+
     ## Putting the dict here for now, will change later probs
     if dict['check_mate']: return CHECK_MATE
     elif dict['stale_mate']: return STALE_MATE
     else:
         eval_bar = 0
         index = 0
+
+
         for square in board:
             if square != 0:
                 eval_bar += (piece_sq_values[square])[index]
 
             index += 1
+
         eval_bar += sum(board)
         return eval_bar/100
