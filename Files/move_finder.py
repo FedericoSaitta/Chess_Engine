@@ -94,14 +94,17 @@ def root_negamax(moves, board, dict, DEPTH):
     global NODES_SEARCHED
     turn_multiplier = 1 if dict['white_to_move'] else -1
     max_score, best_move = -CHECK_MATE, None
+    alpha, beta = -CHECK_MATE, CHECK_MATE
 
     for move in moves:
         chess_engine.make_move(board, move, dict)
-        score = -negamax(board, dict, DEPTH - 1, -turn_multiplier)
+        score = -negamax(board, dict, DEPTH - 1, -turn_multiplier, -beta, -alpha)
         chess_engine.undo_move(board, dict)
 
         if score > max_score:
             max_score, best_move = score, move
+
+        alpha = max(alpha, max_score)
 
     if best_move is None:
         best_move = find_random_move(moves)
@@ -111,7 +114,7 @@ def root_negamax(moves, board, dict, DEPTH):
     NODES_SEARCHED = 0
     return best_move
 
-def negamax(board, dict, depth, turn_multiplier):
+def negamax(board, dict, depth, turn_multiplier, alpha, beta):
     global NODES_SEARCHED
 
     if depth == 0:
@@ -123,15 +126,18 @@ def negamax(board, dict, depth, turn_multiplier):
 
     for move in moves:
         chess_engine.make_move(board, move, dict)
-        score = -negamax(board, dict, depth - 1, -turn_multiplier)
+        score = -negamax(board, dict, depth - 1, -turn_multiplier, -beta, -alpha)
         chess_engine.undo_move(board, dict)
 
         if score > best:
             best = score
 
+        alpha = max(alpha, best)
+
+        if alpha >= beta:
+            break
+
     return best
-
-
 
 
 ### This is returns the same value wheter it is white or black perspective, after the score is returned it should

@@ -13,7 +13,7 @@ SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
 
-# problem of engine playing white is that it chooses the worst responses for black
+
 DEPTH = 3
 
 '''Square conversion dictionaries'''
