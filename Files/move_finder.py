@@ -90,7 +90,7 @@ piece_sq_values = {100: PAWN_white, -100:PAWN_black,
                    900: QUEEN_white, -900: QUEEN_black,
                    1: KING_white, -1: KING_black}
 
-DEPTH = 2
+DEPTH = 3
 
 def find_random_move(moves):
     if moves != []:
@@ -105,20 +105,20 @@ def best_move_finder(moves, board, dict):
     turn_multiplier = 1 if dict['white_to_move'] else - 1
     max_score, best_move = -CHECK_MATE, None
 
-    print(moves)
     for move in moves:
-
         chess_engine.make_move(board, move, dict)
         score = minimax(board, dict, DEPTH)  * turn_multiplier
         chess_engine.undo_move(board, dict)
-
-        print(move.get_chess_notation(board), 'score: ', score)
+        print(move.get_chess_notation(board), 'score: ', score * turn_multiplier)
 
         if score > max_score:
             max_score, best_move = score, move
 
 
     print(best_move.get_chess_notation(board), 'eval_bar: ', max_score * turn_multiplier)
+    if best_move is None:
+        best_move = find_random_move(moves)
+
     return best_move
 
 
