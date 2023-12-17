@@ -13,7 +13,7 @@ SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
 
-
+# problem of engine playing white is that it chooses the worst responses for black
 DEPTH = 3
 
 '''Square conversion dictionaries'''
@@ -50,7 +50,7 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = False # If a human is playing white it will be true
+    player_one = True # If a human is playing white it will be true
     player_two = False # If a human is playing black it will be true
 
     while running:
@@ -119,7 +119,7 @@ def main():
         if not is_human_turn and not game_over:
             #computer_move = find_random_move(valid_moves)
             computer_move = root_negamax(valid_moves, board, dict, DEPTH)
-            t.sleep(0.5)
+         #   t.sleep(1)
 
             if computer_move is not None:
                 chess_engine.make_move(board, computer_move, dict)

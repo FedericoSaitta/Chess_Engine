@@ -6,7 +6,7 @@ import timeit
 
 # If when we score the board, positive values indicate white is winning
 FABS = fabs
-CHECK_MATE = 100_000
+CHECK_MATE = 10_000
 STALE_MATE = 0
 
 PAWN_white = (0,  0,  0,  0,  0,  0,  0,  0,
@@ -92,16 +92,13 @@ def find_random_move(moves):
 
 def root_negamax(moves, board, dict, DEPTH):
     global NODES_SEARCHED
-    ### From this alg perspective both black and white aim for high scores, this is maximizing algorithm
     turn_multiplier = 1 if dict['white_to_move'] else -1
     max_score, best_move = -CHECK_MATE, None
 
-
     for move in moves:
         chess_engine.make_move(board, move, dict)
-        score = negamax(board, dict, DEPTH - 1, turn_multiplier)
+        score = -negamax(board, dict, DEPTH - 1, -turn_multiplier)
         chess_engine.undo_move(board, dict)
-        print(move.get_chess_notation(board), 'score: (higher better, colour blind)', score)
 
         if score > max_score:
             max_score, best_move = score, move
@@ -109,31 +106,31 @@ def root_negamax(moves, board, dict, DEPTH):
     if best_move is None:
         best_move = find_random_move(moves)
 
-    print('Best move: ', best_move.get_chess_notation(board), 'eval_bar: (not colour-blind)', max_score * turn_multiplier)
-    print('Searched: ', NODES_SEARCHED)
+    print('Best move:', best_move.get_chess_notation(board), 'eval_bar:', max_score * turn_multiplier)
+    print('Searched:', NODES_SEARCHED)
     NODES_SEARCHED = 0
     return best_move
 
-
-def negamax(board, dict, depth, multiplier):
+def negamax(board, dict, depth, turn_multiplier):
     global NODES_SEARCHED
 
     if depth == 0:
         NODES_SEARCHED += 1
-        return evaluate_board(board, dict) * multiplier
+        return evaluate_board(board, dict) * turn_multiplier
 
     moves = chess_engine.get_all_valid_moves(board, dict)
     best = -CHECK_MATE
 
     for move in moves:
         chess_engine.make_move(board, move, dict)
-        score = negamax(board, dict, depth - 1, multiplier)
+        score = -negamax(board, dict, depth - 1, -turn_multiplier)
         chess_engine.undo_move(board, dict)
 
-        best = max(best, score)
-
+        if score > best:
+            best = score
 
     return best
+
 
 
 
