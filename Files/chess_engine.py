@@ -15,7 +15,7 @@ ROOK_MOVES = ( (1, 0), (-1, 0), (0, 1), (0, -1) )
 KING_MOVES = ( (1, 0), (-1, 0), (0, 1), (0, -1),  # These are moves that look forwards
                (-1, -1), (-1, 1), (1, 1), (1, -1) )   # These look diagonally
 
-DIRECTIONS_WITH_PIECES = ( (-1, -1, {300, 900}), (-1, 1, {300, 900}), ( 1, -1, {300, 900}), ( 1,  1, {300, 900}),
+DIRECTIONS_WITH_PIECES = ( (-1, -1, {330, 900}), (-1, 1, {330, 900}), ( 1, -1, {330, 900}), ( 1,  1, {330, 900}),
                            (-1,  0, {500, 900}), ( 1, 0, {500, 900}), ( 0,  1, {500, 900}), ( 0, -1, {500, 900}) )
 
 
@@ -34,14 +34,14 @@ FABS = fabs
 
 '''Here are the variables that will be re-assigned and changed during run time'''
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    -500, -293, -300, -900, -1, -300, -293, -500,  # 0 to 7
-    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
-    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
-    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
-    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
-    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-    100, 100, 100, 100, 100, 100, 100, 100,  # 48 to 55
-    500, 293, 300, 900, 1, 300, 293, 500]  # 56 to 63
+    -500, 0 , 0, 0,   -1, 0, 0, -500,  # 0 to 7
+    -100, 0 , -100, -100, -900, -100, -330, 0,  # 8 to 15
+      -330 ,   -320 ,   0 ,   0 ,   -100 ,   -320 ,   -100 ,   0 ,  # 16 to 23
+      0 ,   0 ,   0 ,   100 ,   320 ,   0 ,   0 ,   0 ,  # 24 to 31
+      0 ,   -100 ,   0 ,   0 ,   100 ,   0 ,   0 ,   0 ,  # 32 to 39
+      0 ,   0 ,   320 ,   0 ,   0 ,   900 ,   0 ,   -100 ,  # 40 to 47
+     100,  100,  100,  330,  330,  100,  100,  100,  # 48 to 55
+     500,  0,  0,  0,   1 ,  0,  0,  500]
 
 
 # Dictionary with kwargs needed during a game
@@ -226,7 +226,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
         if -1 < (row + tup[0]) < 8 and -1 < (col + tup[1]) < 8:
             square = 8 * tup[0] + tup[1] + ind
             if ((board[square] > 0) != king_color) and board[square] != 0:  # Checks for colour
-                if FABS(board[square]) == 293:
+                if FABS(board[square]) == 320:
                     return False  # So that side cannot castle
 
     return True
@@ -252,8 +252,8 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
                         if (row == 6 and not king_color) or (row == 1 and king_color):
                             moves.append(Move(ind, square, board, (False, False, (True, 900))))
                             moves.append(Move(ind, square, board, (False, False, (True, 500))))
-                            moves.append(Move(ind, square, board, (False, False, (True, 300))))
-                            moves.append(Move(ind, square, board, (False, False, (True, 293))))
+                            moves.append(Move(ind, square, board, (False, False, (True, 330))))
+                            moves.append(Move(ind, square, board, (False, False, (True, 320))))
                         else:
                             moves.append(Move(ind, square, board))
 
@@ -270,8 +270,8 @@ def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
                         if (row == 6 and not king_color) or (row == 1 and king_color):
                             moves.append(Move(ind, square, board, (False, False, (True, 900))))
                             moves.append(Move(ind, square, board, (False, False, (True, 500))))
-                            moves.append(Move(ind, square, board, (False, False, (True, 300))))
-                            moves.append(Move(ind, square, board, (False, False, (True, 293))))
+                            moves.append(Move(ind, square, board, (False, False, (True, 330))))
+                            moves.append(Move(ind, square, board, (False, False, (True, 320))))
                         else:
                             moves.append(Move(ind, square, board))
 
@@ -402,8 +402,8 @@ def get_all_possible_moves(board, dict): # Using all these if statements as it i
                     get_P_moves(moves, board, ind, row, col, dict, BLACK_PAWN_MOVES, king_color)
 
             elif piece == 500: get_Sliding_moves(moves, board, ind, row, col, ROOK_MOVES, dict, king_color)
-            elif piece == 293: get_N_moves(moves, board, ind, row, col, dict, king_color)
-            elif piece == 300: get_Sliding_moves(moves, board, ind, row, col, BISHOP_MOVES, dict, king_color)
+            elif piece == 320: get_N_moves(moves, board, ind, row, col, dict, king_color)
+            elif piece == 330: get_Sliding_moves(moves, board, ind, row, col, BISHOP_MOVES, dict, king_color)
             elif piece == 900: get_Sliding_moves(moves, board, ind, row, col, QUEEN_MOVES, dict, king_color)
             elif piece == 1: get_K_moves(moves, board, ind, row, col, dict, king_color)
 
@@ -431,7 +431,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
             piece_checking = board[check_sq]
             valid_squares = []
 
-            if FABS(piece_checking) == 293:
+            if FABS(piece_checking) == 320:
                 valid_squares = [(check_sq)]
             else:
                 for mul in range(1, 8):
@@ -499,7 +499,7 @@ def check_pins_and_checks(board, ind, col, row, dict):
                 elif ( (end_piece > 0) != (ally_col > 0) ) and end_piece != 0:
                     type = FABS(end_piece)
 
-                    if (index <= 3 and type == 500) or (index >= 4 and type == 300) or \
+                    if (index <= 3 and type == 500) or (index >= 4 and type == 330) or \
                         (mul == 1 and type == 100 and ( (enemy_col == -1 and (4 <= index <= 5)) or (enemy_col == 1 and (6 <= index <= 7)) ) )  \
                         or (type == 900) or (mul == 1 and type == 1):
 
@@ -521,7 +521,7 @@ def check_pins_and_checks(board, ind, col, row, dict):
         end_col = col + tup[1]
         if -1 < end_row < 8 and -1 < end_col < 8:
             end_piece = board[end_col + end_row * 8]
-            if ( (end_piece > 0) == (enemy_col > 0) and end_piece != 0) and (FABS(end_piece) == 293):
+            if ( (end_piece > 0) == (enemy_col > 0) and end_piece != 0) and (FABS(end_piece) == 320):
                 in_check = True
                 checks.append((end_row*8 + end_col, tup[0], tup[1]))
 
@@ -544,8 +544,8 @@ class Move:
 
 
     def get_chess_notation(self, board):
-        dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -300: 'bB', 300: 'wB',
-                -293: 'bN', 293: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
+        dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
+                -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
 
         piece = board[self.start_ind]
         start_rank_file = self.get_rank_file(self.start_ind)

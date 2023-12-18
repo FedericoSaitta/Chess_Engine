@@ -73,8 +73,8 @@ KING_black = [-item for item in tuple(reversed(KING_white))]
 
 
 piece_sq_values = {100: PAWN_white, -100:PAWN_black,
-                   293: KNIGHT_white, -293: KNIGHT_black,
-                   300: BISHOP_white, -300: BISHOP_black,
+                   320: KNIGHT_white, -320: KNIGHT_black,
+                   330: BISHOP_white, -330: BISHOP_black,
                    500: ROOK_white, -500: ROOK_black,
                    900: QUEEN_white, -900: QUEEN_black,
                    1: KING_white, -1: KING_black}
@@ -104,7 +104,8 @@ def root_negamax(moves, board, dict, DEPTH):
         if score > max_score:
             max_score, best_move = score, move
 
-        alpha = max(alpha, max_score)
+        if max_score > alpha:
+            alpha = max_score
 
     if best_move is None:
         best_move = find_random_move(moves)
@@ -132,7 +133,8 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
         if score > best:
             best = score
 
-        alpha = max(alpha, best)
+        if score > alpha:
+            alpha = score
 
         if alpha >= beta:
             break
@@ -151,12 +153,17 @@ def evaluate_board(board, dict):
         eval_bar = 0
         index = 0
 
-
         for square in board:
             if square != 0:
                 eval_bar += (piece_sq_values[square])[index]
 
             index += 1
+
+        empty_squares = board.count(0)
+
+        # We know we are in an endgame position
+        if empty_squares > 32:
+            pass
 
         eval_bar += sum(board)
         return eval_bar/100

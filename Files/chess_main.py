@@ -23,8 +23,8 @@ rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dicti
 files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
 cols_to_files = {v: k for k, v in files_to_cols.items()}
 
-dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -300: 'bB', 300: 'wB',
-        -293: 'bN', 293: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
+dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
+        -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
 
 
 
@@ -94,7 +94,7 @@ def main():
                             if move == engine_move:
                                 if engine_move.promotion:
                                     index = int(input('Promotion piece, type the index: [Q, R, B, N] \n'))
-                                    piece = (['Q: 900', 'R: 500', 'B: 300', 'N: 293'][index])[-3:]
+                                    piece = (['Q: 900', 'R: 500', 'B: 330', 'N: 320'][index])[-3:]
                                     print(piece)
                                     if dict['white_to_move']: piece = int(piece)
                                     else: piece = - int(piece)
