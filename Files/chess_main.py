@@ -14,7 +14,7 @@ MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, relate
 IMAGES = {}
 
 
-DEPTH = 3
+DEPTH = 5
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
