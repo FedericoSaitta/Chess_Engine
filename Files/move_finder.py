@@ -174,7 +174,6 @@ def root_negamax(moves, board, dict, DEPTH):
 
         if score > max_score:
             max_score, best_move = score, move
-
         if max_score > alpha:
             alpha = max_score
 
