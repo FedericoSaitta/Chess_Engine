@@ -260,7 +260,6 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
 
     if depth == 0:
         return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
-      #  return evaluate_board(board, dict) * turn_multiplier
 
     moves = move_ordering(chess_engine.get_all_valid_moves(board, dict), board, turn_multiplier)
     best = -CHECK_MATE
@@ -294,8 +293,7 @@ def evaluate_board(board, dict):
     if dict['check_mate']: return -CHECK_MATE
     elif dict['stale_mate']: return STALE_MATE
     else:
-        eval_bar = 0
-        index = 0
+        eval_bar = index = 0
         empty_squares = board.count(0)
         game_phase = 0 if empty_squares < 45 else 1
 
