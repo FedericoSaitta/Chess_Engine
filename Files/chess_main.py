@@ -13,7 +13,6 @@ SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
 
-DEPTH = 6
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -114,7 +113,7 @@ def main():
 
         if not is_human_turn and not game_over:
             #computer_move = find_random_move(valid_moves)
-            computer_move = iterative_deepening(valid_moves, board, dict, 1)
+            computer_move = iterative_deepening(valid_moves, board, dict, 2)
          #   t.sleep(1)
 
 

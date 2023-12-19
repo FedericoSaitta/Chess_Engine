@@ -177,14 +177,24 @@ def iterative_deepening(moves, board, dict, time_constraints):
     start_time = time.time()
 
     # Make sure to start the search with the best moves from the previous search
+    turn_multiplier = 1 if dict['white_to_move'] else -1
+    moves = move_ordering(moves, board, turn_multiplier)
+
+    if len(moves) == 1:
+        print('the only legal move')
+        return moves[0]
     while True:
         print('searching at a depth of:', DEPTH)
-        best_move = root_negamax(moves, board, dict, DEPTH)
+        best_move = root_negamax(moves, board, dict, turn_multiplier, DEPTH)
         DEPTH += 1
 
         if time.time() - start_time > time_constraints or DEPTH == 15:
-            print("Time limit exceeded. Stopping search.")
+    #        print("Time limit exceeded. Stopping search.")
             break
+
+        moves.remove(best_move)
+        moves.insert(0, best_move)
+
 
     if best_move is None:
         best_move = find_random_move(moves)
@@ -192,20 +202,17 @@ def iterative_deepening(moves, board, dict, time_constraints):
     return best_move
 
 
-def root_negamax(moves, board, dict, DEPTH):
+def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
     global NODES_SEARCHED
-    turn_multiplier = 1 if dict['white_to_move'] else -1
-    max_score, best_move = -CHECK_MATE, None
+    score = None
+    max_score, best_move = -100_000, None
     alpha, beta = -CHECK_MATE, CHECK_MATE
 
-    moves = move_ordering(moves, board, turn_multiplier)
-
-    print(len(moves))
     for move in moves:
         chess_engine.make_move(board, move, dict)
         score = -negamax(board, dict, DEPTH - 1, -turn_multiplier, -beta, -alpha)
         chess_engine.undo_move(board, dict)
-        print(move.get_chess_notation(board), 'score: (white)', score * turn_multiplier)
+  #      print(move.get_chess_notation(board), 'score: (white)', score * turn_multiplier)
 
         if score > max_score:
             max_score, best_move = score, move
@@ -219,7 +226,7 @@ def root_negamax(moves, board, dict, DEPTH):
     if best_move is None:
         best_move = find_random_move(moves)
 
-    print('Best move:', best_move.get_chess_notation(board), 'eval_bar: (white)', max_score * turn_multiplier)
+    print('Best move:', best_move.get_chess_notation(board), 'eval_bar: (white)', score * turn_multiplier)
     print('Searched:', NODES_SEARCHED)
     NODES_SEARCHED = 0
     return best_move
@@ -264,6 +271,12 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
     moves = move_ordering(chess_engine.get_all_valid_moves(board, dict), board, turn_multiplier)
     best = -CHECK_MATE
 
+    if moves == []:
+        if dict['in_check']:
+            return -CHECK_MATE
+        else:
+            return STALE_MATE
+
     for move in moves:
         chess_engine.make_move(board, move, dict)
         score = -negamax(board, dict, depth - 1, -turn_multiplier, -beta, -alpha)
@@ -290,18 +303,17 @@ def evaluate_board(board, dict):
     global NODES_SEARCHED
     NODES_SEARCHED += 1
     ## Putting the dict here for now, will change later probs
-    if dict['check_mate']: return -CHECK_MATE
-    elif dict['stale_mate']: return STALE_MATE
-    else:
-        eval_bar = index = 0
-        empty_squares = board.count(0)
-        game_phase = 0 if empty_squares < 45 else 1
+    opponent_moves = (chess_engine.get_all_valid_moves(board, dict))
 
-        for square in board:
-            if square != 0:
-                eval_bar += (piece_sq_values[square][game_phase])[index] + square
+    eval_bar = index = 0
+    empty_squares = board.count(0)
+    game_phase = 0 if empty_squares < 45 else 1
 
-            index += 1
+    for square in board:
+        if square != 0:
+            eval_bar += (piece_sq_values[square][game_phase])[index] + square
+
+        index += 1
 
         '''
         # King distance function
@@ -315,8 +327,35 @@ def evaluate_board(board, dict):
             else: # Black is winning
                 eval_bar += king_distance * 100'''
 
-        eval_bar = eval_bar / 100
-        return eval_bar
+    if FABS(eval_bar) > 450 and (empty_squares > 55):
+        side_winning = 1 if eval_bar > 0 else -1
+        white_k = (dict['white_king_loc'] // 8, dict['white_king_loc'] % 8)
+        black_k = (dict['black_king_loc'] // 8, dict['black_king_loc'] % 8)
+
+        king_distance = ((white_k[0] - black_k[0]) ** 2 + (white_k[1] - black_k[1]) ** 2) ** 0.5
+        if eval_bar > 0:  # White is winning
+            eval_bar -= king_distance * 25
+        else:  # Black is winning
+            eval_bar += king_distance * 25
+
+
+        if side_winning == 1:
+            king_to_check_mate = dict['black_king_loc']
+            black_k = king_to_check_mate // 8, king_to_check_mate % 8
+            row, col = FABS(black_k[0] - 4), FABS(black_k[1] - 4)
+            distance = (row**2 + col**2) * 4 - 128
+
+        else:
+            king_to_check_mate = dict['white_king_loc']
+            white_k = (king_to_check_mate // 8, king_to_check_mate % 8)
+            row, col = (white_k[0] - 4), (white_k[1] - 4)
+            distance = 64 - (row ** 2 + col ** 2)*4 - 128
+
+        eval_bar += distance
+
+    eval_bar = eval_bar / 100
+
+    return eval_bar
 
 # Move ordering is slightly wrong, moving a queen to capture a pawn should still be before non captures
 def move_ordering(moves, board, turn_multiplier):
