@@ -34,14 +34,14 @@ FABS = fabs
 
 '''Here are the variables that will be re-assigned and changed during run time'''
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    -500, -320, -330, -900, -1, -330, -320, -500,  # 0 to 7
-    -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
-    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
-    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
-    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
-    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-    100, 100, 100, 100, 100, 100, 100, 100,  # 48 to 55
-    500, 320, 330, 900, 1, 330, 320, 500]  # 56 to 63
+    -500, 0 , 0, 0,   -1, 0, 0, -500,  # 0 to 7
+    -100, 0 , -100, -100, -900, -100, -330, 0,  # 8 to 15
+      -330 ,   -320 ,   0 ,   0 ,   -100 ,   -320 ,   -100 ,   0 ,  # 16 to 23
+      0 ,   0 ,   0 ,   100 ,   320 ,   0 ,   0 ,   0 ,  # 24 to 31
+      0 ,   -100 ,   0 ,   0 ,   100 ,   0 ,   0 ,   0 ,  # 32 to 39
+      0 ,   0 ,   320 ,   0 ,   0 ,   900 ,   0 ,   -100 ,  # 40 to 47
+     100,  100,  100,  330,  330,  100,  100,  100,  # 48 to 55
+     500,  0,  0,  0,   1 ,  0,  0,  500]
 
 
 # Dictionary with kwargs needed during a game
@@ -545,7 +545,7 @@ class Move:
 
     def get_chess_notation(self, board):
         dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
-                -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
+                -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK', 0:'None'}
 
         piece = board[self.start_ind]
         start_rank_file = self.get_rank_file(self.start_ind)

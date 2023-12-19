@@ -13,8 +13,7 @@ SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
 
-
-DEPTH = 5
+DEPTH = 3
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -30,8 +29,6 @@ dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
 
 '''Handle user input, and graphics'''
 def main():
-
-
     highlight_sq = []
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
@@ -50,7 +47,7 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = True # If a human is playing white it will be true
+    player_one = False # If a human is playing white it will be true
     player_two = False # If a human is playing black it will be true
 
     while running:
@@ -95,7 +92,6 @@ def main():
                                 if engine_move.promotion:
                                     index = int(input('Promotion piece, type the index: [Q, R, B, N] \n'))
                                     piece = (['Q: 900', 'R: 500', 'B: 330', 'N: 320'][index])[-3:]
-                                    print(piece)
                                     if dict['white_to_move']: piece = int(piece)
                                     else: piece = - int(piece)
                                     move.prom_piece, move.promotion = piece, True
@@ -121,9 +117,8 @@ def main():
             computer_move = root_negamax(valid_moves, board, dict, DEPTH)
          #   t.sleep(1)
 
-            if computer_move is not None:
-                chess_engine.make_move(board, computer_move, dict)
 
+            chess_engine.make_move(board, computer_move, dict)
             move_made = True
 
         if move_made and not game_over:

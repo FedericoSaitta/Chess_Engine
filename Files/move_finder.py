@@ -1,4 +1,6 @@
 # Evaluates positions and searches moves
+import random
+
 import chess_engine
 from random import randint
 from math import fabs
@@ -8,6 +10,7 @@ import timeit
 FABS = fabs
 CHECK_MATE = 10_000
 STALE_MATE = 0
+
 
 PAWN_MG_white = ( 0,   0,   0,   0,   0,   0,  0,   0,
                  98, 134,  61,  95,  68, 126, 34, -11,
@@ -145,6 +148,7 @@ piece_sq_values = {100: (PAWN_MG_white,PAWN_EG_white), -100:(PAWN_MG_black, PAWN
                    1: (KING_MG_white,KING_EG_white) , -1: (KING_MG_black, KING_EG_black)}
 
 NODES_SEARCHED = 0
+next_move = None
 
 
 def find_random_move(moves):
@@ -160,43 +164,81 @@ def find_random_move(moves):
 ########################################################################################################################
 
 
+### ALPHA BETA PRUNING IS NOT RETURNING THE RIGHT RESULTS, BACK TO SQUARE ONE, IT looks as if it is just assuming the
+### opponent plays the worst possible moves instead of the best ones
+import chess_engine  # Import your chess engine module
+
 def root_negamax(moves, board, dict, DEPTH):
     global NODES_SEARCHED
     turn_multiplier = 1 if dict['white_to_move'] else -1
     max_score, best_move = -CHECK_MATE, None
     alpha, beta = -CHECK_MATE, CHECK_MATE
+    random.shuffle(moves)
 
     for move in moves:
         chess_engine.make_move(board, move, dict)
         score = -negamax(board, dict, DEPTH - 1, -turn_multiplier, -beta, -alpha)
         chess_engine.undo_move(board, dict)
-        print(move.get_chess_notation(board), 'eval_bar:', score * turn_multiplier)
 
         if score > max_score:
             max_score, best_move = score, move
+
         if max_score > alpha:
             alpha = max_score
+
+        if alpha >= beta:
+            break
+
+       # print(move.get_chess_notation(board), 'score: (white)', score * turn_multiplier)
 
     if best_move is None:
         best_move = find_random_move(moves)
 
-    print('Best move:', best_move.get_chess_notation(board), 'eval_bar:', max_score * turn_multiplier)
-    print('Searched: ', NODES_SEARCHED)
+    print('Best move:', best_move.get_chess_notation(board), 'eval_bar: (white)', max_score * turn_multiplier)
+    print('Searched:', NODES_SEARCHED)
     NODES_SEARCHED = 0
     return best_move
+
+EXTENSION = 7
+def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
+    global NODES_SEARCHED
+
+    stand_pat = evaluate_board(board, dict) * turn_multiplier
+
+    if stand_pat >= beta:
+        return beta  # Fail-hard beta-cutoff
+
+    if alpha < stand_pat:
+        alpha = stand_pat  # New alpha
+
+    if extension == 0:
+        return alpha
+
+    moves = chess_engine.get_all_valid_moves(board, dict)  # Modify this function to get capture moves only
+
+    for move in moves:
+        if move.piece_captured != 0:
+            chess_engine.make_move(board, move, dict)
+            score = -quiescence_search(board, dict, -turn_multiplier, -beta, -alpha, extension - 1)
+            chess_engine.undo_move(board, dict)
+
+            if score >= beta:
+                return beta  # Fail-hard beta-cutoff
+
+            if score > alpha:
+                alpha = score  # New alpha
+
+    return alpha
 
 def negamax(board, dict, depth, turn_multiplier, alpha, beta):
     global NODES_SEARCHED
 
     if depth == 0:
         NODES_SEARCHED += 1
-        return evaluate_board(board, dict) * turn_multiplier
+        return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
 
     moves = chess_engine.get_all_valid_moves(board, dict)
     best = -CHECK_MATE
-
-    if moves == []:
-        return evaluate_board(board, dict) * turn_multiplier
 
     for move in moves:
         chess_engine.make_move(board, move, dict)
@@ -221,7 +263,8 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
 
 ### This is returns the same value wheter it is white or black perspective
 def evaluate_board(board, dict):
-
+    global NODES_SEARCHED
+    NODES_SEARCHED += 1
     ## Putting the dict here for now, will change later probs
     if dict['check_mate']: return -CHECK_MATE
     elif dict['stale_mate']: return STALE_MATE
