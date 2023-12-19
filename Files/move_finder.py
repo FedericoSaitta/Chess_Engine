@@ -4,7 +4,7 @@ import random
 import chess_engine
 from random import randint
 from math import fabs
-import timeit
+import time
 
 # If when we score the board, positive values indicate white is winning
 FABS = fabs
@@ -166,19 +166,46 @@ def find_random_move(moves):
 
 ### ALPHA BETA PRUNING IS NOT RETURNING THE RIGHT RESULTS, BACK TO SQUARE ONE, IT looks as if it is just assuming the
 ### opponent plays the worst possible moves instead of the best ones
-import chess_engine  # Import your chess engine module
+
+
+# Engine does not go for the fastest mate
+# Engine doesnt see stale mate and also doesnt see 3 move repetition (will fix the latter at a later point_
+def iterative_deepening(moves, board, dict, time_constraints):
+    global NODES_SEARCHED
+    DEPTH = 1
+    best_move = None
+    start_time = time.time()
+
+    # Make sure to start the search with the best moves from the previous search
+    while True:
+        print('searching at a depth of:', DEPTH)
+        best_move = root_negamax(moves, board, dict, DEPTH)
+        DEPTH += 1
+
+        if time.time() - start_time > time_constraints or DEPTH == 15:
+            print("Time limit exceeded. Stopping search.")
+            break
+
+    if best_move is None:
+        best_move = find_random_move(moves)
+
+    return best_move
+
 
 def root_negamax(moves, board, dict, DEPTH):
     global NODES_SEARCHED
     turn_multiplier = 1 if dict['white_to_move'] else -1
     max_score, best_move = -CHECK_MATE, None
     alpha, beta = -CHECK_MATE, CHECK_MATE
-    random.shuffle(moves)
 
+    moves = move_ordering(moves, board, turn_multiplier)
+
+    print(len(moves))
     for move in moves:
         chess_engine.make_move(board, move, dict)
         score = -negamax(board, dict, DEPTH - 1, -turn_multiplier, -beta, -alpha)
         chess_engine.undo_move(board, dict)
+        print(move.get_chess_notation(board), 'score: (white)', score * turn_multiplier)
 
         if score > max_score:
             max_score, best_move = score, move
@@ -187,9 +214,7 @@ def root_negamax(moves, board, dict, DEPTH):
             alpha = max_score
 
         if alpha >= beta:
-            break
-
-       # print(move.get_chess_notation(board), 'score: (white)', score * turn_multiplier)
+           break
 
     if best_move is None:
         best_move = find_random_move(moves)
@@ -199,7 +224,7 @@ def root_negamax(moves, board, dict, DEPTH):
     NODES_SEARCHED = 0
     return best_move
 
-EXTENSION = 7
+EXTENSION = 5
 def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
     global NODES_SEARCHED
 
@@ -234,10 +259,10 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
     global NODES_SEARCHED
 
     if depth == 0:
-        NODES_SEARCHED += 1
         return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
+      #  return evaluate_board(board, dict) * turn_multiplier
 
-    moves = chess_engine.get_all_valid_moves(board, dict)
+    moves = move_ordering(chess_engine.get_all_valid_moves(board, dict), board, turn_multiplier)
     best = -CHECK_MATE
 
     for move in moves:
@@ -294,3 +319,24 @@ def evaluate_board(board, dict):
 
         eval_bar = eval_bar / 100
         return eval_bar
+
+# Move ordering is slightly wrong, moving a queen to capture a pawn should still be before non captures
+def move_ordering(moves, board, turn_multiplier):
+    if turn_multiplier == 1:
+        score = [(-move.piece_captured - move.piece_moved) if move.piece_captured != 0 else -1 for move in moves]
+
+    else:
+        score = [(move.piece_captured + move.piece_moved) if move.piece_captured != 0 else -1 for move in moves]
+
+    combined = list(zip(moves, score))
+
+    # Sort the combined list based on scores
+    sorted_combined = sorted(combined, key=lambda x: x[1], reverse=True)
+
+    # Extract the sorted values
+    moves = [item[0] for item in sorted_combined]
+
+    return moves
+
+  #  for tup in sorted_combined:
+#        print(tup[0].get_chess_notation(board), tup[1])

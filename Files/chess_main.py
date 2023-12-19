@@ -1,7 +1,7 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
 import chess_engine
-from move_finder import find_random_move, root_negamax
+from move_finder import find_random_move, iterative_deepening
 import timeit
 import time as t
 from random import randint
@@ -13,7 +13,7 @@ SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
 
-DEPTH = 3
+DEPTH = 6
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -47,7 +47,7 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = False # If a human is playing white it will be true
+    player_one = True # If a human is playing white it will be true
     player_two = False # If a human is playing black it will be true
 
     while running:
@@ -114,7 +114,7 @@ def main():
 
         if not is_human_turn and not game_over:
             #computer_move = find_random_move(valid_moves)
-            computer_move = root_negamax(valid_moves, board, dict, DEPTH)
+            computer_move = iterative_deepening(valid_moves, board, dict, 1)
          #   t.sleep(1)
 
 
