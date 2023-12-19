@@ -1,6 +1,5 @@
 # Evaluates positions and searches moves
 import random
-
 import chess_engine
 from random import randint
 from math import fabs
@@ -315,17 +314,6 @@ def evaluate_board(board, dict):
 
         index += 1
 
-        '''
-        # King distance function
-        if empty_squares > 55:
-            white_k = (dict['white_king_loc'] // 8, dict['white_king_loc'] % 8)
-            black_k = (dict['black_king_loc'] // 8, dict['black_king_loc'] % 8)
-
-            king_distance  = ( (white_k[0] - black_k[0]) ** 2 + (white_k[1] - black_k[1]) ** 2) ** 0.5
-            if eval_bar > 0: # White is winning
-                eval_bar -= king_distance * 100
-            else: # Black is winning
-                eval_bar += king_distance * 100'''
 
     if FABS(eval_bar) > 450 and (empty_squares > 55):
         side_winning = 1 if eval_bar > 0 else -1
@@ -356,6 +344,10 @@ def evaluate_board(board, dict):
     eval_bar = eval_bar / 100
 
     return eval_bar
+
+########################################################################################################################
+#                                               MOVER ORDERING FUNCTION                                                #
+########################################################################################################################
 
 # Move ordering is slightly wrong, moving a queen to capture a pawn should still be before non captures
 def move_ordering(moves, board, turn_multiplier):

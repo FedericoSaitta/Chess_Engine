@@ -1,4 +1,5 @@
 from math import fabs
+from random import getrandbits
 
 '''CONSTANTS needed for look-ups'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4,
@@ -37,12 +38,43 @@ FABS = fabs
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
     -500, -320, -330, -900, -1, -330, -320, -500,  # 0 to 7
     -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15
-    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
-    0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
-    0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
-    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
+                0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
+                0, 0, 0, 0, 0, 0, 0, 0,  # 24 to 31
+                0, 0, 0, 0, 0, 0, 0, 0,  # 32 to 39
+                0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
     100, 100, 100, 100, 100, 100, 100, 100,  # 48 to 55
     500, 320, 330, 900, 1, 330, 320, 500]  # 56 to 63
+
+
+HASHING_DICTIONARY = {  1: 0,   -1:  6,
+                      100: 1, -100: 7,
+                      320: 2, -320: 8,
+                      330: 3, -330: 9,
+                      500: 4, -500: 10,
+                      900: 5, -900: 11}
+
+HASH_LOG = []  # Used for three move repetition
+
+def initialize_zobrist_table():
+    ZOBRIST_HASH_TABLE = [[getrandbits(64) for _ in range(12)] for _ in range(64)]
+    return ZOBRIST_HASH_TABLE
+
+
+def calculate_initial_hash(board, ZOBRIST_HASH_TABLE):
+    hash_value = 0
+    for square in range(64):
+        piece = board[square]
+        if piece != 0:  # 0 represents an empty square
+
+            piece_num = HASHING_DICTIONARY[piece]
+
+            hash_value ^= ZOBRIST_HASH_TABLE[square][piece_num]
+
+    return hash_value
+
+
+ZOBRIST_TABLE = initialize_zobrist_table()
+INITIAL_HASH = calculate_initial_hash(board, ZOBRIST_TABLE)
 
 
 # Dictionary with kwargs needed during a game
@@ -60,10 +92,16 @@ general_dict = {
         'checks_list': [],
         'en_passant_log': [],
         'stale_mate': False,
-        'check_mate': False
+        'check_mate': False,
+        'ZOBRIST_HASH': INITIAL_HASH
 }
 
+
+
+
 def make_move(board, move, dict):
+    dict['ZOBRIST_HASH'] = update_hash_move(dict['ZOBRIST_HASH'], move, board)
+    HASH_LOG.append(dict['ZOBRIST_HASH'])
 
     board[move.start_ind], board[move.end_ind] = 0, move.piece_moved
     dict['move_log'].append(move)
@@ -145,8 +183,12 @@ def make_move(board, move, dict):
 
 
 def undo_move(board, dict):
+
     if len(dict['move_log']) > 0:
         move = dict['move_log'].pop()
+        HASH_LOG.pop()
+
+        dict['ZOBRIST_HASH'] = undo_hash_move(dict['ZOBRIST_HASH'], move, board)
 
         if move.en_passant:
             board[move.start_ind], board[move.end_ind]= move.piece_moved, 0
@@ -413,6 +455,19 @@ def get_all_possible_moves(board, dict): # Using all these if statements as it i
 def get_all_valid_moves(board, dict):  # This will take into account non-legal moves that put our king in check
 
     moves = []
+    ### COUNTING FOR 3 MOVE REPETITION:
+    if len(HASH_LOG) > 7:
+        counter = 0
+        for index in range(len(HASH_LOG)-1, -1, -1):
+            hash = HASH_LOG[index]
+
+            if hash == (dict['ZOBRIST_HASH']):
+                counter += 1
+
+            if counter == 3:
+                dict['stale_mate'] = True
+                print('Three fold repetition on the board')
+                return []
 
     if dict['white_to_move']:
         king_sq = dict['white_king_loc']
@@ -527,6 +582,42 @@ def check_pins_and_checks(board, ind, col, row, dict):
                 checks.append((end_row*8 + end_col, tup[0], tup[1]))
 
     dict['in_check'], dict['pins_list'], dict['checks_list'] = in_check, pins, checks
+
+
+
+########################################################################################################################
+#                                            HASHING AND FEN FUNCTIONS                                                 #
+########################################################################################################################
+# Please also encode en_passant square, castleling etc into the hash because two positions may not be equal
+def update_hash_move(hash_value, move, board):
+    # Needs to be ran before the board changes state
+    from_square, to_square = move.start_ind, move.end_ind
+
+    if move.promotion:
+        promotion_piece = HASHING_DICTIONARY[move.prom_piece]
+    else:
+        promotion_piece = HASHING_DICTIONARY[move.piece_moved]
+
+    hash_value ^= ZOBRIST_TABLE[from_square][promotion_piece]  # unXOR
+    hash_value ^= ZOBRIST_TABLE[to_square][promotion_piece]       # XOR
+
+    return hash_value
+
+def undo_hash_move(hash_value, move, board):
+    # Needs to be ran before the board changes state
+    from_square, to_square = move.start_ind, move.end_ind
+    piece = HASHING_DICTIONARY[move.piece_moved]
+
+    hash_value ^= ZOBRIST_TABLE[from_square][piece]  # XOR
+    hash_value ^= ZOBRIST_TABLE[to_square][piece]  # unXOR
+
+    return hash_value
+
+
+
+########################################################################################################################
+#                                                      MOVE CLASS                                                      #
+########################################################################################################################
 
 
 class Move:
