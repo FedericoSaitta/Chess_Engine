@@ -12,8 +12,9 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
+THINKING_MAX_TIME = 1 # Seconds (last iteration)
 
-
+FINAL_DICT = None
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
 rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dictionary
@@ -50,7 +51,6 @@ def main():
     player_two = True # If a human is playing black it will be true
 
     while running:
-
         is_human_turn = (dict['white_to_move'] and player_one) or (not dict['white_to_move'] and player_two)
 
         for e in p.event.get():
@@ -76,11 +76,11 @@ def main():
                         current_sq = get_single_move_notation(player_clicks[0])
                         highlight_sq.append(current_sq)
 
-
                         for move in valid_moves:
-                            notation = move.get_chess_notation(chess_engine.board)
-                            if notation[1:3] == get_single_move_notation(player_clicks[0]):
-                                highlight_sq.append(notation[-2:])
+                            row, col = move.start_ind // 8, move.start_ind % 8
+                            if (row, col) == get_single_move_notation(player_clicks[0]):
+                                highlight_sq.append((move.end_ind // 8, move.end_ind % 8))
+
 
                     if len(player_clicks) == 2:
                         highlight_sq = []
@@ -111,11 +111,11 @@ def main():
                     move_made = True
                     game_ended = False
 
+
         if not is_human_turn and not game_over:
             #computer_move = find_random_move(valid_moves)
-            computer_move = iterative_deepening(valid_moves, board, dict, 2)
+            computer_move = iterative_deepening(valid_moves, board, dict, THINKING_MAX_TIME)
          #   t.sleep(1)
-
 
             chess_engine.make_move(board, computer_move, dict)
             move_made = True
@@ -134,6 +134,35 @@ def main():
         clock.tick(MAX_FPS)
         p.display.flip()
 
+   # print_pgn(dict)
+
+# Now that the game is ended it can paste the PGN:
+
+## Implement this method it is useful for analysisng moves
+def print_pgn(dict):
+
+    old_dict = dict['move_log']
+  #  new_dict = old_dictionaru
+  #  board = starting board
+
+    move_notation = []
+    for move in old_dict:
+        notation = move.get_pgn_notation(board)
+        chess_engine.make_move(board, move, new_dict)
+        move_notation.append(notation)
+
+    turn = 0
+    for index, notation in enumerate(move_notation):
+        turn = index//2 + 1
+        if index % 2 == 0:
+            notation = str(turn) + '. ' + notation
+
+
+    print(move_notation.join(' '))
+
+
+
+
 ''' Responsible for all the graphics '''
 def load_images():
     path = '/Users/federicosaitta/PycharmProjects/Chess/Images/'
@@ -144,7 +173,7 @@ def load_images():
 
 def draw_game_state(screen, board, highlight_sq_list):  # Drawing is done once per frame
     draw_board(screen)
-    if len(highlight_sq_list) > 1:
+    if len(highlight_sq_list) > 0:
         draw_highlights(screen, highlight_sq_list)
     draw_pieces(screen, board)
 
@@ -158,19 +187,16 @@ def draw_board(screen):  # Draws the squares on the board
 
 
 def draw_highlights(screen, highlight_sq_list):
-    # Need to fix visual bug of overdrawing some squares, maximum colour reached should be the same
     color_red = (255, 50, 50)
     color_yellow = (255, 255, 51)
 
-    if highlight_sq_list != []:
-        for index, end_pos in enumerate(highlight_sq_list):
-            end_row = ranks_to_rows[end_pos[1]]
-            end_col = files_to_cols[end_pos[0]]
+    for index, end_pos in enumerate(highlight_sq_list):
 
-            s = p.Surface((SQ_SIZE, SQ_SIZE))
-            s.set_alpha(128)
-            s.fill(color_red) if index != 0 else s.fill(color_yellow)
-            screen.blit(s, (end_col * SQ_SIZE, end_row * SQ_SIZE))
+        end_row, end_col =  end_pos
+        s = p.Surface((SQ_SIZE, SQ_SIZE))
+        s.set_alpha(128)
+        s.fill(color_red) if index != 0 else s.fill(color_yellow)
+        screen.blit(s, (end_col * SQ_SIZE, end_row * SQ_SIZE))
 
 
 def draw_pieces(screen, board):  # Draws the pieces, need to draw them after the board
@@ -181,14 +207,10 @@ def draw_pieces(screen, board):  # Draws the pieces, need to draw them after the
             if piece != 0:
                 screen.blit(IMAGES[dict[piece]], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
-
 def get_single_move_notation(move):
-    c = move % 8
-    r = move // 8
-    return cols_to_files[c] + rows_to_ranks[r]
+    r, c = move // 8, move % 8
+    return (r, c)
 
 if __name__ == '__main__':
     main()
-
-
 

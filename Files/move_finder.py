@@ -180,10 +180,10 @@ def iterative_deepening(moves, board, dict, time_constraints):
     moves = move_ordering(moves, board, turn_multiplier)
 
     if len(moves) == 1:
-        print('the only legal move')
         return moves[0]
+
     while True:
-        print('searching at a depth of:', DEPTH)
+        #print('searching at a depth of:', DEPTH)
         best_move = root_negamax(moves, board, dict, turn_multiplier, DEPTH)
         DEPTH += 1
 
@@ -198,6 +198,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
     if best_move is None:
         best_move = find_random_move(moves)
 
+    print(best_move.get_pgn_notation(board))
     return best_move
 
 
@@ -211,7 +212,7 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
         chess_engine.make_move(board, move, dict)
         score = -negamax(board, dict, DEPTH - 1, -turn_multiplier, -beta, -alpha)
         chess_engine.undo_move(board, dict)
-  #      print(move.get_chess_notation(board), 'score: (white)', score * turn_multiplier)
+        #print(move.get_chess_notation(board), 'score: (white)', score * turn_multiplier)
 
         if score > max_score:
             max_score, best_move = score, move
@@ -225,8 +226,8 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
     if best_move is None:
         best_move = find_random_move(moves)
 
-    print('Best move:', best_move.get_chess_notation(board), 'eval_bar: (white)', score * turn_multiplier)
-    print('Searched:', NODES_SEARCHED)
+  #  print('Best move:', best_move.get_chess_notation(board), 'eval_bar: (white)', score * turn_multiplier)
+   # print('Searched:', NODES_SEARCHED)
     NODES_SEARCHED = 0
     return best_move
 

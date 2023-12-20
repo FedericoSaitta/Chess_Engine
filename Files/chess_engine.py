@@ -466,7 +466,7 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
 
             if counter == 3:
                 dict['stale_mate'] = True
-                print('Three fold repetition on the board')
+             #   print('Three fold repetition on the board')
                 return []
 
     if dict['white_to_move']:
@@ -651,6 +651,25 @@ class Move:
             return dict[piece][1:] + start_rank_file + ' x ' + end_rank_file
 
         return dict[piece][1:] + start_rank_file + ' to ' + end_rank_file
+
+
+    def get_pgn_notation(self, board):
+        dict = {-100: ' ', 100: ' ', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
+                -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK', 0:'None'}
+
+        piece = board[self.start_ind]
+        start_rank_file = self.get_rank_file(self.start_ind)
+        end_rank_file = self.get_rank_file(self.end_ind)
+
+        if FABS(piece) == 100:
+            if board[self.end_ind] != 0:
+                return dict[piece][1:] + 'x' + end_rank_file
+
+        if board[self.end_ind] != 0:
+            return dict[piece][1:] + 'x' + end_rank_file
+
+        return dict[piece][1:] + end_rank_file
+
 
     def get_rank_file(self, index):
         c = index % 8
