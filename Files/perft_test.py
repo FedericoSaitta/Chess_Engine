@@ -1,7 +1,8 @@
 import chess_engine
 import timeit
-#import pstats
-#from collections import Counter
+import pstats
+from collections import Counter
+import cProfile
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
 rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dictionary
@@ -86,10 +87,13 @@ def main():
 
 
 if __name__ == '__main__':
-    #with cProfile.Profile() as profile:
+    with cProfile.Profile() as profile:
 
-    main()
-        #profiler_stats = pstats.Stats(profile)
-        #specific_file = ('chess_engine.py')
-        #profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
-        # This only profiles the code if it hasnt been compiled in Cython
+        for i in range(10):
+            main()
+
+        profiler_stats = pstats.Stats(profile)
+        specific_file = ('chess_engine.py')
+        profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
+
+        # This only profiles the code if it hasnt been compiled in Cython or using PyPy

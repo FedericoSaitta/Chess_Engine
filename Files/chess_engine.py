@@ -631,9 +631,6 @@ class Move:
         self.piece_moved, self.piece_captured = board[self.start_ind], board[self.end_ind]
         self.castle_move, self.en_passant, (self.promotion, self.prom_piece)  = tup
 
-        # Similar idea to hash function
-        self.move_ID = self.start_ind * 100 + self.end_ind
-
 
     def get_pgn_notation(self, board):
         dict = {-100: ' ', 100: ' ', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
@@ -643,36 +640,29 @@ class Move:
         start_rank_file = self.get_rank_file(self.start_ind)
         end_rank_file = self.get_rank_file(self.end_ind)
 
+
         if FABS(piece) == 100:
             if board[self.end_ind] != 0:
-                return dict[piece][1:] + 'x' + end_rank_file
+                return start_rank_file + 'x' + end_rank_file
 
-        if board[self.end_ind] != 0:
+        elif FABS(piece) == 1:
+            if self.castle_move:
+                if (self.end_ind % 8) == 6: return 'O-O'
+                else: return 'O-O-O'
+
+        elif board[self.end_ind] != 0:
             return dict[piece][1:] + 'x' + end_rank_file
 
         return dict[piece][1:] + end_rank_file
 
 
     def get_rank_file(self, index):
-        c = index % 8
-        r = index // 8
+        r, c = index // 8, index % 8
         return cols_to_files[c] + rows_to_ranks[r]
 
     def __eq__(self, other):  # Note the other move is the one stored in the valid_move list
         if isinstance(other, Move):
-            if (self.move_ID == other.move_ID):
+            if (self.start_ind, self.end_ind) == (other.start_ind, other.end_ind):
                 return True
-
-            elif (self.move_ID == other.move_ID) and other.castle_move:
-                self.castle_move = True
-                return True
-            elif (self.move_ID == other.move_ID) and other.en_passant:
-                self.en_passant = True
-                return True
-
-            elif (self.move_ID == other.move_ID) and other.promotion:
-                self.promotion = True
-                return True
-
 
         return False

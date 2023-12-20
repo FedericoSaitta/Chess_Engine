@@ -1,9 +1,13 @@
 # Evaluates positions and searches moves
-import random
-import chess_engine
+from chess_engine import make_move, undo_move, get_all_valid_moves
 from random import randint
 from math import fabs
 import time
+
+push_move = make_move
+retract_move = undo_move
+get_valid_moves = get_all_valid_moves
+
 
 # If when we score the board, positive values indicate white is winning
 FABS = fabs
@@ -209,9 +213,9 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
     alpha, beta = -CHECK_MATE, CHECK_MATE
 
     for move in moves:
-        chess_engine.make_move(board, move, dict)
+        push_move(board, move, dict)
         score = -negamax(board, dict, DEPTH - 1, -turn_multiplier, -beta, -alpha)
-        chess_engine.undo_move(board, dict)
+        retract_move(board, dict)
         #print(move.get_chess_notation(board), 'score: (white)', score * turn_multiplier)
 
         if score > max_score:
@@ -246,13 +250,13 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
     if extension == 0:
         return alpha
 
-    moves = chess_engine.get_all_valid_moves(board, dict)  # Modify this function to get capture moves only
+    moves = get_valid_moves(board, dict)  # Modify this function to get capture moves only
 
     for move in moves:
         if move.piece_captured != 0:
-            chess_engine.make_move(board, move, dict)
+            push_move(board, move, dict)
             score = -quiescence_search(board, dict, -turn_multiplier, -beta, -alpha, extension - 1)
-            chess_engine.undo_move(board, dict)
+            retract_move(board, dict)
 
             if score >= beta:
                 return beta  # Fail-hard beta-cutoff
@@ -268,7 +272,7 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
     if depth == 0:
         return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
 
-    moves = move_ordering(chess_engine.get_all_valid_moves(board, dict), board, turn_multiplier)
+    moves = move_ordering(get_valid_moves(board, dict), board, turn_multiplier)
     best = -CHECK_MATE
 
     if moves == []:
@@ -278,9 +282,9 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
             return STALE_MATE
 
     for move in moves:
-        chess_engine.make_move(board, move, dict)
+        make_move(board, move, dict)
         score = -negamax(board, dict, depth - 1, -turn_multiplier, -beta, -alpha)
-        chess_engine.undo_move(board, dict)
+        retract_move(board, dict)
 
         if score > best:
             best = score
@@ -303,7 +307,7 @@ def evaluate_board(board, dict):
     global NODES_SEARCHED
     NODES_SEARCHED += 1
     ## Putting the dict here for now, will change later probs
-    opponent_moves = (chess_engine.get_all_valid_moves(board, dict))
+#    opponent_moves = (get_valid_moves(board, dict))
 
     eval_bar = index = 0
     empty_squares = board.count(0)
