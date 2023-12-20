@@ -14,7 +14,7 @@ MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, relate
 IMAGES = {}
 THINKING_MAX_TIME = 1 # Seconds (last iteration)
 
-FINAL_DICT = None
+
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
 rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dictionary
@@ -60,12 +60,12 @@ def main():
             # Mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
                 if not game_over and is_human_turn:
-                    location = p.mouse.get_pos()  # Note if you add extra panels note to keep track of those
+                    location = p.mouse.get_pos()
                     col = int(location[0] // SQ_SIZE)
                     row = int(location[1] // SQ_SIZE)
 
                     if sq_selected == (8 * row + col):
-                        sq_selected = ()  # Deselects if player clicks twice
+                        sq_selected = ()              # Deselects if player clicks twice
                         player_clicks, highlight_sq = [], []
 
                     else:
@@ -105,25 +105,22 @@ def main():
 
             #'''Key press handler'''
             elif e.type == p.KEYDOWN:
-                if e.key == p.K_z:  # Undoes twice so player can redo a move
+                if e.key == p.K_z:  # Undoes twice so player can redo a move against an engine
                     chess_engine.undo_move(board, dict)
                     chess_engine.undo_move(board, dict)
                     move_made = True
-                    game_ended = False
+                    game_over = False
 
 
         if not is_human_turn and not game_over:
-            #computer_move = find_random_move(valid_moves)
             computer_move = iterative_deepening(valid_moves, board, dict, THINKING_MAX_TIME)
          #   t.sleep(1)
-
             chess_engine.make_move(board, computer_move, dict)
             move_made = True
 
         if move_made and not game_over:
-            start = timeit.default_timer()
             valid_moves = chess_engine.get_all_valid_moves(board, dict)  # Note this will need to be valid moves only in the future
-            time = timeit.default_timer() - start
+
             move_made = False
 
             if valid_moves == []:
@@ -134,19 +131,23 @@ def main():
         clock.tick(MAX_FPS)
         p.display.flip()
 
+    print(dict)
+
    # print_pgn(dict)
+
+
 
 # Now that the game is ended it can paste the PGN:
 
 ## Implement this method it is useful for analysisng moves
 def print_pgn(dict):
 
-    old_dict = dict['move_log']
+    old_move_log = dict['move_log']
   #  new_dict = old_dictionaru
   #  board = starting board
 
     move_notation = []
-    for move in old_dict:
+    for move in old_move_log:
         notation = move.get_pgn_notation(board)
         chess_engine.make_move(board, move, new_dict)
         move_notation.append(notation)
@@ -163,7 +164,10 @@ def print_pgn(dict):
 
 
 
-''' Responsible for all the graphics '''
+########################################################################################################################
+#                                                 GRAPHICS FUNCTIONS                                                   #
+########################################################################################################################
+
 def load_images():
     path = '/Users/federicosaitta/PycharmProjects/Chess/Images/'
     pieces = ['wP', 'bP', 'wR', 'bR', 'wN', 'bN', 'wB', 'bB', 'wQ', 'bQ', 'wK', 'bK']
