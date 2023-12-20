@@ -235,7 +235,7 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
         best_move = find_random_move(moves)
 
     print('Best move at depth: ', DEPTH, ' is: ', best_move.get_pgn_notation(board), 'eval_bar: (white)', score * turn_multiplier)
-   # print('Searched:', NODES_SEARCHED)
+    print('Searched:', NODES_SEARCHED)
     NODES_SEARCHED = 0
     return best_move
 

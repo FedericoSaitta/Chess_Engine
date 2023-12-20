@@ -13,7 +13,7 @@ cols_to_files = {v: k for k, v in files_to_cols.items()}
 piece_dict = {100: 'p', 500: 'r', 330: 'b', 320: 'n', 900: 'q'}
 
 
-DEPTH = 5
+DEPTH = 4
 board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
     -500, -320, -330, -900, -1, -330, -320, -500,  # 0 to 7
     -100, -100, -100, -100, -100, -100, -100, -100,  # 8 to 15

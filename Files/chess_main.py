@@ -12,7 +12,7 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 1 # Seconds (last iteration)
+THINKING_MAX_TIME = 2 # Seconds (last iteration)
 
 
 '''Square conversion dictionaries'''
@@ -130,38 +130,6 @@ def main():
         draw_game_state(screen, board, highlight_sq)
         clock.tick(MAX_FPS)
         p.display.flip()
-
-    print(dict)
-
-   # print_pgn(dict)
-
-
-
-# Now that the game is ended it can paste the PGN:
-
-## Implement this method it is useful for analysisng moves
-def print_pgn(dict):
-
-    old_move_log = dict['move_log']
-  #  new_dict = old_dictionaru
-  #  board = starting board
-
-    move_notation = []
-    for move in old_move_log:
-        notation = move.get_pgn_notation(board)
-        chess_engine.make_move(board, move, new_dict)
-        move_notation.append(notation)
-
-    turn = 0
-    for index, notation in enumerate(move_notation):
-        turn = index//2 + 1
-        if index % 2 == 0:
-            notation = str(turn) + '. ' + notation
-
-
-    print(move_notation.join(' '))
-
-
 
 
 ########################################################################################################################

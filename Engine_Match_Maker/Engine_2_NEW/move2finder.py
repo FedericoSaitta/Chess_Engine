@@ -15,6 +15,9 @@ CHECK_MATE = 10_000
 STALE_MATE = 0
 
 
+middle_game_pieces = {100: 82, 320: 337, 330: 365, 500: 477, 900: 1025,  1: 0} # adds to 4039
+end_game_pieces = {100: 94, 320: 281, 330: 297, 500: 512,  900: 936,  1: 0}  # adds to 3868
+
 PAWN_MG_white = ( 0,   0,   0,   0,   0,   0,  0,   0,
                  98, 134,  61,  95,  68, 126, 34, -11,
                  -6,   7,  26,  31,  65,  56, 25, -20,
@@ -174,7 +177,6 @@ def find_random_move(moves):
 # Engine does not go for the fastest mate
 # Engine doesnt see stale mate and also doesnt see 3 move repetition (will fix the latter at a later point_
 def iterative_deepening(moves, board, dict, time_constraints):
-    global NODES_SEARCHED
     DEPTH = 1
     best_move = None
     start_time = time.time()
@@ -187,7 +189,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
         return moves[0]
 
     while True:
-        print('searching at a depth of:', DEPTH)
+    #    print('searching at a depth of:', DEPTH)
         best_move = root_negamax(moves, board, dict, turn_multiplier, DEPTH)
         DEPTH += 1
 
@@ -230,16 +232,15 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
     if best_move is None:
         best_move = find_random_move(moves)
 
-    print('Best move:', best_move.get_pgn_notation(board), 'eval_bar: (white)', score * turn_multiplier)
+    print('Best move at depth: ', DEPTH, ' is: ', best_move.get_pgn_notation(board), 'eval_bar: (white)', score * turn_multiplier)
     print('Searched:', NODES_SEARCHED)
     NODES_SEARCHED = 0
     return best_move
 
 EXTENSION = 5
 def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
-    global NODES_SEARCHED
 
-    stand_pat = evaluate_board(board, dict) * turn_multiplier
+    stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
 
     if stand_pat >= beta:
         return beta  # Fail-hard beta-cutoff
@@ -267,8 +268,6 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
     return alpha
 
 def negamax(board, dict, depth, turn_multiplier, alpha, beta):
-    global NODES_SEARCHED
-
     if depth == 0:
         return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
 
@@ -280,7 +279,7 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
         null_move_score = -negamax(board, dict, depth - 3, -turn_multiplier, -beta, -beta+1)
         undo_null_move(dict)
         if null_move_score >= beta:
-            return null_move_score
+            return null_move_score  # Null move pruning
 
     if moves == []:
         if dict['in_check']:
@@ -310,21 +309,29 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
 
 
 ### This is returns the same value wheter it is white or black perspective
-def evaluate_board(board, dict):
+def evaluate_board(board, dict, turn_multiplier):
     global NODES_SEARCHED
     NODES_SEARCHED += 1
-    ## Putting the dict here for now, will change later probs
-#    opponent_moves = (get_valid_moves(board, dict))
 
     eval_bar = index = 0
     empty_squares = board.count(0)
-    game_phase = 0 if empty_squares < 45 else 1
+
+
+    white_score, black_score = 0, 0
+    for square in board:
+            if square > 0:  white_score += square
+            elif square < 0: black_score -= square
+
 
     for square in board:
-        if square != 0:
-            eval_bar += (piece_sq_values[square][game_phase])[index] + square
+        if square > 0:
+            eval_bar += interpolate_pesto_board(index, square, black_score, 1)
+        elif square < 0:
+            # Changing the pesto tables based on how much material your opponent has
+            eval_bar += interpolate_pesto_board(index, square, white_score, -1)
 
         index += 1
+
 
 
     if FABS(eval_bar) > 450 and (empty_squares > 55):
@@ -353,21 +360,44 @@ def evaluate_board(board, dict):
 
         eval_bar += distance
 
-    eval_bar = eval_bar / 100
 
+    eval_bar = eval_bar / 100
     return eval_bar
+
+
+def interpolate_pesto_board(square_ind, piece, enemy_pieces_values, side_multiplier):
+    enemy_pieces_values = max(enemy_pieces_values, 4_039)
+    middle_game_value, end_game_value = piece_sq_values[piece][0][square_ind], piece_sq_values[piece][1][square_ind]
+
+    difference = (end_game_value - middle_game_value)
+    difference_piece_value = (end_game_pieces[FABS(piece)] - middle_game_pieces[FABS(piece)] )
+
+    interpolation_percentage = FABS(enemy_pieces_values - 4039) / 4039
+
+    single_sq_evaluation = middle_game_value + interpolation_percentage * difference_piece_value
+    single_piece_evaluation = middle_game_pieces[FABS(piece)] + interpolation_percentage * difference_piece_value
+
+    return (single_piece_evaluation * side_multiplier) + single_sq_evaluation
+
 
 ########################################################################################################################
 #                                               MOVER ORDERING FUNCTION                                                #
 ########################################################################################################################
 
-# Move ordering is slightly wrong, moving a queen to capture a pawn should still be before non captures
+
+## Aggressive move ordering to lead to great pruning is the way to really increase\
+## the speed of the engine, focus on this until you cant anymore,
+'''Try and fully implement MVV/LLA'''
+
+
 def move_ordering(moves, board, turn_multiplier):
+    # The -900 ensures that all captures are looked at first before normal moves
+    # Should be tested but in general seems to lead to faster move ordering
     if turn_multiplier == 1:
-        score = [(-move.piece_captured - move.piece_moved) if move.piece_captured != 0 else -1 for move in moves]
+        score = [(-move.piece_captured - move.piece_moved) if move.piece_captured != 0 else -900 for move in moves]
 
     else:
-        score = [(move.piece_captured + move.piece_moved) if move.piece_captured != 0 else -1 for move in moves]
+        score = [(move.piece_captured + move.piece_moved) if move.piece_captured != 0 else -900 for move in moves]
 
     combined = list(zip(moves, score))
 
@@ -377,7 +407,9 @@ def move_ordering(moves, board, turn_multiplier):
     # Extract the sorted values
     moves = [item[0] for item in sorted_combined]
 
-    return moves
 
-  #  for tup in sorted_combined:
-#        print(tup[0].get_chess_notation(board), tup[1])
+
+ #   for tup in sorted_combined:
+  #      print(tup[0].get_pgn_notation(board), tup[1])
+
+    return moves
