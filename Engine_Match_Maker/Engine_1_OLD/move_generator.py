@@ -649,6 +649,8 @@ class Move:
         if FABS(piece) == 100:
             if board[self.end_ind] != 0:
                 return start_rank_file[0] + 'x' + end_rank_file
+            else:
+                return end_rank_file
 
         elif FABS(piece) == 1:
             if self.castle_move:

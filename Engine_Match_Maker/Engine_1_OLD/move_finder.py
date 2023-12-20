@@ -172,7 +172,7 @@ def find_random_move(moves):
 
 
 # Engine does not go for the fastest mate
-# Engine doesnt see stale mate and also doesnt see 3 move repetition (will fix the latter at a later point_
+# Engine doesn't see stale mate and also doesn't see 3 move repetition (will fix the latter at a later point_
 def iterative_deepening(moves, board, dict, time_constraints):
     global NODES_SEARCHED
     DEPTH = 1
@@ -183,6 +183,9 @@ def iterative_deepening(moves, board, dict, time_constraints):
     # Make sure to start the search with the best moves from the previous search
     turn_multiplier = 1 if dict['white_to_move'] else -1
     moves = move_ordering(moves, board, turn_multiplier)
+
+    turn = 'white' if turn_multiplier == 1 else 'black'
+    print('Turn: ', turn)
 
     if len(moves) == 1:
         return moves[0]
@@ -203,7 +206,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
     if best_move is None:
         best_move = find_random_move(moves)
 
-   # print(best_move.get_pgn_notation(board))
+
     return best_move
 
 
@@ -231,7 +234,7 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
     if best_move is None:
         best_move = find_random_move(moves)
 
-  #  print('Best move:', best_move.get_chess_notation(board), 'eval_bar: (white)', score * turn_multiplier)
+    print('Best move at depth: ', DEPTH, ' is: ', best_move.get_pgn_notation(board), 'eval_bar: (white)', score * turn_multiplier)
    # print('Searched:', NODES_SEARCHED)
     NODES_SEARCHED = 0
     return best_move

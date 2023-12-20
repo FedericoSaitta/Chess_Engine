@@ -48,7 +48,7 @@ def main():
     game_over = False
 
     player_one = True # If a human is playing white it will be true
-    player_two = False # If a human is playing black it will be true
+    player_two = True # If a human is playing black it will be true
 
     while running:
         is_human_turn = (dict['white_to_move'] and player_one) or (not dict['white_to_move'] and player_two)

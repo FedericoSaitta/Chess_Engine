@@ -631,29 +631,32 @@ class Move:
         self.piece_moved, self.piece_captured = board[self.start_ind], board[self.end_ind]
         self.castle_move, self.en_passant, (self.promotion, self.prom_piece)  = tup
 
-
     def get_pgn_notation(self, board, multiple_piece_flag=False):
         dict = {-100: ' ', 100: ' ', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
-                -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK', 0:'None'}
+                -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK', 0: 'None'}
 
         piece = board[self.start_ind]
         start_rank_file = self.get_rank_file(self.start_ind)
         end_rank_file = self.get_rank_file(self.end_ind)
 
-        if multiple_piece_flag:
-            return dict[piece][1:] + start_rank_file[0] + end_rank_file
-
         if self.promotion:
             return end_rank_file + '=' + dict[self.prom_piece][1]
+
+        if multiple_piece_flag:
+            return dict[piece][1:] + start_rank_file[0] + end_rank_file
 
         if FABS(piece) == 100:
             if board[self.end_ind] != 0:
                 return start_rank_file[0] + 'x' + end_rank_file
+            else:
+                return end_rank_file
 
         elif FABS(piece) == 1:
             if self.castle_move:
-                if (self.end_ind % 8) == 6: return 'O-O'
-                else: return 'O-O-O'
+                if (self.end_ind % 8) == 6:
+                    return 'O-O'
+                else:
+                    return 'O-O-O'
             if board[self.end_ind] != 0:
                 return dict[piece][1:] + 'x' + end_rank_file
 

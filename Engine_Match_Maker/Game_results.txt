@@ -1,0 +1,607 @@
+Turn:  white
+Best move at depth:  1  is:  Nc3 eval_bar: (white) 1.88
+Best move at depth:  2  is:  d4 eval_bar: (white) 1.54
+Best move at depth:  3  is:  Bd3 eval_bar: (white) 1.95
+Best move at depth:  4  is:  Nc3 eval_bar: (white) 1.54
+Best move at depth:  5  is:  Bb5 eval_bar: (white) 1.81
+Turn:  black
+Best move at depth:  1  is:  Bd7 eval_bar: (white) 1.53
+Best move at depth:  2  is:  Nc6 eval_bar: (white) 1.85
+Best move at depth:  3  is:  Bd7 eval_bar: (white) 1.5
+Best move at depth:  4  is:  Bd7 eval_bar: (white) 1.81
+Best move at depth:  5  is:  Bd7 eval_bar: (white) 1.41
+Best move at depth:  6  is:  Bd7 eval_bar: (white) 1.73
+Turn:  white
+Best move at depth:  1  is:  Nc3 eval_bar: (white) 1.86
+Best move at depth:  2  is:  Nc3 eval_bar: (white) 1.5
+Best move at depth:  3  is:  Bxd7 eval_bar: (white) 1.81
+Best move at depth:  4  is:  Nc3 eval_bar: (white) 1.41
+Best move at depth:  5  is:  Nc3 eval_bar: (white) 1.73
+Best move at depth:  6  is:  Bc4 eval_bar: (white) 1.39
+Turn:  black
+Best move at depth:  1  is:  Nc6 eval_bar: (white) 1.25
+Best move at depth:  2  is:  Nf6 eval_bar: (white) 1.61
+Best move at depth:  3  is:  Nf6 eval_bar: (white) 1.25
+Best move at depth:  4  is:  Bc6 eval_bar: (white) 1.59
+Best move at depth:  5  is:  Nf6 eval_bar: (white) 1.39
+Turn:  white
+Best move at depth:  1  is:  Nc3 eval_bar: (white) 1.61
+Best move at depth:  2  is:  Nc3 eval_bar: (white) 1.25
+Best move at depth:  3  is:  Ng5 eval_bar: (white) 1.65
+Best move at depth:  4  is:  Nc3 eval_bar: (white) 1.39
+Best move at depth:  5  is:  Nc3 eval_bar: (white) 1.41
+Turn:  black
+Best move at depth:  1  is:  Nc6 eval_bar: (white) 1.25
+Best move at depth:  2  is:  Bc6 eval_bar: (white) 1.59
+Best move at depth:  3  is:  Nc6 eval_bar: (white) 1.39
+Best move at depth:  4  is:  Bc6 eval_bar: (white) 1.41
+Best move at depth:  5  is:  Bc6 eval_bar: (white) 1.48
+Turn:  white
+Best move at depth:  1  is:  Bd5 eval_bar: (white) 1.59
+Best move at depth:  2  is:  Bd5 eval_bar: (white) 1.43
+Best move at depth:  3  is:  d3 eval_bar: (white) 1.41
+Best move at depth:  4  is:  Ng5 eval_bar: (white) 1.48
+Turn:  black
+Best move at depth:  1  is:  e6 eval_bar: (white) 1.29
+Best move at depth:  2  is:  d5 eval_bar: (white) 1.3
+Best move at depth:  3  is:  e6 eval_bar: (white) 1.48
+Best move at depth:  4  is:  e6 eval_bar: (white) 1.21
+Turn:  white
+Best move at depth:  1  is:  O-O eval_bar: (white) 1.78
+Best move at depth:  2  is:  O-O eval_bar: (white) 1.48
+Best move at depth:  3  is:  Bd3 eval_bar: (white) 1.21
+Best move at depth:  4  is:  d4 eval_bar: (white) 1.08
+Turn:  black
+Best move at depth:  1  is:  Qc7 eval_bar: (white) 1.34
+Best move at depth:  2  is:  h6 eval_bar: (white) 0.14
+Best move at depth:  3  is:  cxd4 eval_bar: (white) 1.08
+Best move at depth:  4  is:  h6 eval_bar: (white) 0.14
+Best move at depth:  5  is:  h6 eval_bar: (white) 0.94
+Turn:  white
+Best move at depth:  1  is:  Nf3 eval_bar: (white) 0.14
+Best move at depth:  2  is:  Nf3 eval_bar: (white) 1.14
+Best move at depth:  3  is:  Nf3 eval_bar: (white) 0.14
+Best move at depth:  4  is:  d5 eval_bar: (white) 0.94
+Best move at depth:  5  is:  Nf3 eval_bar: (white) 0.53
+Turn:  black
+Best move at depth:  1  is:  Nxe4 eval_bar: (white) 1.14
+Best move at depth:  2  is:  Nxe4 eval_bar: (white) 0.14
+Best move at depth:  3  is:  Nxe4 eval_bar: (white) 0.91
+Best move at depth:  4  is:  Nxe4 eval_bar: (white) 0.53
+Best move at depth:  5  is:  cxd4 eval_bar: (white) 0.86
+Turn:  white
+Best move at depth:  1  is:  Qxd4 eval_bar: (white) 1.28
+Best move at depth:  2  is:  Qxd4 eval_bar: (white) 0.98
+Best move at depth:  3  is:  Qxd4 eval_bar: (white) 0.87
+Best move at depth:  4  is:  Qxd4 eval_bar: (white) 0.86
+Best move at depth:  5  is:  Qxd4 eval_bar: (white) 0.7
+Turn:  black
+Best move at depth:  1  is:  Qc7 eval_bar: (white) 0.98
+Best move at depth:  2  is:  d5 eval_bar: (white) 0.87
+Best move at depth:  3  is:  Qb6 eval_bar: (white) 0.86
+Best move at depth:  4  is:  Qb6 eval_bar: (white) 0.7
+Turn:  white
+Best move at depth:  1  is:  Qd3 eval_bar: (white) 1.07
+Best move at depth:  2  is:  O-O eval_bar: (white) 0.86
+Best move at depth:  3  is:  Qxb6 eval_bar: (white) 0.7
+Best move at depth:  4  is:  Qxb6 eval_bar: (white) 0.78
+Turn:  black
+Best move at depth:  1  is:  axb6 eval_bar: (white) 0.68
+Best move at depth:  2  is:  axb6 eval_bar: (white) 0.7
+Best move at depth:  3  is:  axb6 eval_bar: (white) 0.78
+Best move at depth:  4  is:  axb6 eval_bar: (white) 0.57
+Best move at depth:  5  is:  axb6 eval_bar: (white) 0.35
+Turn:  white
+Best move at depth:  1  is:  Bd3 eval_bar: (white) 0.7
+Best move at depth:  2  is:  Be3 eval_bar: (white) 0.78
+Best move at depth:  3  is:  Bd3 eval_bar: (white) 0.57
+Best move at depth:  4  is:  Bd3 eval_bar: (white) 0.35
+Turn:  black
+Best move at depth:  1  is:  Kd8 eval_bar: (white) 0.08
+Best move at depth:  2  is:  Kd8 eval_bar: (white) 0.57
+Best move at depth:  3  is:  Kd8 eval_bar: (white) 0.35
+Best move at depth:  4  is:  Nd7 eval_bar: (white) 0.52
+Turn:  white
+Best move at depth:  1  is:  O-O eval_bar: (white) 1.01
+Best move at depth:  2  is:  Nd4 eval_bar: (white) 0.39
+Best move at depth:  3  is:  Be3 eval_bar: (white) 0.52
+Best move at depth:  4  is:  Nd4 eval_bar: (white) 0.39
+Turn:  black
+Best move at depth:  1  is:  O-O-O eval_bar: (white) 0.39
+Best move at depth:  2  is:  O-O-O eval_bar: (white) 0.39
+Best move at depth:  3  is:  O-O-O eval_bar: (white) 0.39
+Best move at depth:  4  is:  d5 eval_bar: (white) 0.72
+Best move at depth:  5  is:  Rc8 eval_bar: (white) 0.39
+Turn:  white
+Best move at depth:  1  is:  O-O eval_bar: (white) 0.64
+Best move at depth:  2  is:  Nxc6 eval_bar: (white) 0.46
+Best move at depth:  3  is:  Nxc6 eval_bar: (white) 0.95
+Best move at depth:  4  is:  O-O eval_bar: (white) 0.39
+Best move at depth:  5  is:  O-O eval_bar: (white) 0.61
+Turn:  black
+Best move at depth:  1  is:  Kd8 eval_bar: (white) 0.33
+Best move at depth:  2  is:  Kd8 eval_bar: (white) 0.33
+Best move at depth:  3  is:  Kd8 eval_bar: (white) 0.39
+Best move at depth:  4  is:  Kd8 eval_bar: (white) 0.61
+Best move at depth:  5  is:  Kd8 eval_bar: (white) 0.44
+Best move at depth:  6  is:  Kd8 eval_bar: (white) 0.43
+Turn:  white
+Best move at depth:  1  is:  Nxc6 eval_bar: (white) 0.33
+Best move at depth:  2  is:  Be3 eval_bar: (white) 0.39
+Best move at depth:  3  is:  Nxc6 eval_bar: (white) 0.61
+Best move at depth:  4  is:  Be3 eval_bar: (white) 0.44
+Best move at depth:  5  is:  Nxc6 eval_bar: (white) 0.43
+Turn:  black
+Best move at depth:  1  is:  Rxc6 eval_bar: (white) 0.33
+Best move at depth:  2  is:  Rxc6 eval_bar: (white) 0.61
+Best move at depth:  3  is:  Rxc6 eval_bar: (white) 0.39
+Best move at depth:  4  is:  Rxc6 eval_bar: (white) 0.43
+Best move at depth:  5  is:  Rxc6 eval_bar: (white) 0.47
+Best move at depth:  6  is:  Rxc6 eval_bar: (white) 0.45
+Turn:  white
+Best move at depth:  1  is:  Be3 eval_bar: (white) 0.61
+Best move at depth:  2  is:  Be3 eval_bar: (white) 0.39
+Best move at depth:  3  is:  Bf4 eval_bar: (white) 0.43
+Best move at depth:  4  is:  Be3 eval_bar: (white) 0.47
+Best move at depth:  5  is:  Be3 eval_bar: (white) 0.45
+Turn:  black
+Best move at depth:  1  is:  e5 eval_bar: (white) 0.39
+Best move at depth:  2  is:  d5 eval_bar: (white) 0.37
+Best move at depth:  3  is:  Be7 eval_bar: (white) 0.47
+Best move at depth:  4  is:  d5 eval_bar: (white) 0.45
+Turn:  white
+Best move at depth:  1  is:  Bb5 eval_bar: (white) 0.37
+Best move at depth:  2  is:  Bb5 eval_bar: (white) 1.16
+Best move at depth:  3  is:  Rd1 eval_bar: (white) 0.45
+Best move at depth:  4  is:  Rd1 eval_bar: (white) 0.93
+Best move at depth:  5  is:  Bb5 eval_bar: (white) 0.59
+Turn:  black
+Best move at depth:  1  is:  dxe4 eval_bar: (white) 1.16
+Best move at depth:  2  is:  Rd6 eval_bar: (white) 0.44
+Best move at depth:  3  is:  Rxc3 eval_bar: (white) 0.79
+Best move at depth:  4  is:  Rc7 eval_bar: (white) 0.59
+Best move at depth:  5  is:  Rxc3 eval_bar: (white) 0.79
+Turn:  white
+Best move at depth:  1  is:  bxc3 eval_bar: (white) 0.79
+Best move at depth:  2  is:  bxc3 eval_bar: (white) 0.79
+Best move at depth:  3  is:  bxc3 eval_bar: (white) 0.79
+Best move at depth:  4  is:  bxc3 eval_bar: (white) 0.79
+Best move at depth:  5  is:  bxc3 eval_bar: (white) 0.91
+Turn:  black
+Best move at depth:  1  is:  Nxe4 eval_bar: (white) 0.79
+Best move at depth:  2  is:  Nxe4 eval_bar: (white) 0.79
+Best move at depth:  3  is:  Nxe4 eval_bar: (white) 0.79
+Best move at depth:  4  is:  Nxe4 eval_bar: (white) 0.91
+Best move at depth:  5  is:  Nxe4 eval_bar: (white) 0.94
+Turn:  white
+Best move at depth:  1  is:  Bxd7 eval_bar: (white) 0.79
+Best move at depth:  2  is:  Bxd7 eval_bar: (white) 0.79
+Best move at depth:  3  is:  Bxd7 eval_bar: (white) 0.91
+Best move at depth:  4  is:  Bxd7 eval_bar: (white) 0.94
+Turn:  black
+Best move at depth:  1  is:  Kxd7 eval_bar: (white) 0.79
+Best move at depth:  2  is:  Kxd7 eval_bar: (white) 0.91
+Best move at depth:  3  is:  Kxd7 eval_bar: (white) 0.94
+Best move at depth:  4  is:  Kxd7 eval_bar: (white) 1.0
+Best move at depth:  5  is:  Kxd7 eval_bar: (white) 0.87
+Turn:  white
+Best move at depth:  1  is:  Bd4 eval_bar: (white) 0.91
+Best move at depth:  2  is:  Rb1 eval_bar: (white) 0.94
+Best move at depth:  3  is:  Bd4 eval_bar: (white) 1.0
+Best move at depth:  4  is:  Rb1 eval_bar: (white) 0.87
+Best move at depth:  5  is:  Rb1 eval_bar: (white) 0.97
+Turn:  black
+Best move at depth:  1  is:  Nxc3 eval_bar: (white) 0.94
+Best move at depth:  2  is:  Nxc3 eval_bar: (white) 0.94
+Best move at depth:  3  is:  Nxc3 eval_bar: (white) 0.87
+Best move at depth:  4  is:  Nxc3 eval_bar: (white) 0.97
+Best move at depth:  5  is:  Nxc3 eval_bar: (white) 0.79
+Turn:  white
+Best move at depth:  1  is:  Rxb6 eval_bar: (white) 0.94
+Best move at depth:  2  is:  Rxb6 eval_bar: (white) 0.87
+Best move at depth:  3  is:  Rxb6 eval_bar: (white) 0.97
+Best move at depth:  4  is:  Rxb6 eval_bar: (white) 0.79
+Best move at depth:  5  is:  Rxb6 eval_bar: (white) 0.92
+Turn:  black
+Best move at depth:  1  is:  Ne2 eval_bar: (white) 0.87
+Best move at depth:  2  is:  Ne2 eval_bar: (white) 0.97
+Best move at depth:  3  is:  Kc7 eval_bar: (white) 0.79
+Best move at depth:  4  is:  Kc7 eval_bar: (white) 0.92
+Best move at depth:  5  is:  Kc7 eval_bar: (white) 0.89
+Turn:  white
+Best move at depth:  1  is:  Kf1 eval_bar: (white) 1.14
+Best move at depth:  2  is:  Bd4 eval_bar: (white) 0.79
+Best move at depth:  3  is:  h4 eval_bar: (white) 0.92
+Best move at depth:  4  is:  Rb3 eval_bar: (white) 0.89
+Best move at depth:  5  is:  Rb3 eval_bar: (white) 0.87
+Turn:  black
+Best move at depth:  1  is:  Ne4 eval_bar: (white) 0.66
+Best move at depth:  2  is:  Ne4 eval_bar: (white) 0.78
+Best move at depth:  3  is:  Ne4 eval_bar: (white) 0.89
+Best move at depth:  4  is:  d4 eval_bar: (white) 0.87
+Best move at depth:  5  is:  d4 eval_bar: (white) 1.18
+Turn:  white
+Best move at depth:  1  is:  Bxd4 eval_bar: (white) 1.96
+Best move at depth:  2  is:  Bxd4 eval_bar: (white) 1.65
+Best move at depth:  3  is:  Bf4 eval_bar: (white) 0.87
+Best move at depth:  4  is:  Re1 eval_bar: (white) 1.18
+Turn:  black
+Best move at depth:  1  is:  dxe3 eval_bar: (white) -0.1
+Best move at depth:  2  is:  dxe3 eval_bar: (white) -0.1
+Best move at depth:  3  is:  Kc6 eval_bar: (white) 1.18
+Best move at depth:  4  is:  Nxa2 eval_bar: (white) 0.8
+Best move at depth:  5  is:  e5 eval_bar: (white) 1.06
+Turn:  white
+Best move at depth:  1  is:  Bd2 eval_bar: (white) 0.9
+Best move at depth:  2  is:  Bd2 eval_bar: (white) 1.2
+Best move at depth:  3  is:  Bd2 eval_bar: (white) 1.2
+Best move at depth:  4  is:  Bd2 eval_bar: (white) 1.06
+Best move at depth:  5  is:  Bd2 eval_bar: (white) 1.06
+Turn:  black
+Best move at depth:  1  is:  Nxa2 eval_bar: (white) 1.2
+Best move at depth:  2  is:  Nxa2 eval_bar: (white) 1.2
+Best move at depth:  3  is:  Nxa2 eval_bar: (white) 1.06
+Best move at depth:  4  is:  Nxa2 eval_bar: (white) 1.06
+Turn:  white
+Best move at depth:  1  is:  Rxe5 eval_bar: (white) 1.2
+Best move at depth:  2  is:  Ba5 eval_bar: (white) 1.06
+Best move at depth:  3  is:  Ba5 eval_bar: (white) 1.06
+Best move at depth:  4  is:  Rxe5 eval_bar: (white) 1.18
+Best move at depth:  5  is:  Rxe5 eval_bar: (white) 1.18
+Turn:  black
+Best move at depth:  1  is:  Bd6 eval_bar: (white) 0.84
+Best move at depth:  2  is:  Bd6 eval_bar: (white) 0.86
+Best move at depth:  3  is:  Bd6 eval_bar: (white) 1.18
+Best move at depth:  4  is:  Bd6 eval_bar: (white) 1.18
+Best move at depth:  5  is:  Bd6 eval_bar: (white) 1.34
+Turn:  white
+Best move at depth:  1  is:  Ra5 eval_bar: (white) 0.86
+Best move at depth:  2  is:  Ra5 eval_bar: (white) 1.18
+Best move at depth:  3  is:  Ra5 eval_bar: (white) 1.18
+Best move at depth:  4  is:  Rd5 eval_bar: (white) 1.34
+Turn:  black
+Best move at depth:  1  is:  Rd8 eval_bar: (white) 1.08
+Best move at depth:  2  is:  Rd8 eval_bar: (white) 1.08
+Best move at depth:  3  is:  Nc3 eval_bar: (white) 1.34
+Best move at depth:  4  is:  Nc3 eval_bar: (white) 1.15
+Turn:  white
+Best move at depth:  1  is:  Rxd4 eval_bar: (white) 1.41
+Best move at depth:  2  is:  Rxd4 eval_bar: (white) 1.34
+Best move at depth:  3  is:  Bxc3 eval_bar: (white) 1.15
+Best move at depth:  4  is:  Bxc3 eval_bar: (white) 1.05
+Best move at depth:  5  is:  Bxc3 eval_bar: (white) 1.23
+Turn:  black
+Best move at depth:  1  is:  dxc3 eval_bar: (white) 1.15
+Best move at depth:  2  is:  dxc3 eval_bar: (white) 1.15
+Best move at depth:  3  is:  dxc3 eval_bar: (white) 1.05
+Best move at depth:  4  is:  dxc3 eval_bar: (white) 1.23
+Best move at depth:  5  is:  Bxh2 eval_bar: (white) 3.69
+Turn:  white
+Best move at depth:  1  is:  Kxh2 eval_bar: (white) 3.72
+Best move at depth:  2  is:  Kxh2 eval_bar: (white) 3.72
+Best move at depth:  3  is:  Kxh2 eval_bar: (white) 3.72
+Best move at depth:  4  is:  Kxh2 eval_bar: (white) 3.69
+Best move at depth:  5  is:  Kxh2 eval_bar: (white) 3.93
+Best move at depth:  6  is:  Kxh2 eval_bar: (white) 3.8
+Best move at depth:  7  is:  Kxh2 eval_bar: (white) 3.98
+Turn:  black
+Best move at depth:  1  is:  dxc3 eval_bar: (white) 3.72
+Best move at depth:  2  is:  dxc3 eval_bar: (white) 3.72
+Best move at depth:  3  is:  dxc3 eval_bar: (white) 3.69
+Best move at depth:  4  is:  dxc3 eval_bar: (white) 3.93
+Best move at depth:  5  is:  dxc3 eval_bar: (white) 3.8
+Best move at depth:  6  is:  dxc3 eval_bar: (white) 3.98
+Turn:  white
+Best move at depth:  1  is:  Rxc3 eval_bar: (white) 3.72
+Best move at depth:  2  is:  Rxc3 eval_bar: (white) 3.69
+Best move at depth:  3  is:  Rxc3 eval_bar: (white) 3.93
+Best move at depth:  4  is:  Rxc3 eval_bar: (white) 3.8
+Best move at depth:  5  is:  Rxc3 eval_bar: (white) 3.98
+Best move at depth:  6  is:  Rxc3 eval_bar: (white) 4.74
+Best move at depth:  7  is:  Rxc3 eval_bar: (white) 4.78
+Turn:  black
+Best move at depth:  1  is:  Kb6 eval_bar: (white) 3.69
+Best move at depth:  2  is:  Kb6 eval_bar: (white) 3.93
+Best move at depth:  3  is:  Kb6 eval_bar: (white) 3.8
+Best move at depth:  4  is:  Kb6 eval_bar: (white) 3.98
+Best move at depth:  5  is:  Kb6 eval_bar: (white) 4.74
+Best move at depth:  6  is:  Kb6 eval_bar: (white) 4.78
+Best move at depth:  7  is:  Kb8 eval_bar: (white) 4.87
+Turn:  white
+Best move at depth:  1  is:  Kg3 eval_bar: (white) 4.24
+Best move at depth:  2  is:  Kg3 eval_bar: (white) 4.12
+Best move at depth:  3  is:  Kg3 eval_bar: (white) 4.3
+Best move at depth:  4  is:  Rd7 eval_bar: (white) 4.96
+Best move at depth:  5  is:  Rd7 eval_bar: (white) 4.96
+Best move at depth:  6  is:  Rd7 eval_bar: (white) 4.87
+Turn:  black
+Best move at depth:  1  is:  Rf8 eval_bar: (white) 3.98
+Best move at depth:  2  is:  Rf8 eval_bar: (white) 4.22
+Best move at depth:  3  is:  Rc8 eval_bar: (white) 4.96
+Best move at depth:  4  is:  Rc8 eval_bar: (white) 4.96
+Best move at depth:  5  is:  Rc8 eval_bar: (white) 4.87
+Turn:  white
+Best move at depth:  1  is:  Rxc8 eval_bar: (white) 4.96
+Best move at depth:  2  is:  Rxc8 eval_bar: (white) 4.96
+Best move at depth:  3  is:  Rxc8 eval_bar: (white) 4.96
+Best move at depth:  4  is:  Rxc8 eval_bar: (white) 4.87
+Best move at depth:  5  is:  Rxc8 eval_bar: (white) 5.11
+Best move at depth:  6  is:  Rxc8 eval_bar: (white) 4.92
+Turn:  black
+Best move at depth:  1  is:  Kxc8 eval_bar: (white) 4.96
+Best move at depth:  2  is:  Kxc8 eval_bar: (white) 4.96
+Best move at depth:  3  is:  Kxc8 eval_bar: (white) 4.87
+Best move at depth:  4  is:  Kxc8 eval_bar: (white) 5.11
+Best move at depth:  5  is:  Kxc8 eval_bar: (white) 4.92
+Best move at depth:  6  is:  Kxc8 eval_bar: (white) 5.08
+Best move at depth:  7  is:  Kxc8 eval_bar: (white) 4.86
+Turn:  white
+Best move at depth:  1  is:  Rxf7 eval_bar: (white) 4.96
+Best move at depth:  2  is:  Rxf7 eval_bar: (white) 4.87
+Best move at depth:  3  is:  Rxf7 eval_bar: (white) 5.11
+Best move at depth:  4  is:  Rxf7 eval_bar: (white) 4.92
+Best move at depth:  5  is:  Rxf7 eval_bar: (white) 5.08
+Best move at depth:  6  is:  Rxf7 eval_bar: (white) 4.86
+Best move at depth:  7  is:  Rxf7 eval_bar: (white) 5.0
+Turn:  black
+Best move at depth:  1  is:  h5 eval_bar: (white) 4.87
+Best move at depth:  2  is:  h5 eval_bar: (white) 5.11
+Best move at depth:  3  is:  h5 eval_bar: (white) 4.92
+Best move at depth:  4  is:  h5 eval_bar: (white) 5.08
+Best move at depth:  5  is:  b5 eval_bar: (white) 4.86
+Best move at depth:  6  is:  h5 eval_bar: (white) 5.0
+Best move at depth:  7  is:  g5 eval_bar: (white) 4.81
+Turn:  white
+Best move at depth:  1  is:  Kg3 eval_bar: (white) 5.19
+Best move at depth:  2  is:  Kg3 eval_bar: (white) 5.04
+Best move at depth:  3  is:  Kg3 eval_bar: (white) 5.19
+Best move at depth:  4  is:  Kg3 eval_bar: (white) 5.0
+Best move at depth:  5  is:  Kg3 eval_bar: (white) 5.11
+Best move at depth:  6  is:  Kg3 eval_bar: (white) 4.81
+Turn:  black
+Best move at depth:  1  is:  g4 eval_bar: (white) 5.04
+Best move at depth:  2  is:  h5 eval_bar: (white) 5.19
+Best move at depth:  3  is:  h5 eval_bar: (white) 5.0
+Best move at depth:  4  is:  h5 eval_bar: (white) 5.11
+Best move at depth:  5  is:  h5 eval_bar: (white) 4.81
+Best move at depth:  6  is:  h5 eval_bar: (white) 4.92
+Best move at depth:  7  is:  h5 eval_bar: (white) 5.199223593595585
+Turn:  white
+Best move at depth:  1  is:  Rf8 eval_bar: (white) 5.19
+Best move at depth:  2  is:  Kf3 eval_bar: (white) 5.0
+Best move at depth:  3  is:  Kf3 eval_bar: (white) 5.11
+Best move at depth:  4  is:  Rf8 eval_bar: (white) 4.81
+Best move at depth:  5  is:  Rf8 eval_bar: (white) 4.92
+Best move at depth:  6  is:  Rh7 eval_bar: (white) 5.199223593595585
+Best move at depth:  7  is:  Rh7 eval_bar: (white) 5.228612181134002
+Turn:  black
+Best move at depth:  1  is:  h4 eval_bar: (white) 4.91
+Best move at depth:  2  is:  h4 eval_bar: (white) 5.0
+Best move at depth:  3  is:  h4 eval_bar: (white) 4.6
+Best move at depth:  4  is:  h4 eval_bar: (white) 4.52
+Best move at depth:  5  is:  b5 eval_bar: (white) 5.199223593595585
+Best move at depth:  6  is:  b5 eval_bar: (white) 5.228612181134002
+Best move at depth:  7  is:  b5 eval_bar: (white) 5.128612181134002
+Turn:  white
+Best move at depth:  1  is:  Kf3 eval_bar: (white) 5.18
+Best move at depth:  2  is:  Kf3 eval_bar: (white) 4.99
+Best move at depth:  3  is:  Kf3 eval_bar: (white) 5.1
+Best move at depth:  4  is:  Rxh5 eval_bar: (white) 5.199223593595585
+Best move at depth:  5  is:  Rxh5 eval_bar: (white) 5.228612181134002
+Best move at depth:  6  is:  Rxh5 eval_bar: (white) 5.128612181134002
+Best move at depth:  7  is:  Rxh5 eval_bar: (white) 5.500983005625053
+Best move at depth:  8  is:  Rxh5 eval_bar: (white) 5.37
+Turn:  black
+Best move at depth:  1  is:  Kd7 eval_bar: (white) 4.86
+Best move at depth:  2  is:  Kd7 eval_bar: (white) 4.86
+Best move at depth:  3  is:  Kd7 eval_bar: (white) 5.199223593595585
+Best move at depth:  4  is:  Kd7 eval_bar: (white) 5.228612181134002
+Best move at depth:  5  is:  Kd7 eval_bar: (white) 5.128612181134002
+Best move at depth:  6  is:  Kd7 eval_bar: (white) 5.500983005625053
+Best move at depth:  7  is:  Kd7 eval_bar: (white) 5.37
+Turn:  white
+Best move at depth:  1  is:  Rxg5 eval_bar: (white) 4.86
+Best move at depth:  2  is:  Kg4 eval_bar: (white) 5.199223593595585
+Best move at depth:  3  is:  Rxg5 eval_bar: (white) 5.228612181134002
+Best move at depth:  4  is:  Rxg5 eval_bar: (white) 5.128612181134002
+Best move at depth:  5  is:  Rxg5 eval_bar: (white) 5.500983005625053
+Best move at depth:  6  is:  Rxg5 eval_bar: (white) 5.37
+Best move at depth:  7  is:  Rh6 eval_bar: (white) 5.730983005625053
+Turn:  black
+Best move at depth:  1  is:  b4 eval_bar: (white) 3.61
+Best move at depth:  2  is:  b4 eval_bar: (white) 3.831966011250105
+Best move at depth:  3  is:  b4 eval_bar: (white) 4.979339828220179
+Best move at depth:  4  is:  b4 eval_bar: (white) 4.979339828220179
+Best move at depth:  5  is:  b4 eval_bar: (white) 5.238612181134003
+Best move at depth:  6  is:  b4 eval_bar: (white) 5.730983005625053
+Best move at depth:  7  is:  Kc7 eval_bar: (white) 5.62
+Turn:  white
+Best move at depth:  1  is:  Kf3 eval_bar: (white) 4.06
+Best move at depth:  2  is:  Kg4 eval_bar: (white) 5.2419660112501045
+Best move at depth:  3  is:  Kg4 eval_bar: (white) 5.2419660112501045
+Best move at depth:  4  is:  Kg4 eval_bar: (white) 5.238612181134003
+Best move at depth:  5  is:  Kg4 eval_bar: (white) 5.770983005625053
+Best move at depth:  6  is:  Kg4 eval_bar: (white) 5.62
+Best move at depth:  7  is:  Kg4 eval_bar: (white) 5.829430584957906
+Best move at depth:  8  is:  Kg4 eval_bar: (white) 5.879223593595586
+Turn:  black
+Best move at depth:  1  is:  b4 eval_bar: (white) 5.2419660112501045
+Best move at depth:  2  is:  b4 eval_bar: (white) 5.2419660112501045
+Best move at depth:  3  is:  b4 eval_bar: (white) 5.238612181134003
+Best move at depth:  4  is:  b4 eval_bar: (white) 5.770983005625053
+Best move at depth:  5  is:  Kb7 eval_bar: (white) 5.62
+Best move at depth:  6  is:  Kb7 eval_bar: (white) 5.829430584957906
+Best move at depth:  7  is:  Kb7 eval_bar: (white) 5.879223593595586
+Turn:  white
+Best move at depth:  1  is:  Kxg5 eval_bar: (white) 5.443708798216374
+Best move at depth:  2  is:  Re6 eval_bar: (white) 5.373708798216374
+Best move at depth:  3  is:  Kxg5 eval_bar: (white) 5.809223593595585
+Best move at depth:  4  is:  Kxg5 eval_bar: (white) 5.62
+Best move at depth:  5  is:  Kxg5 eval_bar: (white) 5.829430584957906
+Best move at depth:  6  is:  Kxg5 eval_bar: (white) 5.879223593595586
+Best move at depth:  7  is:  Kxg5 eval_bar: (white) 5.959223593595585
+Turn:  black
+Best move at depth:  1  is:  b4 eval_bar: (white) 5.303708798216373
+Best move at depth:  2  is:  b4 eval_bar: (white) 5.809223593595585
+Best move at depth:  3  is:  Kc7 eval_bar: (white) 5.62
+Best move at depth:  4  is:  Kc7 eval_bar: (white) 5.829430584957906
+Best move at depth:  5  is:  Kc7 eval_bar: (white) 5.879223593595586
+Best move at depth:  6  is:  Kc7 eval_bar: (white) 5.959223593595585
+Best move at depth:  7  is:  Kc7 eval_bar: (white) 5.859430584957905
+Turn:  white
+Best move at depth:  1  is:  Kf6 eval_bar: (white) 5.899430584957905
+Best move at depth:  2  is:  Kf6 eval_bar: (white) 5.62
+Best move at depth:  3  is:  Re6 eval_bar: (white) 5.829430584957906
+Best move at depth:  4  is:  Re6 eval_bar: (white) 5.879223593595586
+Best move at depth:  5  is:  Re6 eval_bar: (white) 5.959223593595585
+Best move at depth:  6  is:  Re6 eval_bar: (white) 5.859430584957905
+Turn:  black
+Best move at depth:  1  is:  b4 eval_bar: (white) 5.311966011250105
+Best move at depth:  2  is:  b4 eval_bar: (white) 5.829430584957906
+Best move at depth:  3  is:  Kb7 eval_bar: (white) 5.879223593595586
+Best move at depth:  4  is:  Kb7 eval_bar: (white) 5.959223593595585
+Best move at depth:  5  is:  Kb7 eval_bar: (white) 5.859430584957905
+Best move at depth:  6  is:  Kb7 eval_bar: (white) 5.979430584957905
+Best move at depth:  7  is:  Kb7 eval_bar: (white) 6.13
+Turn:  white
+Best move at depth:  1  is:  Kf6 eval_bar: (white) 6.019223593595585
+Best move at depth:  2  is:  Kf6 eval_bar: (white) 5.879223593595586
+Best move at depth:  3  is:  Kf6 eval_bar: (white) 5.959223593595585
+Best move at depth:  4  is:  Kf6 eval_bar: (white) 5.859430584957905
+Best move at depth:  5  is:  Kf6 eval_bar: (white) 5.979430584957905
+Best move at depth:  6  is:  Kf6 eval_bar: (white) 6.13
+Turn:  black
+Best move at depth:  1  is:  b4 eval_bar: (white) 5.879223593595586
+Best move at depth:  2  is:  b4 eval_bar: (white) 5.959223593595585
+Best move at depth:  3  is:  Kc7 eval_bar: (white) 5.859430584957905
+Best move at depth:  4  is:  Kc7 eval_bar: (white) 5.979430584957905
+Best move at depth:  5  is:  Kc7 eval_bar: (white) 6.13
+Best move at depth:  6  is:  Kc7 eval_bar: (white) 6.6792235935955855
+Best move at depth:  7  is:  Kc7 eval_bar: (white) 6.629430584957905
+Turn:  white
+Best move at depth:  1  is:  Re8 eval_bar: (white) 6.049430584957905
+Best move at depth:  2  is:  Ra6 eval_bar: (white) 5.859430584957905
+Best move at depth:  3  is:  g4 eval_bar: (white) 5.979430584957905
+Best move at depth:  4  is:  Ke7 eval_bar: (white) 6.13
+Best move at depth:  5  is:  g4 eval_bar: (white) 6.6792235935955855
+Best move at depth:  6  is:  g4 eval_bar: (white) 6.629430584957905
+Best move at depth:  7  is:  g4 eval_bar: (white) 7.4594305849579055
+Turn:  black
+Best move at depth:  1  is:  b4 eval_bar: (white) 5.839430584957905
+Best move at depth:  2  is:  b4 eval_bar: (white) 5.979430584957905
+Best move at depth:  3  is:  Kb7 eval_bar: (white) 6.029223593595585
+Best move at depth:  4  is:  Kb7 eval_bar: (white) 6.6792235935955855
+Best move at depth:  5  is:  Kb7 eval_bar: (white) 6.629430584957905
+Best move at depth:  6  is:  Kb7 eval_bar: (white) 7.4594305849579055
+Best move at depth:  7  is:  Kb7 eval_bar: (white) 7.4594305849579055
+Turn:  white
+Best move at depth:  1  is:  g5 eval_bar: (white) 6.169223593595586
+Best move at depth:  2  is:  g5 eval_bar: (white) 6.029223593595585
+Best move at depth:  3  is:  g5 eval_bar: (white) 6.6792235935955855
+Best move at depth:  4  is:  g5 eval_bar: (white) 6.629430584957905
+Best move at depth:  5  is:  g5 eval_bar: (white) 7.4594305849579055
+Best move at depth:  6  is:  g5 eval_bar: (white) 7.4594305849579055
+Best move at depth:  7  is:  g5 eval_bar: (white) 11.679430584957904
+Turn:  black
+Best move at depth:  1  is:  b4 eval_bar: (white) 6.029223593595585
+Best move at depth:  2  is:  b4 eval_bar: (white) 6.6792235935955855
+Best move at depth:  3  is:  Kc7 eval_bar: (white) 6.629430584957905
+Best move at depth:  4  is:  Kc7 eval_bar: (white) 7.4594305849579055
+Best move at depth:  5  is:  Kb8 eval_bar: (white) 7.4594305849579055
+Best move at depth:  6  is:  Kc7 eval_bar: (white) 11.679430584957904
+Best move at depth:  7  is:  b4 eval_bar: (white) 8.619430584957906
+Turn:  white
+Best move at depth:  1  is:  g6 eval_bar: (white) 6.6792235935955855
+Best move at depth:  2  is:  Re4 eval_bar: (white) 6.88
+Best move at depth:  3  is:  g6 eval_bar: (white) 7.4594305849579055
+Best move at depth:  4  is:  g6 eval_bar: (white) 7.53
+Best move at depth:  5  is:  g6 eval_bar: (white) 11.679430584957904
+Best move at depth:  6  is:  g6 eval_bar: (white) 8.619430584957906
+Best move at depth:  7  is:  g6 eval_bar: (white) 14.379430584957904
+Turn:  black
+Best move at depth:  1  is:  Kc7 eval_bar: (white) 6.629430584957905
+Best move at depth:  2  is:  Kc7 eval_bar: (white) 7.4594305849579055
+Best move at depth:  3  is:  Kc7 eval_bar: (white) 7.53
+Best move at depth:  4  is:  Kc7 eval_bar: (white) 11.679430584957904
+Best move at depth:  5  is:  b3 eval_bar: (white) 8.619430584957906
+Best move at depth:  6  is:  Kc7 eval_bar: (white) 14.379430584957904
+Best move at depth:  7  is:  Kc7 eval_bar: (white) 10000
+Turn:  white
+Best move at depth:  1  is:  g7 eval_bar: (white) 7.4594305849579055
+Best move at depth:  2  is:  Re4 eval_bar: (white) 7.53
+Best move at depth:  3  is:  g7 eval_bar: (white) 11.679430584957904
+Best move at depth:  4  is:  g7 eval_bar: (white) 11.679430584957904
+Best move at depth:  5  is:  g7 eval_bar: (white) 14.379430584957904
+Best move at depth:  6  is:  g7 eval_bar: (white) 15.069430584957905
+Best move at depth:  7  is:  g7 eval_bar: (white) 15.270983005625054
+Best move at depth:  8  is:  g7 eval_bar: (white) 10000
+Best move at depth:  9  is:  g7 eval_bar: (white) 10000
+Turn:  black
+Best move at depth:  1  is:  Kd7 eval_bar: (white) 7.470983005625053
+Best move at depth:  2  is:  b3 eval_bar: (white) 11.679430584957904
+Best move at depth:  3  is:  b3 eval_bar: (white) 11.679430584957904
+Best move at depth:  4  is:  Kd7 eval_bar: (white) 14.379430584957904
+Best move at depth:  5  is:  b3 eval_bar: (white) 15.069430584957905
+Best move at depth:  6  is:  Kd7 eval_bar: (white) 15.270983005625054
+Best move at depth:  7  is:  Kd7 eval_bar: (white) 10000
+Best move at depth:  8  is:  Kd7 eval_bar: (white) 10000
+Best move at depth:  9  is:  Kd7 eval_bar: (white) 10000
+Turn:  white
+Best move at depth:  1  is:  g8=Q eval_bar: (white) 13.920983005625054
+Best move at depth:  2  is:  g8=Q eval_bar: (white) 13.909430584957905
+Best move at depth:  3  is:  g8=Q eval_bar: (white) 14.379430584957904
+Best move at depth:  4  is:  g8=Q eval_bar: (white) 15.270983005625054
+Best move at depth:  5  is:  g8=Q eval_bar: (white) 15.270983005625054
+Best move at depth:  6  is:  g8=Q eval_bar: (white) 10000
+Best move at depth:  7  is:  g8=Q eval_bar: (white) 10000
+Best move at depth:  8  is:  g8=Q eval_bar: (white) 10000
+Best move at depth:  9  is:  g8=Q eval_bar: (white) 10000
+Best move at depth:  10  is:  g8=Q eval_bar: (white) 10000
+Best move at depth:  11  is:  g8=Q eval_bar: (white) 10000
+Turn:  black
+Best move at depth:  1  is:  Kc7 eval_bar: (white) 13.909430584957905
+Best move at depth:  2  is:  Kc7 eval_bar: (white) 14.379430584957904
+Best move at depth:  3  is:  Kc7 eval_bar: (white) 15.270983005625054
+Best move at depth:  4  is:  Kc7 eval_bar: (white) 15.270983005625054
+Best move at depth:  5  is:  Kc7 eval_bar: (white) 10000
+Best move at depth:  6  is:  Kc7 eval_bar: (white) 10000
+Best move at depth:  7  is:  Kc7 eval_bar: (white) 10000
+Best move at depth:  8  is:  Kc7 eval_bar: (white) 10000
+Best move at depth:  9  is:  Kc7 eval_bar: (white) 10000
+Best move at depth:  10  is:  Kc7 eval_bar: (white) 10000
+Turn:  white
+Best move at depth:  1  is:  Qg5 eval_bar: (white) 14.379430584957904
+Best move at depth:  2  is:  Qg4 eval_bar: (white) 15.270983005625054
+Best move at depth:  3  is:  Qg4 eval_bar: (white) 15.270983005625054
+Best move at depth:  4  is:  Qf7 eval_bar: (white) 10000
+Best move at depth:  5  is:  Qf7 eval_bar: (white) 10000
+Best move at depth:  6  is:  Qf7 eval_bar: (white) 10000
+Best move at depth:  7  is:  Qf7 eval_bar: (white) 10000
+Best move at depth:  8  is:  Qf7 eval_bar: (white) 10000
+Best move at depth:  9  is:  Qf7 eval_bar: (white) 10000
+Turn:  black
+Best move at depth:  1  is:  Kc8 eval_bar: (white) 14.408612181134004
+Best move at depth:  2  is:  Kc8 eval_bar: (white) 14.738612181134004
+Best move at depth:  3  is:  Kc8 eval_bar: (white) 10000
+Best move at depth:  4  is:  Kc8 eval_bar: (white) 10000
+Best move at depth:  5  is:  Kc8 eval_bar: (white) 10000
+Best move at depth:  6  is:  Kc8 eval_bar: (white) 10000
+Best move at depth:  7  is:  Kc8 eval_bar: (white) 10000
+Best move at depth:  8  is:  Kc8 eval_bar: (white) 10000
+Turn:  white
+Best move at depth:  1  is:  Qe7 eval_bar: (white) 14.738612181134004
+Best move at depth:  2  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  3  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  4  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  5  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  6  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  7  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  8  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  9  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  10  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  11  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  12  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  13  is:  Re8 eval_bar: (white) 10000
+Best move at depth:  14  is:  Re8 eval_bar: (white) 10000
+43.5
+3. Bb5 Bd7 4. Bc4 Nf6 5. Nc3 Bc6 6. Ng5 e6 7. d4 h6 8. Nf3 cxd4 9. Qxd4 Qb6 10. Qxb6 axb6 11. Bd3 Nbd7 12. Nd4 Rc8 13. O-O Kd8 14. Nxc6 Rxc6 15. Be3 d5 16. Bb5 Rxc3 17. bxc3 Nxe4 18. Bxd7 Kxd7 19. Rfb1 Nxc3 20. Rxb6 Kc7 21. Rb3 d4 22. Re1 e5 23. Bd2 Nxa2 24. Rxe5 Bd6 25. Rd5 Nc3 26. Bxc3 Bxh2 27. Kxh2 dxc3 28. Rxc3 Kb8 29. Rd7 Rc8 30. Rxc8 Kxc8 31. Rxf7 g5 32. Kg3 h5 33. Rh7 b5 34. Rxh5 Kd7 35. Rh6 Kc7 36. Kg4 Kb7 37. Kxg5 Kc7 38. Re6 Kb7 39. Kf6 Kc7 40. g4 Kb7 41. g5 b4 42. g6 Kc7 43. g7 Kd7 44. g8=Q Kc7 45. Qf7 Kc8 46. Re8
