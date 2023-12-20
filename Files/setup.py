@@ -4,6 +4,6 @@ from Cython.Build import cythonize
 # Can be used if Cython Compilation instead of CPython of PyPy3 is used
 
 setup(
-    ext_modules=cythonize(["chess_engine.py", "move_finder.py"]),
+    ext_modules=cythonize(["chess_engine.py", "move2finder.py"]),
 )
 

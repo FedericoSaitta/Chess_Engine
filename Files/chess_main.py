@@ -12,7 +12,7 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 0.3 # Seconds (last iteration)
+THINKING_MAX_TIME = 1 # Seconds (last iteration)
 
 
 '''Square conversion dictionaries'''
@@ -48,7 +48,7 @@ def main():
     game_over = False
 
     player_one = True # If a human is playing white it will be true
-    player_two = True # If a human is playing black it will be true
+    player_two = False # If a human is playing black it will be true
 
     while running:
         is_human_turn = (dict['white_to_move'] and player_one) or (not dict['white_to_move'] and player_two)

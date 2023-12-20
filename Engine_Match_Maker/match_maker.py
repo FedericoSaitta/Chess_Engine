@@ -1,6 +1,8 @@
 
 from Engine_1_OLD.move_generator import get_all_valid_moves, make_move, undo_move, board, general_dict
 from Engine_1_OLD.move_finder import iterative_deepening
+from Engine_2_NEW.move2_generator import get_all_valid_moves as get_all_valid_moves2
+from Engine_2_NEW.move2finder import  iterative_deepening as iterative_deepening2
 #from Engine_2_NEW import
 
 STARTING_BOARD  = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
@@ -17,17 +19,19 @@ board = STARTING_BOARD.copy()
 
 
 STARTING_DICT = general_dict.copy()
-THINKING_TIME =  3 # Seconds
+THINKING_TIME =  1 # Seconds
 
 
 while True:
     white_moves = get_all_valid_moves(board, general_dict)
+
     if white_moves == []: break
     white_move = iterative_deepening(white_moves, board, general_dict, THINKING_TIME)
     make_move(board, white_move, general_dict)
-    black_moves = get_all_valid_moves(board, general_dict)
+
+    black_moves = get_all_valid_moves2(board, general_dict)
     if black_moves == []: break
-    black_move = iterative_deepening(black_moves, board, general_dict, THINKING_TIME)
+    black_move = iterative_deepening2(black_moves, board, general_dict, THINKING_TIME)
     make_move(board, black_move, general_dict)
 
 

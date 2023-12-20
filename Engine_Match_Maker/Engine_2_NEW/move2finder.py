@@ -1,5 +1,5 @@
 # Evaluates positions and searches moves
-from chess_engine import make_move, undo_move, get_all_valid_moves, make_null_move, undo_null_move
+from .move2_generator import make_move, undo_move, get_all_valid_moves, make_null_move, undo_null_move
 from random import randint
 from math import fabs
 import time
