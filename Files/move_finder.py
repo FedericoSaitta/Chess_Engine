@@ -264,8 +264,8 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
     if extension == 0:
         return alpha
 
-    # You are not ordering moves here
-    moves = move_ordering(get_valid_moves(board, dict), board)
+    # Don't see a point in move ordering here if only captures are considered
+    moves = get_valid_moves(board, dict)
 
     for move in moves:
         if move.piece_captured != 0:
@@ -330,33 +330,26 @@ def evaluate_board(board, dict, turn_multiplier):
     global NODES_SEARCHED
     NODES_SEARCHED += 1
 
-    eval_bar = index = 0
-    empty_squares = board.count(0)
 
-
-    white_score, black_score = 0, 0
+    enemy_score = 0
     for square in board:
-            if square > 0:  white_score += square
-            elif square < 0: black_score -= square
+            if square > 0 and (turn_multiplier == -1):  enemy_score += square
+            elif square < 0 and (turn_multiplier == 1): enemy_score -= square
 
 
-    for square in board:
-        if square > 0:
-            eval_bar += interpolate_pesto_board(index, square, black_score, 1)
-        elif square < 0:
-            # Changing the pesto tables based on how much material your opponent has
-            eval_bar += interpolate_pesto_board(index, square, white_score, -1)
-
-        index += 1
+    enemy_score = 4000 if enemy_score > 4000 else enemy_score
+    value = map(lambda square: interpolate_pesto_board(square[0], square[1], enemy_score), enumerate(board))
+    eval_bar = sum(value)
 
 
-
-    if FABS(eval_bar) > 450 and (empty_squares > 55):
+    if (eval_bar * turn_multiplier) > 450 and (enemy_score < 1500):
         side_winning = 1 if eval_bar > 0 else -1
+
         white_k = (dict['white_king_loc'] // 8, dict['white_king_loc'] % 8)
         black_k = (dict['black_king_loc'] // 8, dict['black_king_loc'] % 8)
 
         king_distance = ((white_k[0] - black_k[0]) ** 2 + (white_k[1] - black_k[1]) ** 2) ** 0.5
+
         if eval_bar > 0:  # White is winning
             eval_bar -= king_distance * 25
         else:  # Black is winning
@@ -364,37 +357,39 @@ def evaluate_board(board, dict, turn_multiplier):
 
 
         if side_winning == 1:
-            king_to_check_mate = dict['black_king_loc']
-            black_k = king_to_check_mate // 8, king_to_check_mate % 8
-            row, col = FABS(black_k[0] - 4), FABS(black_k[1] - 4)
+            row, col = (black_k[0] - 4), (black_k[1] - 4)
             distance = (row**2 + col**2) * 4 - 128
 
         else:
-            king_to_check_mate = dict['white_king_loc']
-            white_k = (king_to_check_mate // 8, king_to_check_mate % 8)
             row, col = (white_k[0] - 4), (white_k[1] - 4)
-            distance = 64 - (row ** 2 + col ** 2)*4 - 128
+            distance = (row ** 2 + col ** 2)*4 - 128
 
         eval_bar += distance
 
 
-    eval_bar = eval_bar / 100
-    return eval_bar
+    return eval_bar / 100
 
 
-def interpolate_pesto_board(square_ind, piece, enemy_pieces_values, side_multiplier):
-    enemy_pieces_values = max(enemy_pieces_values, 4_039)
+def interpolate_pesto_board(square_ind, piece, enemy_pieces_values):
+    if piece == 0:
+        return 0
+
+    side_multiplier = 1 if piece > 0 else -1
+    abs_piece = piece * side_multiplier
+
     middle_game_value, end_game_value = piece_sq_values[piece][0][square_ind], piece_sq_values[piece][1][square_ind]
 
-    difference = (end_game_value - middle_game_value)
-    difference_piece_value = (end_game_pieces[FABS(piece)] - middle_game_pieces[FABS(piece)] )
+    difference = end_game_value - middle_game_value
+    difference_piece_value = end_game_pieces[abs_piece] - middle_game_pieces[abs_piece]
 
-    interpolation_percentage = FABS(enemy_pieces_values - 4039) / 4039
+    interpolation_percentage = (4000 - enemy_pieces_values) / 3200
+    # Dividing by 3200 as to enter the endgame when 80% of the pieces are gone
 
     single_sq_evaluation = middle_game_value + interpolation_percentage * difference_piece_value
-    single_piece_evaluation = middle_game_pieces[FABS(piece)] + interpolation_percentage * difference_piece_value
+    single_piece_evaluation = middle_game_pieces[abs_piece] + interpolation_percentage * difference_piece_value
 
     return (single_piece_evaluation * side_multiplier) + single_sq_evaluation
+
 
 
 ########################################################################################################################
@@ -413,7 +408,6 @@ def move_ordering(moves, board):
     # Should be tested but in general seems to lead to faster move ordering
 
     score = [MVV_LLA_TABLE[piece_indices[move.piece_captured]][piece_indices[move.piece_moved]]  for move in moves]
-
     combined = list(zip(moves, score))
 
     # Sort the combined list based on scores
@@ -421,7 +415,6 @@ def move_ordering(moves, board):
 
     # Extract the sorted values
     moves = [item[0] for item in sorted_combined]
-
 
   #  print('NEW ORDER')
  #   for tup in sorted_combined:

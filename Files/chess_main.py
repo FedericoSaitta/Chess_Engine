@@ -5,6 +5,9 @@ from move_finder import find_random_move, iterative_deepening
 import timeit
 import time as t
 from random import randint
+import pstats
+from collections import Counter
+import cProfile
 
 
 WIDTH = HEIGHT = 512
@@ -12,7 +15,7 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 1 # Seconds (last iteration)
+THINKING_MAX_TIME = 0.5 # Seconds (last iteration)
 
 
 '''Square conversion dictionaries'''
@@ -184,5 +187,12 @@ def get_single_move_notation(move):
     return (r, c)
 
 if __name__ == '__main__':
-    main()
+
+    with cProfile.Profile() as profile:
+
+        main()
+
+        profiler_stats = pstats.Stats(profile)
+        specific_file = ('move_finder.py')
+        profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
 
