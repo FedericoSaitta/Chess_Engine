@@ -166,7 +166,8 @@ piece_sq_values = {100: (PAWN_MG_white,PAWN_EG_white), -100:(PAWN_MG_black, PAWN
                    1: (KING_MG_white,KING_EG_white) , -1: (KING_MG_black, KING_EG_black)}
 
 NODES_SEARCHED = 0
-next_move = None
+TRANSPOSITION_DICTIONARY = {}
+
 
 
 def find_random_move(moves):
@@ -187,7 +188,7 @@ def find_random_move(moves):
 
 
 # Engine does not go for the fastest mate
-# Engine doesnt see stale mate and also doesnt see 3 move repetition (will fix the latter at a later point_
+# Engine doesn't see stale mate and also doesnt see 3 move repetition (will fix the latter at a later point_
 def iterative_deepening(moves, board, dict, time_constraints):
     DEPTH = 1
     best_move = None
@@ -215,6 +216,10 @@ def iterative_deepening(moves, board, dict, time_constraints):
         best_move = find_random_move(moves)
 
    # print(best_move.get_pgn_notation(board))
+
+    if (len(TRANSPOSITION_DICTIONARY)) > 500_000:
+        TRANSPOSITION_DICTIONARY.clear()
+
     return best_move
 
 
@@ -248,9 +253,8 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
 
 
 # I think the implementation of quiescence search is slightly, wrong, it is infefficient
-EXTENSION = 8
+EXTENSION = 5
 def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
-
     stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
 
     if stand_pat >= beta:
@@ -262,29 +266,34 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
     if extension == 0:
         return alpha
 
-    moves = move_ordering(get_valid_moves(board, dict))
+    captures = [move for move in (get_valid_moves(board, dict) ) if move.piece_captured != 0]
 
-    for move in moves:
-        if move.piece_captured != 0:
+    for move in captures:
 
-            push_move(board, move, dict)
-            score = -quiescence_search(board, dict, -turn_multiplier, -beta, -alpha, extension - 1)
-            retract_move(board, dict)
+        push_move(board, move, dict)
+        score = -quiescence_search(board, dict, -turn_multiplier, -beta, -alpha, extension - 1)
+        retract_move(board, dict)
 
-            if score >= beta:
-                return beta  # Fail-hard beta-cutoff
+        if score >= beta:
+            return beta  # Fail-hard beta-cutoff
 
-            if score > alpha:
-                alpha = score  # New alpha
+        if score > alpha:
+            alpha = score  # New alpha
 
     return alpha
 
 
 '''Main problem is its ability to not see checkmate and stalemate in some positions'''
 def negamax(board, dict, depth, turn_multiplier, alpha, beta):
-    moves = move_ordering(get_valid_moves(board, dict))
-    best = -CHECK_MATE
 
+    best = -CHECK_MATE
+    moves = move_ordering(get_valid_moves(board, dict))
+
+    if moves == []:
+        if dict['in_check']:
+            return -CHECK_MATE
+        else:
+            return STALE_MATE
 
 #  Removing null move pruning it seems to aggressive
  #   if depth > 3 and (not dict['in_check']):
@@ -293,13 +302,6 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
  #       undo_null_move(dict)
  #       if null_move_score >= beta:
  #           return null_move_score  # Null move pruning
-
-
-    if moves == []:
-        if dict['in_check']:
-            return -CHECK_MATE
-        else:
-            return STALE_MATE
 
     if depth == 0:
         return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
@@ -327,48 +329,57 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
 
 ### This is returns the same value wheter it is white or black perspective
 def evaluate_board(board, dict, turn_multiplier):
-    global NODES_SEARCHED
-    NODES_SEARCHED += 1
+        global NODES_SEARCHED
+   # try:
+        # This doesnt work with the three-fold repetition though, it sees the position and just doesnt understand how
+        # It is three fold repeated already
+
+      #  eval_bar = TRANSPOSITION_DICTIONARY[dict['ZOBRIST_HASH']]
+ #   except:
+        NODES_SEARCHED += 1
 
 
-    enemy_score = 0
-    for square in board:
-            if square > 0 and (turn_multiplier == -1):  enemy_score += square
-            elif square < 0 and (turn_multiplier == 1): enemy_score -= square
+        enemy_score = 0
+        for square in board:
+                if square > 0 and (turn_multiplier == -1):  enemy_score += square
+                elif square < 0 and (turn_multiplier == 1): enemy_score -= square
 
 
-    enemy_score = 4000 if enemy_score > 4000 else enemy_score
-    value = map(lambda square: interpolate_pesto_board(square[0], square[1], enemy_score), enumerate(board))
-    eval_bar = sum(value)
+        enemy_score = 4000 if enemy_score > 4000 else enemy_score
+        value = map(lambda square: interpolate_pesto_board(square[0], square[1], enemy_score), enumerate(board))
+        eval_bar = sum(value)
 
 
-    # This takes waay too long
-    if (eval_bar * turn_multiplier) > 450 and (enemy_score < 1500):
-        side_winning = 1 if eval_bar > 0 else -1
+        # This takes waay too long
+        if (eval_bar * turn_multiplier) > 450 and (enemy_score < 1500):
+            side_winning = 1 if eval_bar > 0 else -1
+            print('black is winning')
 
-        white_k = (dict['white_king_loc'] // 8, dict['white_king_loc'] % 8)
-        black_k = (dict['black_king_loc'] // 8, dict['black_king_loc'] % 8)
+            white_k = (dict['white_king_loc'] // 8, dict['white_king_loc'] % 8)
+            black_k = (dict['black_king_loc'] // 8, dict['black_king_loc'] % 8)
 
-        king_distance = ((white_k[0] - black_k[0]) ** 2 + (white_k[1] - black_k[1]) ** 2) ** 0.5
+            king_distance = ((white_k[0] - black_k[0]) ** 2 + (white_k[1] - black_k[1]) ** 2) ** 0.5
 
-        if eval_bar > 0:  # White is winning
-            eval_bar -= king_distance * 25
-        else:  # Black is winning
-            eval_bar += king_distance * 25
-
-
-        if side_winning == 1:
-            row, col = (black_k[0] - 4), (black_k[1] - 4)
-            distance = (row**2 + col**2) * 4 - 128
-
-        else:
-            row, col = (white_k[0] - 4), (white_k[1] - 4)
-            distance = (row ** 2 + col ** 2)*4 - 128
-
-        eval_bar += distance
+            if eval_bar > 0:  # White is winning
+                eval_bar -= king_distance * 25
+            else:  # Black is winning
+                print(king_distance * 25)
+                eval_bar += king_distance * 25
 
 
-    return eval_bar / 100
+            if side_winning == 1:
+                row, col = (black_k[0] - 4), (black_k[1] - 4)
+                distance = (row**2 + col**2) * 4 - 128
+
+            else:
+                row, col = (white_k[0] - 4), (white_k[1] - 4)
+                distance = 128 - (row ** 2 + col ** 2)*4
+
+            print(distance)
+            eval_bar += distance
+
+   # TRANSPOSITION_DICTIONARY[dict['ZOBRIST_HASH']] = eval_bar
+        return eval_bar / 100
 
 
 def interpolate_pesto_board(square_ind, piece, enemy_pieces_values):
