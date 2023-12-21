@@ -191,27 +191,25 @@ def find_random_move(moves):
 def iterative_deepening(moves, board, dict, time_constraints):
     DEPTH = 1
     best_move = None
+
     start_time = time.time()
 
-    # Make sure to start the search with the best moves from the previous search
     turn_multiplier = 1 if dict['white_to_move'] else -1
-    moves = move_ordering(moves, board)
+    moves = move_ordering(moves)
 
-    if len(moves) == 1:
-        return moves[0]
+
 
     while True:
       #  print('searching at a depth of:', DEPTH)
         best_move = root_negamax(moves, board, dict, turn_multiplier, DEPTH)
         DEPTH += 1
 
-        if time.time() - start_time > time_constraints or DEPTH == 15:
+        if (time.time() - start_time > time_constraints) or DEPTH == 15:
     #        print("Time limit exceeded. Stopping search.")
             break
 
         moves.remove(best_move)
         moves.insert(0, best_move)
-
 
     if best_move is None:
         best_move = find_random_move(moves)
@@ -250,7 +248,7 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
 
 
 # I think the implementation of quiescence search is slightly, wrong, it is infefficient
-EXTENSION = 10
+EXTENSION = 8
 def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
 
     stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
@@ -264,11 +262,11 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
     if extension == 0:
         return alpha
 
-    # Don't see a point in move ordering here if only captures are considered
-    moves = get_valid_moves(board, dict)
+    moves = move_ordering(get_valid_moves(board, dict))
 
     for move in moves:
         if move.piece_captured != 0:
+
             push_move(board, move, dict)
             score = -quiescence_search(board, dict, -turn_multiplier, -beta, -alpha, extension - 1)
             retract_move(board, dict)
@@ -284,16 +282,18 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
 
 '''Main problem is its ability to not see checkmate and stalemate in some positions'''
 def negamax(board, dict, depth, turn_multiplier, alpha, beta):
-    moves = move_ordering(get_valid_moves(board, dict), board)
+    moves = move_ordering(get_valid_moves(board, dict))
     best = -CHECK_MATE
 
-# Removing null move pruning it seems to aggressive
+
+#  Removing null move pruning it seems to aggressive
  #   if depth > 3 and (not dict['in_check']):
  #       make_null_move(dict)
   #      null_move_score = -negamax(board, dict, depth - 3, -turn_multiplier, -beta, -beta+1)
  #       undo_null_move(dict)
  #       if null_move_score >= beta:
  #           return null_move_score  # Null move pruning
+
 
     if moves == []:
         if dict['in_check']:
@@ -342,6 +342,7 @@ def evaluate_board(board, dict, turn_multiplier):
     eval_bar = sum(value)
 
 
+    # This takes waay too long
     if (eval_bar * turn_multiplier) > 450 and (enemy_score < 1500):
         side_winning = 1 if eval_bar > 0 else -1
 
@@ -391,7 +392,6 @@ def interpolate_pesto_board(square_ind, piece, enemy_pieces_values):
     return (single_piece_evaluation * side_multiplier) + single_sq_evaluation
 
 
-
 ########################################################################################################################
 #                                               MOVER ORDERING FUNCTION                                                #
 ########################################################################################################################
@@ -403,9 +403,8 @@ def interpolate_pesto_board(square_ind, piece, enemy_pieces_values):
 piece_indices = {1: 0, 900: 1, 500: 2, 330: 3, 320: 4, 100: 5, 0:6,
                 -1: 0, -900: 1, -500: 2, -330: 3, -320: 4, -100: 5}
 
-def move_ordering(moves, board):
+def move_ordering(moves):
     # The -1 ensures that all captures are looked at first before normal moves
-    # Should be tested but in general seems to lead to faster move ordering
 
     score = [MVV_LLA_TABLE[piece_indices[move.piece_captured]][piece_indices[move.piece_moved]]  for move in moves]
     combined = list(zip(moves, score))
@@ -416,9 +415,8 @@ def move_ordering(moves, board):
     # Extract the sorted values
     moves = [item[0] for item in sorted_combined]
 
-  #  print('NEW ORDER')
- #   for tup in sorted_combined:
- #       if tup[1] != 0:
- #           print(tup[0].get_pgn_notation(board), tup[1])
+    #for tup in sorted_combined:
+   #     if tup[1] != 0:
+   #         print(tup[0].get_pgn_notation(board), tup[1])
 
     return moves
