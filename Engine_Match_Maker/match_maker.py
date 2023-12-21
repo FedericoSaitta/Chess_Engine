@@ -23,17 +23,27 @@ THINKING_TIME =  2 # Seconds
 
 
 while True:
-    white_moves = get_all_valid_moves(board, general_dict)
+    white_moves = get_all_valid_moves2(board, general_dict)
 
     if white_moves == []: break
-    white_move = iterative_deepening(white_moves, board, general_dict, THINKING_TIME)
+
+    white_move = iterative_deepening2(white_moves, board, general_dict, THINKING_TIME)
     make_move(board, white_move, general_dict)
 
-    black_moves = get_all_valid_moves2(board, general_dict)
+    black_moves = get_all_valid_moves(board, general_dict)
+
     if black_moves == []: break
-    black_move = iterative_deepening2(black_moves, board, general_dict, THINKING_TIME)
+
+    black_move = iterative_deepening(black_moves, board, general_dict, THINKING_TIME)
     make_move(board, black_move, general_dict)
 
+'''There is still something wrong with the printing of the notation
+but only in the notation, the engines print out the moves well'''
+
+'''Random king moves (not castles are being made)'''
+
+'''Sometimes it discards clearly good moves for ones that are not so much, probs due to evaluation 
+function'''
 
 def print_pgn(old_move_log):
     move_notation = []

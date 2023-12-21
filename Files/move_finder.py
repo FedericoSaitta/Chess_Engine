@@ -15,6 +15,18 @@ CHECK_MATE = 10_000
 STALE_MATE = 0
 
 
+## Taken from https://rustic-chess.org/front_matter/title.html, Marcel Vanthoor
+MVV_LLA_TABLE = [
+   [ 0,  0,  0,  0,  0,  0, 0],  # Victim K, 0's as it is checkmate already
+   [50, 51, 52, 53, 54, 55, 0], # victim Q, attacker K, Q, R, B, N, P
+   [40, 41, 42, 43, 44, 45, 0], # victim R, attacker K, Q, R, B, N, P
+   [30, 31, 32, 33, 34, 35, 0], # victim B, attacker K, Q, R, B, N, P
+   [20, 21, 22, 23, 24, 25, 0], # victim N, attacker K, Q, R, B, N, P
+   [10, 11, 12, 13, 14, 15, 0], # victim P, attacker K, Q, R, B, N, P
+   [ 0,  0,  0,  0,  0,  0, 0],  # No Victim
+]
+
+
 middle_game_pieces = {100: 82, 320: 337, 330: 365, 500: 477, 900: 1025,  1: 0} # adds to 4039
 end_game_pieces = {100: 94, 320: 281, 330: 297, 500: 512,  900: 936,  1: 0}  # adds to 3868
 
@@ -183,13 +195,13 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
     # Make sure to start the search with the best moves from the previous search
     turn_multiplier = 1 if dict['white_to_move'] else -1
-    moves = move_ordering(moves, board, turn_multiplier)
+    moves = move_ordering(moves, board)
 
     if len(moves) == 1:
         return moves[0]
 
     while True:
-        print('searching at a depth of:', DEPTH)
+      #  print('searching at a depth of:', DEPTH)
         best_move = root_negamax(moves, board, dict, turn_multiplier, DEPTH)
         DEPTH += 1
 
@@ -204,7 +216,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
     if best_move is None:
         best_move = find_random_move(moves)
 
-    print(best_move.get_pgn_notation(board))
+   # print(best_move.get_pgn_notation(board))
     return best_move
 
 
@@ -232,12 +244,13 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
     if best_move is None:
         best_move = find_random_move(moves)
 
-    print('Best move:', best_move.get_pgn_notation(board), 'eval_bar: (white)', score * turn_multiplier)
-    print('Searched:', NODES_SEARCHED)
+    print('Best move at depth: ', DEPTH, ' is: ', best_move.get_pgn_notation(board), 'eval_bar: (white)', score * turn_multiplier, 'SEARCHED: ', NODES_SEARCHED)
     NODES_SEARCHED = 0
     return best_move
 
-EXTENSION = 5
+
+# I think the implementation of quiescence search is slightly, wrong, it is infefficient
+EXTENSION = 10
 def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
 
     stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
@@ -251,7 +264,8 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
     if extension == 0:
         return alpha
 
-    moves = get_valid_moves(board, dict)  # Modify this function to get capture moves only
+    # You are not ordering moves here
+    moves = move_ordering(get_valid_moves(board, dict), board)
 
     for move in moves:
         if move.piece_captured != 0:
@@ -267,25 +281,28 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
 
     return alpha
 
-def negamax(board, dict, depth, turn_multiplier, alpha, beta):
-    if depth == 0:
-        return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
 
-    moves = move_ordering(get_valid_moves(board, dict), board, turn_multiplier)
+'''Main problem is its ability to not see checkmate and stalemate in some positions'''
+def negamax(board, dict, depth, turn_multiplier, alpha, beta):
+    moves = move_ordering(get_valid_moves(board, dict), board)
     best = -CHECK_MATE
 
-    if depth > 3 and (not dict['in_check']):
-        make_null_move(dict)
-        null_move_score = -negamax(board, dict, depth - 3, -turn_multiplier, -beta, -beta+1)
-        undo_null_move(dict)
-        if null_move_score >= beta:
-            return null_move_score  # Null move pruning
+# Removing null move pruning it seems to aggressive
+ #   if depth > 3 and (not dict['in_check']):
+ #       make_null_move(dict)
+  #      null_move_score = -negamax(board, dict, depth - 3, -turn_multiplier, -beta, -beta+1)
+ #       undo_null_move(dict)
+ #       if null_move_score >= beta:
+ #           return null_move_score  # Null move pruning
 
     if moves == []:
         if dict['in_check']:
             return -CHECK_MATE
         else:
             return STALE_MATE
+
+    if depth == 0:
+        return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
 
     for move in moves:
         make_move(board, move, dict)
@@ -387,17 +404,15 @@ def interpolate_pesto_board(square_ind, piece, enemy_pieces_values, side_multipl
 
 ## Aggressive move ordering to lead to great pruning is the way to really increase\
 ## the speed of the engine, focus on this until you cant anymore,
-'''Try and fully implement MVV/LLA'''
 
+piece_indices = {1: 0, 900: 1, 500: 2, 330: 3, 320: 4, 100: 5, 0:6,
+                -1: 0, -900: 1, -500: 2, -330: 3, -320: 4, -100: 5}
 
-def move_ordering(moves, board, turn_multiplier):
-    # The -900 ensures that all captures are looked at first before normal moves
+def move_ordering(moves, board):
+    # The -1 ensures that all captures are looked at first before normal moves
     # Should be tested but in general seems to lead to faster move ordering
-    if turn_multiplier == 1:
-        score = [(-move.piece_captured - move.piece_moved) if move.piece_captured != 0 else -900 for move in moves]
 
-    else:
-        score = [(move.piece_captured + move.piece_moved) if move.piece_captured != 0 else -900 for move in moves]
+    score = [MVV_LLA_TABLE[piece_indices[move.piece_captured]][piece_indices[move.piece_moved]]  for move in moves]
 
     combined = list(zip(moves, score))
 
@@ -408,8 +423,9 @@ def move_ordering(moves, board, turn_multiplier):
     moves = [item[0] for item in sorted_combined]
 
 
-
-    for tup in sorted_combined:
-        print(tup[0].get_pgn_notation(board), tup[1])
+  #  print('NEW ORDER')
+ #   for tup in sorted_combined:
+ #       if tup[1] != 0:
+ #           print(tup[0].get_pgn_notation(board), tup[1])
 
     return moves

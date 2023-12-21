@@ -268,24 +268,18 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
     return alpha
 
 def negamax(board, dict, depth, turn_multiplier, alpha, beta):
-    if depth == 0:
-        return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
-
     moves = move_ordering(get_valid_moves(board, dict), board, turn_multiplier)
     best = -CHECK_MATE
-
-    if depth > 3 and (not dict['in_check']):
-        make_null_move(dict)
-        null_move_score = -negamax(board, dict, depth - 3, -turn_multiplier, -beta, -beta+1)
-        undo_null_move(dict)
-        if null_move_score >= beta:
-            return null_move_score  # Null move pruning
 
     if moves == []:
         if dict['in_check']:
             return -CHECK_MATE
         else:
             return STALE_MATE
+
+    if depth == 0:
+        return quiescence_search(board, dict, turn_multiplier, alpha, beta, EXTENSION)
+
 
     for move in moves:
         make_move(board, move, dict)
