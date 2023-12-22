@@ -36,17 +36,6 @@ BLACK_PAWN_MOVES = ( (1, 0), (1, -1), (1, 1) )
 FABS = fabs
 
 '''Here are the variables that will be re-assigned and changed during run time'''
-
-board = [  # Switching to a 1D board representation    # Left right is +/- 1 and up and down is +/- 8
-    0, 0, 0, 0, 0, 0, 0, 0,  # 0 to 7
-    0, 0, 0, 0, 0, 0, 0, 0,  # 8 to 15
-    0, 0, 0, 0, 0, 0, 0, 0,  # 16 to 23
-    1, 100, 0, 0, 0, 0, 0, 0,  # 24 to 31
-    0, 0, 0, 0, 0, -500, 0, -1,  # 32 to 39
-    0, 0, 0, 0, 0, 0, 0, 0,  # 40 to 47
-    0, 0, 0, 0, 0, 0, 0, 0,  # 48 to 55
-    0, 0, 0, 0, 0, 0, 0, 0]  # 56 to 63
-
 HASHING_DICTIONARY = {  1: 0,   -1:  6,
                       100: 1, -100: 7,
                       320: 2, -320: 8,
@@ -62,6 +51,10 @@ def initialize_zobrist_table():
 
 
 def calculate_initial_hash(board, ZOBRIST_HASH_TABLE):
+    # The zobrist hash_value for transposition tables should be more unique, including the
+    # side to move, castling rights, en_passant possibility.
+    # This is not a big problem though when only checking for three-fold repetition
+    # Should still be fixed though
     hash_value = 0
     for square in range(64):
         piece = board[square]
@@ -142,10 +135,6 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
     board_dictionary['black_king_loc'] = black_king_loc
     board_dictionary['ZOBRIST_HASH'] = calculate_initial_hash(board, ZOBRIST_TABLE)
     return board_dictionary, board
-
-
-
-
 
 
 
