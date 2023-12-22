@@ -29,7 +29,6 @@ dict = {-100: 'bP', 100: 'wP', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
         -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
 
 
-
 '''Handle user input, and graphics'''
 def main():
     highlight_sq = []
