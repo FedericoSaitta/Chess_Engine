@@ -359,7 +359,6 @@ def evaluate_board(board, dict, turn_multiplier, opponent_mobility):
                 dict['stale_mate'] = True
                 return STALE_MATE
 
-
     NODES_SEARCHED += 1
 
     enemy_score = 0
