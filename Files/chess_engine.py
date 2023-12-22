@@ -1,5 +1,7 @@
 from math import fabs
 from random import getrandbits
+import numpy as np
+
 
 '''CONSTANTS needed for look-ups'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4,
@@ -64,18 +66,16 @@ def calculate_initial_hash(board, ZOBRIST_HASH_TABLE):
     for square in range(64):
         piece = board[square]
         if piece != 0:  # 0 represents an empty square
-
             piece_num = HASHING_DICTIONARY[piece]
-
             hash_value ^= ZOBRIST_HASH_TABLE[square][piece_num]
 
     return hash_value
 
 
 ZOBRIST_TABLE = initialize_zobrist_table()
-INITIAL_HASH = calculate_initial_hash(board, ZOBRIST_TABLE)
 
 
+'''
 # Dictionary with kwargs needed during a game
 general_dict = {
         'white_to_move': True,
@@ -93,12 +93,11 @@ general_dict = {
         'stale_mate': False,
         'check_mate': False,
         'ZOBRIST_HASH': INITIAL_HASH
-}
+}'''
 
 # Empty square is represented by 0
-piece_dictionary = {'q': -900, 'Q': 900, 'r': -500, 'R': 500, 'b': -330, 'B':  300,
-                    'n': -330, 'N': 330, 'p': -100, 'P': 100, '-': False}
-
+piece_dictionary = {'q': -900, 'Q': 900, 'r': -500, 'R': 500, 'b': -330, 'B':  330,
+                    'n': -320, 'N': 320, 'p': -100, 'P': 100, 'k': -1, 'K': 1}
 
 
 def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
@@ -107,13 +106,44 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
     board_dictionary = {}
     board = []
     argument_list = FEN.split(' ')[:-2]
-    board, turn, castling_rights, en_passant_sq= argument_list[1]
+    board_FEN, turn, castling_rights, en_passant_sq = argument_list
+    white_castling, black_castling = castling_rights[:2], castling_rights[2:]
 
     board_dictionary['white_to_move'] = True if turn == 'w' else False
+    board_dictionary['white_castle'] = (True if white_castling[1] == 'Q' else False, True if white_castling[0] == 'K' else False)
+    board_dictionary['black_castle'] = (True if black_castling[1] == 'Q' else False, True if black_castling[0] == 'K' else False)
+    board_dictionary['castle_rights_log'] = []
+
+    if en_passant_sq != '-':
+        en_passant_sq = files_to_cols[en_passant_sq[0]] + ranks_to_rows[en_passant_sq[1]] * 8
+    else: en_passant_sq = None
+    board_dictionary['en_passant_sq'] = en_passant_sq
+    board_dictionary['en_passant_log'] = [en_passant_sq]
+
+    board_dictionary['pins_list'], board_dictionary['move_log'], board_dictionary['checks_list'] = [], [], []
+    board_dictionary['in_check'], board_dictionary['stale_mate'], board_dictionary['check_mate'] = False, False, False
+
+    white_king_loc, black_king_loc = 0, 0
+    index = 0
+    for character in board_FEN:
+        if character.isnumeric():
+            empty_squares = np.zeros(int(character))
+            board.extend(empty_squares)
+            index += int(character)
+        elif character != '/':
+            board.append(piece_dictionary[character])
+            index += 1
+            if character == 'k':
+                black_king_loc = index
+            elif character == 'K':
+                white_king_loc =  index
+
+    board_dictionary['white_king_loc'] = white_king_loc
+    board_dictionary['black_king_loc'] = black_king_loc
+    board_dictionary['ZOBRIST_HASH'] = calculate_initial_hash(board, ZOBRIST_TABLE)
+    return board_dictionary, board
 
 
-
-generate_from_FEN()
 
 
 

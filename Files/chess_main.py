@@ -37,8 +37,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
 
-    board = chess_engine.board
-    dict = chess_engine.general_dict
+    dict, board = chess_engine.generate_from_FEN()
 
     valid_moves = chess_engine.get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function
