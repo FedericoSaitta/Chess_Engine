@@ -27,7 +27,7 @@ The goal is to write a chess engine that is at least around the 1700 FIDE level.
     
 ## Board Evaluation: 
 - Interpolates between PESTO boards based on the opponent's material (fewer pieces means closer to the endgame). 
-  This results in knights being worth more on central squares and rooks gaining in value closer to the endgame
+  This results in knights being worth more on central squares and rooks gaining in value closer to the endgame.
 - If very few pieces are left, and one side is clearly winning, checkmate is encouraged by giving bonuses for forcing
   the opponent into a corner.
 
