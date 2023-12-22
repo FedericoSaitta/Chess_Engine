@@ -1,6 +1,6 @@
 # Chess
 Inspired from Eddie Sharick and Sebastian Lague, my first longest and proudest project so far.
-The aim is to write a chess engine that is at least around the 1700 FIDE level. 
+The goal is to write a chess engine that is at least around the 1700 FIDE level. 
 
 ## Board Representation: 
 -1D Python array with integers representing pieces. 
