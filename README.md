@@ -32,7 +32,7 @@ The goal is to write a chess engine that is at least around the 1700 FIDE level.
   the opponent into a corner.
 
 ## Move Search: 
-- Iterative deepening with Negamax (alpha-beta) and Quiescence search for captures only. 
+- Iterative deepening with Negamax (alpha-beta) and Quiescence search for captures only
 
 ## Move Ordering: 
 - Best move from previous search is placed first
