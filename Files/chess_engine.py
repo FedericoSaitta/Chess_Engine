@@ -95,6 +95,30 @@ general_dict = {
         'ZOBRIST_HASH': INITIAL_HASH
 }
 
+# Empty square is represented by 0
+piece_dictionary = {'q': -900, 'Q': 900, 'r': -500, 'R': 500, 'b': -330, 'B':  300,
+                    'n': -330, 'N': 330, 'p': -100, 'P': 100, '-': False}
+
+
+
+def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
+    # Splits the FEN into: [BOARD, TURN, CASTLING RIGHTS, EN PASSANT SQUARE]
+    # Discards half move and full move clocks as engine doesn't apply 50 move rule.
+    board_dictionary = {}
+    board = []
+    argument_list = FEN.split(' ')[:-2]
+    board, turn, castling_rights, en_passant_sq= argument_list[1]
+
+    board_dictionary['white_to_move'] = True if turn == 'w' else False
+
+
+
+generate_from_FEN()
+
+
+
+
+
 
 def make_null_move(dict):
     dict['white_to_move'] = not dict['white_to_move']
