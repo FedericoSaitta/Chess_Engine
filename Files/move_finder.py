@@ -1,4 +1,4 @@
-from chess_engine import make_move, undo_move, get_all_valid_moves, make_null_move, undo_null_move, HASH_LOG
+from chess_engine import make_move, undo_move, get_all_valid_moves, make_null_move, undo_null_move, HASH_LOG, Move
 from random import randint
 from math import fabs
 import time
@@ -180,7 +180,7 @@ def find_random_move(moves):
         return None
 
 
-def get_opening_book(board, dict):
+def get_opening_book(board, moves, dict):
     global OPENING_DF
 
     try:
@@ -195,9 +195,6 @@ def get_opening_book(board, dict):
 
 
 
-
-
-
     except KeyError:
         return None
 
@@ -206,6 +203,38 @@ def get_opening_book(board, dict):
 
     # Display the filtered DataFrame
     print(filtered_df)
+
+
+ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4,
+                 '5': 3, '6': 2, '7': 1, '8': 0}
+rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dictionary
+
+files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3,
+                 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+cols_to_files = {v: k for k, v in files_to_cols.items()}
+
+def get_move_from_notation(board, moves, notation):
+    if notation == 'O-O':
+        end_col = 6
+        for move in moves:
+            if (move.end_ind % 8 == end_col):
+                return move
+
+    elif notation == 'O-O-O':
+        end_col = 2
+        for move in moves:
+            if (move.end_ind % 8 == end_col):
+                return move
+
+
+    notation = notation[-2:]
+    end_square = files_to_cols[notation[0]] + 8 * ranks_to_rows[notation[1]]
+    for move in moves:
+        if move.end_ind == end_square:
+            return move
+
+    print('Could not find a move for this notation: ', notation)
+    return None
 
 
 ########################################################################################################################
@@ -228,7 +257,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
     # First 9 turns moves can be done by opening book
     # Statistically probs only 3/4 turns actually done
     if dict['move_log'] < 10:
-        best_move = get_opening_book(board, dict)
+        best_move = get_opening_book(board, moves, dict)
 
 
     if best_move is None:

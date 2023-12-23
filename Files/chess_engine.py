@@ -300,7 +300,6 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the 
     return True
 
 def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
-
     piece_pinned, pin_direction = False, ()
     for i in range(len(dict['pins_list']) - 1, -1, -1):
         if dict['pins_list'][i][0] == ind:

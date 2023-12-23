@@ -34,7 +34,7 @@ df = pd.read_csv(FILE_3, delim_whitespace=True, header=None)
 #filtered_df = df[df['0'] == 'e4']
 
 # Display the filtered DataFrame
-print(df[0])
+print(df[0][0][-2:])
 
 
 
