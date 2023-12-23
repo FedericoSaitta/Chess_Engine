@@ -191,32 +191,35 @@ def get_opening_book(board, moves, dict):
 
     try: # We look if the current position key is present in the data frame
         if len(dict['move_log']) > 0:
+            # Increments turn by two if playing against a human
+            if (not dict['white_to_move']) and (TURN % 2 ==0):
+                TURN += 1
 
             previous_move = (dict['move_log'][-1]).get_pgn_notation(board)
 
-            OPENING_DF = OPENING_DF[OPENING_DF[:][0] == previous_move]
+            OPENING_DF = OPENING_DF[OPENING_DF[:][TURN - 1] == previous_move]
             OPENING_DF = OPENING_DF.reset_index(drop=True)
 
+            print(OPENING_DF)
             index = randint(0, len(OPENING_DF) - 1)
             move = OPENING_DF.loc[index, TURN]
-
-
+            print(move)
             move = get_move_from_notation(board, moves, move)
 
-            OPENING_DF = OPENING_DF.iloc[:, 1:]
-            OPENING_DF = OPENING_DF.reset_index(drop=True)
-            OPENING_DF.columns = range(OPENING_DF.shape[1])
+           # return move
+
         else: # We choose a random move from the starting possibilities
-
             index = randint(0, len(OPENING_DF) - 1)
             move = OPENING_DF.loc[index, TURN]
             move = get_move_from_notation(board, moves, move)
+
 
         TURN += 1
-        print('We found a book move which is: ', move, move.get_pgn_notation(board))
+        print('We found a book move which is: ', move.get_pgn_notation(board))
         return move
 
-    except (KeyError, ValueError): # Means we are out of book, so we return to finding a move with negamax
+    except (KeyError, ValueError, AttributeError): # Means we are out of book, so we return to finding a move with negamax
+        print('Out of book')
         return None
 
 
@@ -274,9 +277,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
     # First 9 turns moves can be done by opening book
     # Statistically probs only 3/4 turns actually done
     if len(dict['move_log']) < 10:
-        print('we are getting an opening move')
         best_move = get_opening_book(board, moves, dict)
-        print(best_move)
 
 
     if best_move is None:
@@ -291,7 +292,8 @@ def iterative_deepening(moves, board, dict, time_constraints):
         #        print("Time limit exceeded. Stopping search.")
                 break
 
-            moves.remove(best_move).insert(0, best_move)
+            moves.remove(best_move)
+            moves.insert(0, best_move)
 
     if best_move is None: return find_random_move(moves)
 

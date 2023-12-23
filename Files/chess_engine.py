@@ -658,7 +658,7 @@ class Move:
         dict = {-100: ' ', 100: ' ', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
                 -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
 
-        piece = board[self.end_ind]
+        piece = self.piece_moved
         start_rank_file = self.get_rank_file(self.start_ind)
         end_rank_file = self.get_rank_file(self.end_ind)
 
