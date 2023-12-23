@@ -3,6 +3,7 @@ from random import randint
 from math import fabs
 import time
 import pandas as pd
+import os
 
 push_move = make_move
 retract_move = undo_move
@@ -13,8 +14,11 @@ get_valid_moves = get_all_valid_moves
 FABS = fabs
 CHECK_MATE = 10_000
 STALE_MATE = 0
-OPENING_LINES = '/Opening_Data_Base/opening_moves.txt'
 
+current_script_path = os.path.abspath(__file__)
+package_file_path = os.path.join(os.path.dirname(current_script_path), 'Opening_Data_Base', 'opening_moves.txt')
+
+OPENING_LINES = package_file_path
 
 ## Taken from https://rustic-chess.org/front_matter/title.html, Marcel Vanthoor
 MVV_LLA_TABLE = [
@@ -167,6 +171,7 @@ piece_sq_values = {100: (PAWN_MG_white,PAWN_EG_white), -100:(PAWN_MG_black, PAWN
                    1: (KING_MG_white,KING_EG_white) , -1: (KING_MG_black, KING_EG_black)}
 
 NODES_SEARCHED = 0
+TURN = 0
 
 
 OPENING_DF = pd.read_csv(OPENING_LINES, delim_whitespace=True, header=None)
@@ -181,28 +186,38 @@ def find_random_move(moves):
 
 
 def get_opening_book(board, moves, dict):
-    global OPENING_DF
+    global OPENING_DF, TURN
 
-    try:
+
+    try: # We look if the current position key is present in the data frame
         if len(dict['move_log']) > 0:
-            previous_move = dict['move_log'][-1]
-            filtered_df = None
 
-        else:
-            # We choose a random move from the starting possibilities
-            index = randint(0, len(dict['move_log']) - 1)
-            move = OPENING_DF[0][index]
+            previous_move = (dict['move_log'][-1]).get_pgn_notation(board)
+
+            OPENING_DF = OPENING_DF[OPENING_DF[:][0] == previous_move]
+            OPENING_DF = OPENING_DF.reset_index(drop=True)
+
+            index = randint(0, len(OPENING_DF) - 1)
+            move = OPENING_DF.loc[index, TURN]
 
 
+            move = get_move_from_notation(board, moves, move)
 
-    except KeyError:
+            OPENING_DF = OPENING_DF.iloc[:, 1:]
+            OPENING_DF = OPENING_DF.reset_index(drop=True)
+            OPENING_DF.columns = range(OPENING_DF.shape[1])
+        else: # We choose a random move from the starting possibilities
+
+            index = randint(0, len(OPENING_DF) - 1)
+            move = OPENING_DF.loc[index, TURN]
+            move = get_move_from_notation(board, moves, move)
+
+        TURN += 1
+        print('We found a book move which is: ', move, move.get_pgn_notation(board))
+        return move
+
+    except (KeyError, ValueError): # Means we are out of book, so we return to finding a move with negamax
         return None
-
-
-    filtered_df = df[df['Move_1'] == 'e4']
-
-    # Display the filtered DataFrame
-    print(filtered_df)
 
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4,
@@ -213,7 +228,9 @@ files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3,
                  'e': 4, 'f': 5, 'g': 6, 'h': 7}
 cols_to_files = {v: k for k, v in files_to_cols.items()}
 
+
 def get_move_from_notation(board, moves, notation):
+    if notation == None: return None
     if notation == 'O-O':
         end_col = 6
         for move in moves:
@@ -256,8 +273,10 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
     # First 9 turns moves can be done by opening book
     # Statistically probs only 3/4 turns actually done
-    if dict['move_log'] < 10:
+    if len(dict['move_log']) < 10:
+        print('we are getting an opening move')
         best_move = get_opening_book(board, moves, dict)
+        print(best_move)
 
 
     if best_move is None:

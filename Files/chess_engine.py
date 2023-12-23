@@ -656,11 +656,12 @@ class Move:
 
     def get_pgn_notation(self, board, multiple_piece_flag=False):
         dict = {-100: ' ', 100: ' ', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
-                -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK', 0: 'None'}
+                -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
 
-        piece = board[self.start_ind]
+        piece = board[self.end_ind]
         start_rank_file = self.get_rank_file(self.start_ind)
         end_rank_file = self.get_rank_file(self.end_ind)
+
 
         if self.promotion:
             return end_rank_file + '=' + dict[self.prom_piece][1]
@@ -669,7 +670,7 @@ class Move:
             return dict[piece][1:] + start_rank_file[0] + end_rank_file
 
         if FABS(piece) == 100:
-            if board[self.end_ind] != 0:
+            if self.piece_captured != 0:
                 return start_rank_file[0] + 'x' + end_rank_file
             else:
                 return end_rank_file
@@ -680,10 +681,10 @@ class Move:
                     return 'O-O'
                 else:
                     return 'O-O-O'
-            if board[self.end_ind] != 0:
+            if self.piece_captured != 0:
                 return dict[piece][1:] + 'x' + end_rank_file
 
-        elif board[self.end_ind] != 0:
+        elif self.piece_captured != 0:
             return dict[piece][1:] + 'x' + end_rank_file
 
         return dict[piece][1:] + end_rank_file
