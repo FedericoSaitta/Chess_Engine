@@ -27,3 +27,15 @@ with open(FILE_2, 'r') as file, open(FILE_3, 'w') as file_3:
         except ValueError:
             continue
 
+
+df = pd.read_csv(FILE_3, delim_whitespace=True, header=None)
+
+
+#filtered_df = df[df['0'] == 'e4']
+
+# Display the filtered DataFrame
+print(df[0])
+
+
+
+

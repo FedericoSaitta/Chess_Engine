@@ -1,8 +1,8 @@
-# Evaluates positions and searches moves
 from chess_engine import make_move, undo_move, get_all_valid_moves, make_null_move, undo_null_move, HASH_LOG
 from random import randint
 from math import fabs
 import time
+import pandas as pd
 
 push_move = make_move
 retract_move = undo_move
@@ -13,6 +13,7 @@ get_valid_moves = get_all_valid_moves
 FABS = fabs
 CHECK_MATE = 10_000
 STALE_MATE = 0
+OPENING_LINES = '/Opening_Data_Base/opening_moves.txt'
 
 
 ## Taken from https://rustic-chess.org/front_matter/title.html, Marcel Vanthoor
@@ -166,8 +167,9 @@ piece_sq_values = {100: (PAWN_MG_white,PAWN_EG_white), -100:(PAWN_MG_black, PAWN
                    1: (KING_MG_white,KING_EG_white) , -1: (KING_MG_black, KING_EG_black)}
 
 NODES_SEARCHED = 0
-TRANSPOSITION_DICTIONARY = {}
 
+
+OPENING_DF = pd.read_csv(OPENING_LINES, delim_whitespace=True, header=None)
 
 
 def find_random_move(moves):
@@ -176,6 +178,34 @@ def find_random_move(moves):
         return moves[index]
     else:
         return None
+
+
+def get_opening_book(board, dict):
+    global OPENING_DF
+
+    try:
+        if len(dict['move_log']) > 0:
+            previous_move = dict['move_log'][-1]
+            filtered_df = None
+
+        else:
+            # We choose a random move from the starting possibilities
+            index = randint(0, len(dict['move_log']) - 1)
+            move = OPENING_DF[0][index]
+
+
+
+
+
+
+    except KeyError:
+        return None
+
+
+    filtered_df = df[df['Move_1'] == 'e4']
+
+    # Display the filtered DataFrame
+    print(filtered_df)
 
 
 ########################################################################################################################
@@ -190,35 +220,34 @@ def find_random_move(moves):
 # Engine does not go for the fastest mate
 # Engine doesn't see stale mate and also doesnt see 3 move repetition (will fix the latter at a later point_
 def iterative_deepening(moves, board, dict, time_constraints):
-    DEPTH = 1
-    best_move = None
-
+    best_move, DEPTH = None, 1
     start_time = time.time()
 
     turn_multiplier = 1 if dict['white_to_move'] else -1
-    moves = move_ordering(moves)
 
+    # First 9 turns moves can be done by opening book
+    # Statistically probs only 3/4 turns actually done
+    if dict['move_log'] < 10:
+        best_move = get_opening_book(board, dict)
 
-
-    while True:
-      #  print('searching at a depth of:', DEPTH)
-        best_move = root_negamax(moves, board, dict, turn_multiplier, DEPTH)
-        DEPTH += 1
-
-        if (time.time() - start_time > time_constraints) or DEPTH == 15:
-    #        print("Time limit exceeded. Stopping search.")
-            break
-
-        moves.remove(best_move)
-        moves.insert(0, best_move)
 
     if best_move is None:
-        best_move = find_random_move(moves)
+        moves = move_ordering(moves)
+
+        while True:
+          #  print('searching at a depth of:', DEPTH)
+            best_move = root_negamax(moves, board, dict, turn_multiplier, DEPTH)
+            DEPTH += 1
+
+            if (time.time() - start_time > time_constraints) or DEPTH == 15:
+        #        print("Time limit exceeded. Stopping search.")
+                break
+
+            moves.remove(best_move).insert(0, best_move)
+
+    if best_move is None: return find_random_move(moves)
 
    # print(best_move.get_pgn_notation(board))
-
-    if (len(TRANSPOSITION_DICTIONARY)) > 500_000:
-        TRANSPOSITION_DICTIONARY.clear()
 
     return best_move
 
