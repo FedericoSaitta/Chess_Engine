@@ -64,29 +64,8 @@ def calculate_initial_hash(board, ZOBRIST_HASH_TABLE):
 
     return hash_value
 
-
 ZOBRIST_TABLE = initialize_zobrist_table()
 
-
-'''
-# Dictionary with kwargs needed during a game
-general_dict = {
-        'white_to_move': True,
-        'white_king_loc': 60,
-        'black_king_loc': 4,
-        'en_passant_sq': None,
-        'move_log': [],
-        'white_castle': (True, True),  #  [Left, Right]
-        'black_castle': (True, True), # These simply state whether the right is still there, not if the move
-        'castle_rights_log': [],  # [left, right], even means white, odd means black, each turn a tuple of two
-        'in_check': False,                                        # values is added
-        'pins_list': [],
-        'checks_list': [],
-        'en_passant_log': [],
-        'stale_mate': False,
-        'check_mate': False,
-        'ZOBRIST_HASH': INITIAL_HASH
-}'''
 
 # Empty square is represented by 0
 piece_dictionary = {'q': -900, 'Q': 900, 'r': -500, 'R': 500, 'b': -330, 'B':  330,
