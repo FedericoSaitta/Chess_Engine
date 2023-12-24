@@ -1,6 +1,7 @@
 from chess_engine import make_move, undo_move, get_all_valid_moves, make_null_move, undo_null_move, HASH_LOG, Move
 from random import randint
 from math import fabs
+import numpy as np
 import time
 import pandas as pd
 import os
@@ -31,6 +32,8 @@ MVV_LLA_TABLE = [
    [ 0,  0,  0,  0,  0,  0, 0],  # No Victim
 ]
 
+
+# SHOULD FIX ALL OF THESE TOMORROW
 
 middle_game_pieces = {100: 82, 320: 337, 330: 365, 500: 477, 900: 1025,  1: 0} # adds to 4039
 end_game_pieces = {100: 94, 320: 281, 330: 297, 500: 512,  900: 936,  1: 0}  # adds to 3868
@@ -125,43 +128,45 @@ QUEEN_EG_white = ( -9,  22,  22,  27,  27,  19,  10,  20,
             -22, -23, -30, -16, -16, -23, -36, -32,
             -33, -28, -22, -43,  -5, -32, -20, -41)
 
-KING_MG_white = (-65,  23,  16, -15, -56, -34,   2,  13,
-             29,  -1, -20,  -7,  -8,  -4, -38, -29,
-             -9,  24,   2, -16, -20,   6,  22, -22,
-            -17, -20, -12, -27, -30, -25, -14, -36,
-            -49,  -1, -27, -39, -46, -44, -33, -51,
-            -14, -14, -22, -46, -44, -30, -15, -27,
-              1,   7,  -8, -64, -43, -16,   9,   8,
-            -15,  36,  12, -54,   8, -28,  24,  14)
+KING_MG_white = np.array([[-65,  23,  16, -15, -56, -34,   2,  13],
+             [29,  -1, -20,  -7,  -8,  -4, -38, -29],
+             [-9,  24,   2, -16, -20,   6,  22, -22],
+            [-17, -20, -12, -27, -30, -25, -14, -36],
+            [-49,  -1, -27, -39, -46, -44, -33, -51],
+            [-14, -14, -22, -46, -44, -30, -15, -27],
+            [  1,   7,  -8, -64, -43, -16,   9,   8],
+            [-15,  36,  12, -54,  8, -28,  24,  14]])
 
-KING_EG_white = (-74, -35, -18, -18, -11,  15,   4, -17,
-            -12,  17,  14,  17,  17,  38,  23,  11,
-             10,  17,  23,  15,  20,  45,  44,  13,
-             -8,  22,  24,  27,  26,  33,  26,   3,
-            -18,  -4,  21,  24,  27,  23,   9, -11,
-            -19,  -3,  11,  21,  23,  16,   7,  -9,
-            -27, -11,   4,  13,  14,   4,  -5, -17,
-            -53, -34, -21, -11, -28, -14, -24, -43)
+KING_EG_white = np.array([[-74, -35, -18, -18, -11,  15,   4, -17],
+            [-12,  17,  14,  17,  17,  38,  23,  11],
+            [ 10,  17,  23,  15,  20,  45,  44,  13],
+             [-8,  22,  24,  27,  26,  33,  26,   3],
+           [ -18,  -4,  21,  24,  27,  23,   9, -11],
+           [ -19,  -3,  11,  21,  23,  16,   7,  -9],
+            [-27, -11,   4,  13,  14,   4,  -5, -17],
+            [-53, -34, -21, -11, -28, -14, -24, -43]])
 
 
-PAWN_MG_black = [-item for item in tuple(reversed(PAWN_MG_white))]
-PAWN_EG_black = [-item for item in tuple(reversed(PAWN_EG_white))]
+PAWN_MG_black = list(-1 * np.flipud(np.array(PAWN_MG_white))[::-1])
+PAWN_EG_black = list(-1 * np.flipud(np.array(PAWN_EG_white))[::-1])
 
-KNIGHT_MG_black = [-item for item in tuple(reversed(KNIGHT_MG_white))]
-KNIGHT_EG_black = [-item for item in tuple(reversed(KNIGHT_EG_white))]
+KNIGHT_MG_black = list(-1 * np.flipud(np.array(KNIGHT_MG_white))[::-1])
+KNIGHT_EG_black = list(-1 * np.flipud(np.array(KNIGHT_EG_white))[::-1])
 
-BISHOP_MG_black = [-item for item in tuple(reversed(BISHOP_MG_white))]
-BISHOP_EG_black = [-item for item in tuple(reversed(BISHOP_EG_white))]
+BISHOP_MG_black = list(-1 * np.flipud(np.array(BISHOP_MG_white))[::-1])
+BISHOP_EG_black = list(-1 * np.flipud(np.array(BISHOP_EG_white))[::-1])
 
-ROOK_MG_black = [-item for item in tuple(reversed(ROOK_MG_white))]
-ROOK_EG_black = [-item for item in tuple(reversed(ROOK_EG_white))]
+ROOK_MG_black = list(-1 * np.flipud(np.array(ROOK_MG_white))[::-1])
+ROOK_EG_black = list(-1 * np.flipud(np.array(ROOK_EG_white))[::-1])
 
-QUEEN_MG_black  = [-item for item in tuple(reversed(QUEEN_MG_white))]
-QUEEN_EG_black  = [-item for item in tuple(reversed(QUEEN_EG_white))]
+QUEEN_MG_black  = list(-1 * np.flipud(np.array(QUEEN_MG_white))[::-1])
+QUEEN_EG_black  = list(-1 * np.flipud(np.array(QUEEN_EG_white))[::-1])
 
-KING_MG_black = [-item for item in tuple(reversed(KING_MG_white))]
-KING_EG_black = [-item for item in tuple(reversed(KING_EG_white))]
+KING_MG_black = tuple((-1 * KING_MG_white[::-1]).flatten())
+KING_EG_black = tuple((-1 * KING_EG_white[::-1]).flatten())
 
+
+print(KING_MG_black)
 
 piece_sq_values = {100: (PAWN_MG_white,PAWN_EG_white), -100:(PAWN_MG_black, PAWN_EG_black),
                    320: (KNIGHT_MG_white,KNIGHT_EG_white), -320: (KNIGHT_MG_black, KNIGHT_EG_black),
@@ -288,6 +293,7 @@ def get_move_from_notation(board, moves, notation):
 # Engine doesn't see stale mate and also doesnt see 3 move repetition (will fix the latter at a later point_
 def iterative_deepening(moves, board, dict, time_constraints):
     best_move, DEPTH = None, 1
+
     start_time = time.time()
 
     turn_multiplier = 1 if dict['white_to_move'] else -1
