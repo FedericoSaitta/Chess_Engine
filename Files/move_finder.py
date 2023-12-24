@@ -172,6 +172,7 @@ piece_sq_values = {100: (PAWN_MG_white,PAWN_EG_white), -100:(PAWN_MG_black, PAWN
 
 NODES_SEARCHED = 0
 TURN = 0
+OUT_OF_BOOK = False
 
 
 OPENING_DF = pd.read_csv(OPENING_LINES, delim_whitespace=True, header=None)
@@ -186,7 +187,7 @@ def find_random_move(moves):
 
 
 def get_opening_book(board, moves, dict):
-    global OPENING_DF, TURN
+    global OPENING_DF, TURN, OUT_OF_BOOK
 
 
     try: # We look if the current position key is present in the data frame
@@ -196,14 +197,18 @@ def get_opening_book(board, moves, dict):
                 TURN += 1
 
             previous_move = (dict['move_log'][-1]).get_pgn_notation(board)
+            previous_move_2 = (dict['move_log'][-1]).get_pgn_notation(board, multiple_piece_flag=True)
 
-            OPENING_DF = OPENING_DF[OPENING_DF[:][TURN - 1] == previous_move]
+            OPENING_1 = OPENING_DF.copy()
+
+            OPENING_DF = OPENING_DF[OPENING_DF[:][TURN - 1] == previous_move].copy()
+
+            if OPENING_DF.empty: OPENING_DF = OPENING_1[OPENING_1[:][TURN - 1] == previous_move_2]
+
             OPENING_DF = OPENING_DF.reset_index(drop=True)
 
-            print(OPENING_DF)
             index = randint(0, len(OPENING_DF) - 1)
             move = OPENING_DF.loc[index, TURN]
-            print(move)
             move = get_move_from_notation(board, moves, move)
 
            # return move
@@ -220,6 +225,7 @@ def get_opening_book(board, moves, dict):
 
     except (KeyError, ValueError, AttributeError): # Means we are out of book, so we return to finding a move with negamax
         print('Out of book')
+        OUT_OF_BOOK = True
         return None
 
 
@@ -233,24 +239,36 @@ cols_to_files = {v: k for k, v in files_to_cols.items()}
 
 
 def get_move_from_notation(board, moves, notation):
-    if notation == None: return None
+    if notation is None: return None
     if notation == 'O-O':
         end_col = 6
         for move in moves:
-            if (move.end_ind % 8 == end_col):
+            if (move.end_ind % 8 == end_col) and move.castle_move:
                 return move
 
-    elif notation == 'O-O-O':
+    elif notation == 'O-O-O' :
         end_col = 2
         for move in moves:
-            if (move.end_ind % 8 == end_col):
+            if (move.end_ind % 8 == end_col) and move.castle_move:
                 return move
 
 
-    notation = notation[-2:]
-    end_square = files_to_cols[notation[0]] + 8 * ranks_to_rows[notation[1]]
+    end_square = files_to_cols[notation[-2]] + 8 * ranks_to_rows[notation[-1]]
+
+    # Checks if there are multiple moves of the same type achieving the same square
+    # So we flag them as multiple moves
+
+    # FIX THIS
+    all_possible_notations = [move.get_pgn_notation(board) for move in moves]
     for move in moves:
-        if move.end_ind == end_square:
+        move_notation = move.get_pgn_notation(board)
+
+        if all_possible_notations.count(move_notation) > 1:
+            move_not = move.get_pgn_notation(board, multiple_piece_flag=True)
+        else:
+            move_not = move.get_pgn_notation(board)
+
+        if move_not == notation:
             return move
 
     print('Could not find a move for this notation: ', notation)
@@ -276,7 +294,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
     # First 9 turns moves can be done by opening book
     # Statistically probs only 3/4 turns actually done
-    if len(dict['move_log']) < 10:
+    if (len(dict['move_log']) < 10) and not OUT_OF_BOOK:
         best_move = get_opening_book(board, moves, dict)
 
 
@@ -340,15 +358,8 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
 
 EXTENSION = 5
 def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
-    moves = get_valid_moves(board, dict)
 
-    if moves == []:
-        if dict['in_check']:
-            return -CHECK_MATE
-        else:
-            return STALE_MATE
-
-    stand_pat = evaluate_board(board, dict, turn_multiplier, len(moves)) * turn_multiplier
+    stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
 
     if stand_pat >= beta:
         return beta  # Fail-hard beta-cutoff
@@ -358,6 +369,17 @@ def quiescence_search(board, dict, turn_multiplier, alpha, beta, extension):
 
     if extension == 0:
         return alpha
+
+
+    moves = get_valid_moves(board, dict)
+
+    if moves == []:
+        if dict['in_check']:
+            return -CHECK_MATE
+        else:
+            return STALE_MATE
+
+
 
     captures = [move for move in moves if move.piece_captured != 0]
     move_ordering(captures) # Now sorting the captures
@@ -423,7 +445,7 @@ def negamax(board, dict, depth, turn_multiplier, alpha, beta):
 
 
 ### This is returns the same value wheter it is white or black perspective
-def evaluate_board(board, dict, turn_multiplier, opponent_mobility):
+def evaluate_board(board, dict, turn_multiplier):
     global NODES_SEARCHED
     ### COUNTING FOR 3 MOVE REPETITION:
     if len(HASH_LOG) > 7:
@@ -475,7 +497,6 @@ def evaluate_board(board, dict, turn_multiplier, opponent_mobility):
 
         eval_bar += distance
 
-    #eval_bar -= (opponent_mobility ** 0.5) * turn_multiplier * 8
 
     return eval_bar / 100
 
