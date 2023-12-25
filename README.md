@@ -3,7 +3,12 @@ Inspired from Eddie Sharick and Sebastian Lague, my first longest and proudest p
 The goal is to write a chess engine that is at least around the 1700 FIDE level. 
 
 ## Board Representation: 
--1D Python array with integers representing pieces. 
+-1D Python array with integers representing pieces
+
+## Opening Book: 
+- Chooses opening branches randomly from a database of 10 000 games obtained from ficsgames.org. The games are filtered 
+  to only include 2400+ rated games with minimum 15 minutes on the clock each.
+- Opening book only spans 9 turns, often it lasts only a couple though.
 
 ## Move Generation: 
 - Generates pins and checks to only generate legal moves
@@ -36,5 +41,5 @@ The goal is to write a chess engine that is at least around the 1700 FIDE level.
 
 ## Move Ordering: 
 - Best move from previous search is placed first
-- Subsequent moves are ranked with MVV/LLA tables
+- Captures are ranked with MVV/LLA tables
 
