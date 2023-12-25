@@ -83,7 +83,7 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
 
     board_dictionary['white_to_move'] = True if turn == 'w' else False
     board_dictionary['white_castle'] = (True if white_castling[1] == 'Q' else False, True if white_castling[0] == 'K' else False)
-    board_dictionary['black_castle'] = (True if black_castling[1] == 'Q' else False, True if black_castling[0] == 'K' else False)
+    board_dictionary['black_castle'] = (True if black_castling[1] == 'q' else False, True if black_castling[0] == 'k' else False)
     board_dictionary['castle_rights_log'] = []
 
     if en_passant_sq != '-':
@@ -113,6 +113,7 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
     board_dictionary['white_king_loc'] = white_king_loc
     board_dictionary['black_king_loc'] = black_king_loc
     board_dictionary['ZOBRIST_HASH'] = calculate_initial_hash(board, ZOBRIST_TABLE)
+
     return board_dictionary, board
 
 

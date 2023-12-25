@@ -15,7 +15,7 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 1 # Seconds (last iteration)
+THINKING_MAX_TIME = 0.5 # Seconds (last iteration)
 
 
 '''Square conversion dictionaries'''
