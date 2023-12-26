@@ -291,6 +291,11 @@ def get_move_from_notation(board, moves, notation):
 #                                                  MOVE SEARCH FUNCTION                                                #
 ########################################################################################################################
 
+
+# Note that pypy doesn't seem that much faster than normal python, it does speed up with heavier computation but maybe
+# Cython is best, or rewriting some functions could also help quite a bit
+
+
 # Alpha beta is now slow because of the fact tht quiet moves are not ordered at all
 def iterative_deepening(moves, board, dict, time_constraints):
     global NODES_SEARCHED
@@ -364,7 +369,7 @@ EXTENSION = 5
 
 def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     if depth == 0 or dict['stale_mate'] or dict['check_mate']:
-        score = quiesce_search(board, dict, turn_multiplier, EXTENSION)
+        score = quiesce_search(board, dict, turn_multiplier, EXTENSION, alpha, beta)
         return score
 
     best = -CHECK_MATE
@@ -402,7 +407,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
 # knowing what to do in an end-game
 
 # Implement the alpha beta here well
-def quiesce_search(board, dict, turn_multiplier, extension):
+def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
     if dict['stale_mate']:
         return STALE_MATE
     elif dict['check_mate']:
@@ -412,6 +417,16 @@ def quiesce_search(board, dict, turn_multiplier, extension):
 
     # Position can only be as good or better, null move principle, so stand_pat is the lower bound
     stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
+
+    if stand_pat >= beta:
+        return beta  # Fail-hard beta-cutoff
+
+    if alpha < stand_pat:
+        alpha = stand_pat  # New alpha
+
+
+
+
 
     # Should be made fast to check for any captures available
     best_score = stand_pat
@@ -424,11 +439,17 @@ def quiesce_search(board, dict, turn_multiplier, extension):
         if move.piece_captured != 0 or move.en_passant:
 
             make_move(board, move, dict)
-            score = -quiesce_search(board, dict, -turn_multiplier, extension - 1)
+            score = -quiesce_search(board, dict, -turn_multiplier, extension - 1, -beta, -alpha)
             retract_move(board, dict)
 
             if score > best_score:
                 best_score = score
+
+            if score >= beta:
+                return beta  # Fail-hard beta-cutoff
+
+            if score > alpha:
+                alpha = score  # New alpha
 
             return best_score
 
