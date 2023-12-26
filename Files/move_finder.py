@@ -377,13 +377,14 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     moves = get_valid_moves(board, dict)
     parent_moves = move_ordering(moves)  # Ordering moves by MVV/LLA for more pruning
 
+    '''FIX three folds and checkmates and stale mates then add null move pruning'''
     #  Removing null move pruning it seems to aggressive
-    #   if depth > 3 and (not dict['in_check']):
-    #       make_null_move(dict)
-    #      null_move_score = -negamax(board, dict, depth - 3, -turn_multiplier, -beta, -beta+1)
-    #       undo_null_move(dict)
-    #       if null_move_score >= beta:
-    #           return null_move_score  # Null move pruning
+    #if depth > 3 and (not dict['in_check']):
+   #     make_null_move(dict)
+   #     null_move_score = -negamax(board, dict, depth - 3, -turn_multiplier, -beta, -beta+2)
+   #     undo_null_move(dict)
+  #      if null_move_score >= beta:
+  #          return null_move_score  # Null move pruning
 
     for child in parent_moves:
 
@@ -465,12 +466,6 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
 def evaluate_board(board, dict, turn_multiplier):
     global NODES_SEARCHED
     NODES_SEARCHED += 1
-
-    # So if black is in check_mate we return 9_999
-    if dict['check_mate']:
-        return -CHECK_MATE * turn_multiplier
-    elif dict['stale_mate']:
-        return 0
 
     enemy_score = 0
     for square in board:
