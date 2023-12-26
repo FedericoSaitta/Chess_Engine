@@ -365,9 +365,8 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
 
 
 EXTENSION = 5
-
-
 def negamax(board, dict, turn_multiplier, depth, alpha, beta):
+
     if depth == 0 or dict['stale_mate'] or dict['check_mate']:
         score = quiesce_search(board, dict, turn_multiplier, EXTENSION, alpha, beta)
         return score
@@ -378,13 +377,19 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     parent_moves = move_ordering(moves)  # Ordering moves by MVV/LLA for more pruning
 
     '''FIX three folds and checkmates and stale mates then add null move pruning'''
-    #  Removing null move pruning it seems to aggressive
-    #if depth > 3 and (not dict['in_check']):
-   #     make_null_move(dict)
-   #     null_move_score = -negamax(board, dict, depth - 3, -turn_multiplier, -beta, -beta+2)
-   #     undo_null_move(dict)
-  #      if null_move_score >= beta:
-  #          return null_move_score  # Null move pruning
+    # The theory is that if your opponent could make two consecutive moves and not
+    # improve his position, you must have an overwhelming advantage
+
+    # Note that this will activate for searches at depth 3
+    if depth > 2 and (not dict['in_check']):
+        # Beta window is + 1.5
+        make_null_move(dict)
+
+        null_move_score = -negamax(board, dict, -turn_multiplier, depth - 2, -beta, -beta+1.5)
+        undo_null_move(dict)
+        if null_move_score >= beta:
+            print('we are pruning some moves')
+            return null_move_score  # Null move pruning
 
     for child in parent_moves:
 

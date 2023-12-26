@@ -12,9 +12,9 @@ cols_to_files = {v: k for k, v in files_to_cols.items()}
 
 piece_dict = {100: 'p', 500: 'r', 330: 'b', 320: 'n', 900: 'q'}
 
-
-DEPTH = 4
-dict, board = chess_engine.generate_from_FEN()
+FEN = 'r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1'
+DEPTH = 3
+dict, board = chess_engine.generate_from_FEN(FEN)
 
 list_of_parents = {}
 
