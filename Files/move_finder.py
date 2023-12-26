@@ -305,7 +305,6 @@ def iterative_deepening(moves, board, dict, time_constraints):
     if (len(dict['move_log']) < 10) and not OUT_OF_BOOK:
         best_move = get_opening_book(board, moves, dict)
 
-    best_move = None  # Fow now we work without the opening book
     start_time = time.time()
 
     if best_move is None:
@@ -382,13 +381,14 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
 
     # Note that this will activate for searches at depth 3
     if depth > 2 and (not dict['in_check']):
+
         # Beta window is + 1.5
         make_null_move(dict)
-
-        null_move_score = -negamax(board, dict, -turn_multiplier, depth - 2, -beta, -beta+1.5)
+        null_move_score = -negamax(board, dict, -turn_multiplier, depth - 2, -beta, -beta+1)
         undo_null_move(dict)
+
         if null_move_score >= beta:
-            print('we are pruning some moves')
+            print('pruning moves')
             return null_move_score  # Null move pruning
 
     for child in parent_moves:
@@ -429,9 +429,6 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
 
     if alpha < stand_pat:
         alpha = stand_pat  # New alpha
-
-
-
 
 
     # Should be made fast to check for any captures available
@@ -511,6 +508,14 @@ piece_indices = {1: 0, 900: 1, 500: 2, 330: 3, 320: 4, 100: 5, 0: 6,
 def move_ordering(moves):
     # The -1 ensures that all captures are looked at first before normal moves
 
+    # Promotions dont seem to be really chaning the speed a lot, maybe even slowing down
+    # As these matter only in the endgame
+  #  promotions = []
+ #   for move in moves:
+ #       if move.promotion:
+  #          moves.remove(move)
+   #         promotions.append(move)
+
     score = [MVV_LLA_TABLE[piece_indices[move.piece_captured]][piece_indices[move.piece_moved]] for move in moves]
     combined = list(zip(moves, score))
 
@@ -518,7 +523,8 @@ def move_ordering(moves):
     sorted_combined = sorted(combined, key=lambda x: x[1], reverse=True)
 
     # Extract the sorted values
-    moves = [item[0] for item in sorted_combined]
+    moves = [tup[0] for tup in sorted_combined]
+   # promotions.extend(moves)
 
     # for tup in sorted_combined:
     #     if tup[1] != 0:

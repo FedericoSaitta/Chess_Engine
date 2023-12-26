@@ -15,8 +15,10 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 2 # Seconds (last iteration)
-FEN  = 'r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1'
+THINKING_MAX_TIME = 0.5 # Seconds (last iteration)
+
+# From this position it thinks it is in check while it isnt
+FEN  = '8/8/6K1/5P2/8/1bk5/3p4/8 w ---- - 0 1'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -37,7 +39,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
 
-    dict, board = chess_engine.generate_from_FEN(FEN)
+    dict, board = chess_engine.generate_from_FEN()
 
     valid_moves = chess_engine.get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function
@@ -193,12 +195,3 @@ if __name__ == '__main__':
         profiler_stats = pstats.Stats(profile)
         specific_file = ('move_finder.py')
         profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
-
-'''searching at a depth of: 1
-Explored:  39 Best Move is:  bxc3  score:  0.18
-searching at a depth of: 2
-Explored:  664 Best Move is:  hxg2  score:  -0.45
-searching at a depth of: 3
-Explored:  2336 Best Move is:  hxg2  score:  -0.45
-searching at a depth of: 4
-Explored:  12832 Best Move is:  hxg2  score:  -0.26'''

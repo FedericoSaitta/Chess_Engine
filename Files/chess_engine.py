@@ -104,11 +104,11 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
             index += int(character)
         elif character != '/':
             board.append(piece_dictionary[character])
-            index += 1
             if character == 'k':
                 black_king_loc = index
             elif character == 'K':
                 white_king_loc =  index
+            index += 1
 
     board_dictionary['white_king_loc'] = white_king_loc
     board_dictionary['black_king_loc'] = black_king_loc
