@@ -233,12 +233,12 @@ def get_opening_book(board, moves, dict):
             move = get_move_from_notation(board, moves, move)
 
         TURN += 1
-        print('We found a book move which is: ', move.get_pgn_notation(board))
+     #   print('We found a book move which is: ', move.get_pgn_notation(board))
         return move
 
     except (
     KeyError, ValueError, AttributeError):  # Means we are out of book, so we return to finding a move with negamax
-        print('Out of book')
+    #    print('Out of book')
         OUT_OF_BOOK = True
         return None
 
@@ -283,7 +283,7 @@ def get_move_from_notation(board, moves, notation):
         if move_not == notation:
             return move
 
-    print('Could not find a move for this notation: ', notation)
+   # print('Could not find a move for this notation: ', notation)
     return None
 
 
@@ -312,7 +312,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
         while True:
             NODES_SEARCHED = 0
-            print('searching at a depth of:', DEPTH)
+        #    print('searching at a depth of:', DEPTH)
             best_move = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
 
             if (time.time() - start_time > time_constraints) or DEPTH == 15:
@@ -357,12 +357,13 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         if best_score > alpha: alpha = best_score
         if alpha >= beta: break
 
-    print('Explored: ', NODES_SEARCHED, 'Best Move is: ', best_move.get_pgn_notation(board), ' score: ',
-          best_score * turn_multiplier)
+        # print('Explored: ', NODES_SEARCHED, 'Best Move is: ', best_move.get_pgn_notation(board), ' score: ',
+         #  best_score * turn_multiplier)
 
     return best_move
 
 
+# Also could create a way to see exactly what line the engine is thinking
 EXTENSION = 5
 def negamax(board, dict, turn_multiplier, depth, alpha, beta):
 
@@ -388,7 +389,6 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
         undo_null_move(dict)
 
         if null_move_score >= beta:
-            print('pruning moves')
             return null_move_score  # Null move pruning
 
     for child in parent_moves:
