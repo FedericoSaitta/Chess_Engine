@@ -1,5 +1,7 @@
-from chess_engine import make_move, generate_from_FEN, get_all_valid_moves
+import sys
+from chess_engine import get_all_valid_moves, generate_from_FEN
 from move_finder import iterative_deepening
+
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
 rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dictionary
@@ -11,16 +13,10 @@ piece_dict = {100: 'p', 500: 'r', 330: 'b', 320: 'n', 900: 'q'}
 
 
 THINKING_TIME = 2
-engine_ID = 'Fede-Fish'
-author_ID = 'Federico Saitta'
+engine_ID = 'id name Aquatic_Python'
+author_ID = 'id author Federico Saitta'
 
-dict, board = generate_from_FEN()
-
-
-
-import chess
-import chess.engine
-import sys
+'''IMPORTANT'''
 
 def uci():
     print(engine_ID)
@@ -37,7 +33,6 @@ def position(fen):
     return board, dict
 
 def go(board, dict, Time):
-
     valid_moves = get_all_valid_moves(board, dict)
     move = iterative_deepening(valid_moves, board, dict, Time)
 
@@ -61,8 +56,8 @@ def get_chess_notation(tuple, prom_piece):
 
 
 def main():
-
     while True:
+
         # Read input command
         line = sys.stdin.readline().strip()
 
@@ -78,5 +73,19 @@ def main():
         elif line.startswith("go"):
             go(board, dict, THINKING_TIME)
 
+# You can make it start quicker probs by deleting some of those things that you dont need
+
+# Make sure you are not in venv when building UCI though
+# The line is: pyinstaller --onefile --add-data "opening_moves.txt:." UCI.py
+# python3 lichess-bot.py -u
+
+#curl -d '' https://lichess.org/api/bot/account/upgrade -H "Authorization: Bearer lip_w4fBPbSxTV2JZPpelmFg"
+
+
+
+
+
+#lip_w4fBPbSxTV2JZPpelmFg
+# Older one lip_vXt4JaI2OWkpqQUPaeq7
 if __name__ == "__main__":
     main()

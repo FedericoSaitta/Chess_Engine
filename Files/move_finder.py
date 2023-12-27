@@ -1,8 +1,9 @@
 from chess_engine import make_move, undo_move, get_all_valid_moves, make_null_move, undo_null_move, HASH_LOG, Move
 from random import randint
 from math import fabs
+
 import time
-import pandas as pd
+from pandas import read_csv
 import os
 import numpy as np
 
@@ -16,7 +17,7 @@ CHECK_MATE = 9_999
 STALE_MATE = 0
 
 current_script_path = os.path.abspath(__file__)
-package_file_path = os.path.join(os.path.dirname(current_script_path), 'Opening_Data_Base', 'opening_moves.txt')
+package_file_path = os.path.join(os.path.dirname(current_script_path), 'opening_moves.txt')
 
 OPENING_LINES = package_file_path
 
@@ -190,8 +191,8 @@ NODES_SEARCHED = 0
 TURN = 0
 OUT_OF_BOOK = False
 
-OPENING_DF = pd.read_csv(OPENING_LINES, delim_whitespace=True, header=None)
 
+OPENING_DF = None
 
 def find_random_move(moves):
     if moves != []:
@@ -203,6 +204,9 @@ def find_random_move(moves):
 
 def get_opening_book(board, moves, dict):
     global OPENING_DF, TURN, OUT_OF_BOOK
+
+    if OPENING_DF is None:
+        OPENING_DF = read_csv(OPENING_LINES, delim_whitespace=True, header=None)
 
     try:  # We look if the current position key is present in the data frame
         if len(dict['move_log']) > 0:

@@ -1,6 +1,5 @@
 from math import fabs
 from random import getrandbits
-import numpy as np
 
 
 '''CONSTANTS needed for look-ups'''
@@ -99,7 +98,7 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
     index = 0
     for character in board_FEN:
         if character.isnumeric():
-            empty_squares = np.zeros(int(character))
+            empty_squares = get_zeros(int(character))
             board.extend(empty_squares)
             index += int(character)
         elif character != '/':
@@ -116,6 +115,9 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
 
     return board_dictionary, board
 
+def get_zeros(len):
+    array = [0 for number in range(len)]
+    return array
 
 
 

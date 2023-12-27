@@ -3,7 +3,7 @@ import pandas as pd
 
 FILE = 'games_pgn.txt'
 FILE_2 = 'game_moves.txt'
-FILE_3 = 'opening_moves.txt'
+FILE_3 = '../opening_moves.txt'
 
 with open(FILE, 'r') as file, open(FILE_2, 'w') as file_2:
     for line in file:
@@ -26,14 +26,6 @@ with open(FILE_2, 'r') as file, open(FILE_3, 'w') as file_3:
             file_3.write(line)
         except ValueError:
             continue
-
-
-df = pd.read_csv(FILE_3, delim_whitespace=True, header=None)
-
-
-
-print(df[df[:][0] == 'e4'])
-
 
 
 
