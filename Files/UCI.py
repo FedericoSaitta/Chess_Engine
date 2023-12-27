@@ -1,5 +1,5 @@
 import sys
-from chess_engine import get_all_valid_moves, generate_from_FEN
+from chess_engine import get_all_valid_moves, generate_from_FEN, make_move
 from move_finder import iterative_deepening
 
 
@@ -9,7 +9,11 @@ rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dicti
 files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
 cols_to_files = {v: k for k, v in files_to_cols.items()}
 
-piece_dict = {100: 'p', 500: 'r', 330: 'b', 320: 'n', 900: 'q'}
+promotion_pieces = {'q': 900, 'r': 500, 'b': 330, 'n': 320}
+
+piece_dict = {100: 'p', 500: 'r', 330: 'b', 320: 'n', 900: 'q', None: None}
+
+dict, board = generate_from_FEN()
 
 
 THINKING_TIME = 2
@@ -20,7 +24,6 @@ author_ID = 'id author Federico Saitta'
 
 def uci():
     print(engine_ID)
-    print(author_ID)
     print("uciok")
 
 def is_ready():
@@ -28,11 +31,26 @@ def is_ready():
 
 def position(fen):
     global board, dict
-    dict, board = generate_from_FEN(fen)
-    print(f"info string Setting position to: {fen}")
-    return board, dict
+
+    if fen != ['startpos']:
+        previous_move = fen[-1]
+
+        previous_start = files_to_cols[previous_move[0]] + int(previous_move[1]) * 8
+        previous_end = files_to_cols[previous_move[2]] + int(previous_move[3]) * 8
+        promotion_piece = None
+
+        if len(previous_move) == 5:
+            promotion_piece = promotion_pieces[previous_move[-1]]
+
+        for move in get_all_valid_moves(board, dict):
+            if (move.start_ind == previous_start) and (move.end_ind == previous_end):
+                if move.prom_piece == promotion_piece:
+                    make_move(board, move, dict)
+                    break
+
 
 def go(board, dict, Time):
+
     valid_moves = get_all_valid_moves(board, dict)
     move = iterative_deepening(valid_moves, board, dict, Time)
 
@@ -67,8 +85,7 @@ def main():
             is_ready()
         elif line.startswith("position"):
             parts = line.split(" ")
-            print(parts)
-            fen = " ".join(parts[1:])
+            fen = parts[1:]
             position(fen)
         elif line.startswith("go"):
             go(board, dict, THINKING_TIME)
@@ -79,13 +96,5 @@ def main():
 # The line is: pyinstaller --onefile --add-data "opening_moves.txt:." UCI.py
 # python3 lichess-bot.py -u
 
-#curl -d '' https://lichess.org/api/bot/account/upgrade -H "Authorization: Bearer lip_w4fBPbSxTV2JZPpelmFg"
-
-
-
-
-
-#lip_w4fBPbSxTV2JZPpelmFg
-# Older one lip_vXt4JaI2OWkpqQUPaeq7
 if __name__ == "__main__":
     main()
