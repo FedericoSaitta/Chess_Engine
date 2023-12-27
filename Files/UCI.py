@@ -72,14 +72,17 @@ def get_chess_notation(tuple, prom_piece):
 
     return (first + second)
 
+import asyncio
+import sys
 
-def main():
+# ... (your existing code)
+
+async def async_main():
     while True:
-
         # Read input command
-        line = sys.stdin.readline().strip()
+        line = (await loop.run_in_executor(None, sys.stdin.readline)).strip()
 
-        if line == "uci":
+        if 'uci' in line:
             uci()
         elif line == "isready":
             is_ready()
@@ -88,13 +91,16 @@ def main():
             fen = parts[1:]
             position(fen)
         elif line.startswith("go"):
-            go(board, dict, THINKING_TIME)
+           go(board, dict, THINKING_TIME)
+        elif line.startswith('exit'):
+            break
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(async_main())
 
 # You can make it start quicker probs by deleting some of those things that you dont need
 
 # Make sure you are not in venv when building UCI though
 # The line is: pyinstaller --onefile --add-data "opening_moves.txt:." UCI.py
 # python3 lichess-bot.py -u
-
-if __name__ == "__main__":
-    main()
