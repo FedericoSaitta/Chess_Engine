@@ -15,9 +15,10 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
 - Checks for en-passant and castling separately
   
   <details>
-  <summary> ### Perft Test results: </summary>
+  
+  ### <summary> Perft Test results: </summary>
     
-    Processor: 1,6 GHz Dual-Core Intel Core i5
+  Processor: 1,6 GHz Dual-Core Intel Core i5
 
   - Starting position:
     - Ply 5 in 31.8 s, 152 KNodes/s using CPython
@@ -31,7 +32,8 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
     - Ply 5 in 7.48 s, 90 KNodes/s using CPython
     - Ply 5 in 1.74 s, 387 MNodes/s using PyPy3 
     
-    Note: Cython compilations falls in between PyPy and Cpython
+  Note: Cython compilations falls in between PyPy and Cpython
+
   </details>
   
 ## Board Evaluation: 
