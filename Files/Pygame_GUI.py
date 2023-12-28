@@ -15,7 +15,7 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 0.5 # Seconds (last iteration)
+THINKING_MAX_TIME = 0.1 # Seconds (last iteration)
 
 # From this position it thinks it is in check while it isnt
 FEN  = '8/8/6K1/5P2/8/1bk5/3p4/8 w ---- - 0 1'

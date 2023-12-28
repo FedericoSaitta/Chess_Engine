@@ -153,7 +153,8 @@ def iterative_deepening(moves, board, dict, time_constraints):
     turn_multiplier = 1 if dict['white_to_move'] else -1
 
     if (len(dict['move_log']) < 10) and not OUT_OF_BOOK:
-        best_move = get_opening_book(board, moves, dict)
+        pass
+      #  best_move = get_opening_book(board, moves, dict)
 
     start_time = time.time()
 
@@ -162,7 +163,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
         while True:
             NODES_SEARCHED = 0
-        #    print('searching at a depth of:', DEPTH)
+            print('searching at a depth of:', DEPTH)
             best_move = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
 
             if (time.time() - start_time > time_constraints) or DEPTH == 15:
@@ -198,7 +199,7 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha)
         retract_move(board, dict)
 
-        # print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
+      #  print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
 
         if score > best_score:
             best_score = score
@@ -207,8 +208,8 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         if best_score > alpha: alpha = best_score
         if alpha >= beta: break
 
-        # print('Explored: ', NODES_SEARCHED, 'Best Move is: ', best_move.get_pgn_notation(board), ' score: ',
-         #  best_score * turn_multiplier)
+    print('Explored: ', NODES_SEARCHED, 'Best Move is: ', best_move.get_pgn_notation(board), ' score: ',
+           best_score * turn_multiplier)
 
     return best_move
 
@@ -264,15 +265,17 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
 
 # Implement the alpha beta here well
 def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
+    global NODES_SEARCHED
     if dict['stale_mate']:
         return STALE_MATE
     elif dict['check_mate']:
         return -CHECK_MATE * turn_multiplier
     elif extension == 0:
-
+        NODES_SEARCHED += 1
         return evaluate_board(board, dict, turn_multiplier) * turn_multiplier
 
     # Position can only be as good or better, null move principle, so stand_pat is the lower bound
+    NODES_SEARCHED += 1
     stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
 
     if stand_pat >= beta:
