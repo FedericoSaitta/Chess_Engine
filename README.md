@@ -54,5 +54,7 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
 - [ ] Implementing TT tables used in search algorithm
 - [ ] Running the bot on lichess
 
+### Contact: 
+- Please contact me via email for any suggestions or questions related to the code.
 
 
