@@ -14,6 +14,8 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
 - Generates pins and checks to only generate legal moves
 - Checks for en-passant and castling separately
 
+  <details>
+  
   <summary> Perft Test results: </summary>
   Processor: 1,6 GHz Dual-Core Intel Core i5
 
@@ -31,6 +33,7 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
     
   Note: Cython compilations falls in between PyPy and Cpython
 
+  <details>
 
 ## Board Evaluation: 
 - Interpolates between PESTO boards based on the opponent's material (fewer pieces means closer to the endgame). 
