@@ -33,8 +33,6 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
     
   Note: Cython compilations falls in between PyPy and Cpython
 
-  </details>
-  
 ## Board Evaluation: 
 - Interpolates between PESTO boards based on the opponent's material (fewer pieces means closer to the endgame). 
   This results in knights being worth more on central squares and rooks gaining in value closer to the endgame.
