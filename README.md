@@ -16,7 +16,7 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
 
   <details>
   
-###  <summary> Perft Test results: </summary>
+  <summary> Perft Test results: </summary>
   Processor: 1,6 GHz Dual-Core Intel Core i5
 
   - Starting position:
@@ -48,10 +48,11 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
 - Best move from previous search is placed first
 - Captures are ranked with MVV/LLA tables
 
-## ROAD MAP: 
+## ROAD MAP:
 - [ ] Cleaning and commenting code, minimizing use of external libraries (to reduced size of executable)
-- [ ] Implementing Killer moves (double) and History Heuristics. 
+- [ ] Implementing Killer moves (double) and History Heuristics
 - [ ] Implementing TT tables used in search algorithm
+- [ ] Running the bot on lichess
 
 
 
