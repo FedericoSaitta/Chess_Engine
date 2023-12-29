@@ -1,7 +1,7 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
 import Board_state
-from move_finder import find_random_move, iterative_deepening
+from Search import find_random_move, iterative_deepening
 from Move_Generator import get_all_valid_moves
 import timeit
 import time as t
@@ -16,10 +16,13 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 0.3# Seconds (last iteration)
+THINKING_MAX_TIME = 2 # Seconds (last iteration)
 
+'''FIX THE FEN FORMATTING BUG FOR CASTLING
+I STRUGGLES TO SOLVE MATE IN 3s, it finds mates that take 3 moves at depth 4
+'''
 # From this position it thinks it is in check while it isnt
-FEN  = '8/8/6K1/5P2/8/1bk5/3p4/8 w ---- - 0 1'
+FEN  = '3q2r1/4n2k/p1p1rBpp/PpPpPp2/1P3P1Q/2P3R1/7P/1R5K w ---- - 1 0'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -40,7 +43,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
 
-    dict, board = Board_state.generate_from_FEN()
+    dict, board = Board_state.generate_from_FEN(FEN)
 
     valid_moves = get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function
@@ -51,7 +54,7 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = True # If a human is playing white it will be true
+    player_one = False # If a human is playing white it will be true
     player_two = False # If a human is playing black it will be true
 
     while running:
@@ -194,7 +197,7 @@ if __name__ == '__main__':
         main()
 
         profiler_stats = pstats.Stats(profile)
-        specific_file = ('move_finder.py')
+        specific_file = ('Search.py')
         profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
 
 

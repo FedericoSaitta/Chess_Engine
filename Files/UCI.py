@@ -1,6 +1,6 @@
 import sys
 from Board_state import get_all_valid_moves, generate_from_FEN, make_move
-from move_finder import iterative_deepening
+from Search import iterative_deepening
 
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}

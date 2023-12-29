@@ -189,18 +189,19 @@ def iterative_deepening(moves, board, dict, time_constraints):
 def negamax_root(moves, board, dict, turn_multiplier, depth):
     # The first set of parent moves have already been ordered
     best_score, best_move = -CHECK_MATE, None
-    alpha, beta = -CHECK_MATE, CHECK_MATE
+    alpha, beta = -10_000, 10_000
 
     # Note with alpha beta pruning some moves will have the same evaluation but that is because they are
     # Moves whose nodes have been pruned.
 
     for move in moves:
+    #    print('Parent move: ', move.get_pgn_notation(board))
         # One is subtracted by the depth as we are looking at parent moves already
         make_move(board, move, dict)
         score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha)
         retract_move(board, dict)
 
-      #  print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
+     #   print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
 
         if score > best_score:
             best_score = score
@@ -209,8 +210,8 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         if best_score > alpha: alpha = best_score
         if alpha >= beta: break
 
-    print('Explored: ', NODES_SEARCHED, 'Best Move is: ', best_move.get_pgn_notation(board), ' score: ',
-           best_score * turn_multiplier)
+#    print('Explored: ', NODES_SEARCHED, 'Best Move is: ', best_move.get_pgn_notation(board), ' score: ',
+     #      best_score * turn_multiplier)
 
     return best_move
 
@@ -219,16 +220,20 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
 EXTENSION = 5
 def negamax(board, dict, turn_multiplier, depth, alpha, beta):
 
-    if depth == 0 or dict['stale_mate'] or dict['check_mate']:
+    if depth == 0:
         score = quiesce_search(board, dict, turn_multiplier, EXTENSION, alpha, beta)
         return score
 
     best = -CHECK_MATE
-
     moves = get_valid_moves(board, dict)
     parent_moves = move_ordering(moves)  # Ordering moves by MVV/LLA for more pruning
 
-    '''FIX three folds and checkmates and stale mates then add null move pruning'''
+    # Done this way as I detect check or stalemate after all the moves have been retrieved
+    # This fails if only depth 1 is considered, assuming we always look further it is sound.
+    if dict['stale_mate']: return STALE_MATE
+    if dict['check_mate']: return CHECK_MATE * turn_multiplier
+
+
     # The theory is that if your opponent could make two consecutive moves and not
     # improve his position, you must have an overwhelming advantage
 
@@ -244,7 +249,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
             return null_move_score  # Null move pruning
 
     for child in parent_moves:
-
+  #      print('child move: ', child.get_pgn_notation(board))
         push_move(board, child, dict)
         score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha)
         retract_move(board, dict)
@@ -258,38 +263,29 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     return best
 
 
-# Now the evaluation of the moves is good, the only problem is the speed. Alpha Beta should help. Only being able to
-# play at a depth of two is terrible, four would be a good goal to reach to beat decent players
-
-# Note that right now the engine has problems with stale mates due to three fold repetition i believe, and has problems
-# knowing what to do in an end-game
-
-# Implement the alpha beta here well
 def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
     global NODES_SEARCHED
-    if dict['stale_mate']:
-        return STALE_MATE
-    elif dict['check_mate']:
-        return -CHECK_MATE * turn_multiplier
-    elif extension == 0:
+
+    if extension == 0:
         NODES_SEARCHED += 1
         return evaluate_board(board, dict, turn_multiplier) * turn_multiplier
 
-    # Position can only be as good or better, null move principle, so stand_pat is the lower bound
+    # Best move in a position can only result in an evaluation as good or better than stand_pat (null move principle)
+    # so stand_pat is used as the lower bound
     NODES_SEARCHED += 1
     stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
 
-    if stand_pat >= beta:
-        return beta  # Fail-hard beta-cutoff
-
-    if alpha < stand_pat:
-        alpha = stand_pat  # New alpha
+    if stand_pat >= beta: return beta  # Fail-hard beta-cutoff
+    if alpha < stand_pat: alpha = stand_pat  # New alpha
 
 
     # Should be made fast to check for any captures available
     best_score = stand_pat
     child_moves = get_valid_moves(board, dict)
     child_moves = move_ordering(child_moves)
+
+    if dict['stale_mate']: return STALE_MATE
+    elif dict['check_mate']: return -CHECK_MATE * turn_multiplier
 
     # I should also be looking at checks not just captures, should be using special method to just be able to yield
     # these kind of moves efficiently
@@ -300,17 +296,13 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
             score = -quiesce_search(board, dict, -turn_multiplier, extension - 1, -beta, -alpha)
             retract_move(board, dict)
 
-            if score > best_score:
-                best_score = score
-
-            if score >= beta:
-                return beta  # Fail-hard beta-cutoff
-
-            if score > alpha:
-                alpha = score  # New alpha
+            if score > best_score: best_score = score
+            if score >= beta: return beta  # Fail-hard beta-cutoff
+            if score > alpha: alpha = score  # New alpha
 
             return best_score
 
+    # No search extensions were made as the position is quiet, so stand_pat is returned
     return stand_pat
 
 

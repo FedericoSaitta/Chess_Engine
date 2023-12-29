@@ -196,7 +196,6 @@ def get_N_moves(moves, board, ind, row, col, dict, king_color):
 
 
 def get_K_moves(moves, board, ind, row, col, dict, king_color):
-    '''NEED TO FIX THIS BECAUSE FOR NOW KING CAN WALK INTO CHECK '''
     local_moves = []
 
     for tup in KING_MOVES:
@@ -208,6 +207,7 @@ def get_K_moves(moves, board, ind, row, col, dict, king_color):
     for i in range(len(local_moves) - 1, -1, -1):
         move = local_moves[i]
         index = move.end_ind
+
         # Now we need to check these as they are pseudo legal
         make_move(board, move, dict)
         if not un_attacked_sq(board, index, index // 8, index % 8, dict, king_color):
@@ -264,7 +264,6 @@ def get_all_possible_moves(board, dict): # Using all these if statements as it i
     return moves
 
 def get_all_valid_moves(board, dict):  # This will take into account non-legal moves that put our king in check
-
     moves = []
     HASH_LOG = dict['HASH_LOG']
     ### COUNTING FOR 3 MOVE REPETITION:
@@ -281,10 +280,8 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
              #   print('Three fold repetition on the board')
                 return []
 
-    if dict['white_to_move']:
-        king_sq = dict['white_king_loc']
-    else:
-        king_sq = dict['black_king_loc']
+    if dict['white_to_move']: king_sq = dict['white_king_loc']
+    else: king_sq = dict['black_king_loc']
 
     col, row = king_sq % 8, king_sq // 8
 
