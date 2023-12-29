@@ -1,4 +1,5 @@
-from chess_engine import make_move, undo_move, get_all_valid_moves, make_null_move, undo_null_move, HASH_LOG, Move
+from chess_engine import make_move, undo_move, make_null_move, undo_null_move, Move
+from Move_Generator import get_all_valid_moves
 from random import randint
 from math import fabs
 from Evaluation import evaluate_board

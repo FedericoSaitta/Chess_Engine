@@ -1,4 +1,5 @@
 import chess_engine
+from Move_Generator import get_all_valid_moves
 import timeit
 import pstats
 from collections import Counter
@@ -21,7 +22,7 @@ list_of_parents = {}
 
 def perft(board, dict, depth):
     nodes = 0
-    moves = chess_engine.get_all_valid_moves(board, dict)
+    moves = get_all_valid_moves(board, dict)
 
     if depth == 1:
         return len(moves)
@@ -38,7 +39,7 @@ def divide_perft(board, dict, depth): # This is slower, so should be used only f
    # chess_engine.make_move(board, chess_engine.Move(39, 39 + 7, board), dict)
    # chess_engine.make_move(board, chess_engine.Move(36, 36-8, board), dict)
    # chess_engine.make_move(board, chess_engine.Move(39 + 7, 39 + 14, board), dict)
-    moves = chess_engine.get_all_valid_moves(board, dict)
+    moves = get_all_valid_moves(board, dict)
     for move in moves:
         leafs = 0
         key = get_chess_notation((move.start_ind, move.end_ind), move.prom_piece)

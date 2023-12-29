@@ -2,6 +2,7 @@
 import pygame as p
 import chess_engine
 from move_finder import find_random_move, iterative_deepening
+from Move_Generator import get_all_valid_moves
 import timeit
 import time as t
 from random import randint
@@ -15,7 +16,7 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 0.1 # Seconds (last iteration)
+THINKING_MAX_TIME = 0.3# Seconds (last iteration)
 
 # From this position it thinks it is in check while it isnt
 FEN  = '8/8/6K1/5P2/8/1bk5/3p4/8 w ---- - 0 1'
@@ -41,7 +42,7 @@ def main():
 
     dict, board = chess_engine.generate_from_FEN()
 
-    valid_moves = chess_engine.get_all_valid_moves(board, dict)
+    valid_moves = get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function
 
     load_images()  # Does this once at the start as it is expensive computation
@@ -122,7 +123,7 @@ def main():
             move_made = True
 
         if move_made and not game_over:
-            valid_moves = chess_engine.get_all_valid_moves(board, dict)  # Note this will need to be valid moves only in the future
+            valid_moves = get_all_valid_moves(board, dict)  # Note this will need to be valid moves only in the future
 
             move_made = False
 
