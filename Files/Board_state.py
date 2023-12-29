@@ -1,3 +1,13 @@
+'''
+This file is responsible for:
+- keeping track of board state and updating the pieces
+- initializing and updating Zobrist Hash
+
+To make it faster:
+
+- Switch to 10 x 12 list for faster out of bord check
+'''
+
 from math import fabs
 from random import getrandbits
 

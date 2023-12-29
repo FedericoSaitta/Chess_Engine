@@ -1,6 +1,6 @@
 # Handling user input and displaying the current GameState object
 import pygame as p
-import chess_engine
+import Board_state
 from move_finder import find_random_move, iterative_deepening
 from Move_Generator import get_all_valid_moves
 import timeit
@@ -40,7 +40,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
 
-    dict, board = chess_engine.generate_from_FEN()
+    dict, board = Board_state.generate_from_FEN()
 
     valid_moves = get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function
@@ -88,7 +88,7 @@ def main():
 
                     if len(player_clicks) == 2:
                         highlight_sq = []
-                        move = chess_engine.Move(player_clicks[0], player_clicks[1], board)
+                        move = Board_state.Move(player_clicks[0], player_clicks[1], board)
 
                         for engine_move in valid_moves:
                             if move == engine_move:
@@ -98,9 +98,9 @@ def main():
                                     if dict['white_to_move']: piece = int(piece)
                                     else: piece = - int(piece)
                                     move.prom_piece, move.promotion = piece, True
-                                    chess_engine.make_move(board, move, dict)
+                                    Board_state.make_move(board, move, dict)
                                 else:
-                                    chess_engine.make_move(board, engine_move, dict)
+                                    Board_state.make_move(board, engine_move, dict)
                                 move_made = True
                                 break
 
@@ -110,8 +110,8 @@ def main():
             #'''Key press handler'''
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # Undoes twice so player can redo a move against an engine
-                    chess_engine.undo_move(board, dict)
-                    chess_engine.undo_move(board, dict)
+                    Board_state.undo_move(board, dict)
+                    Board_state.undo_move(board, dict)
                     move_made = True
                     game_over = False
 
@@ -119,7 +119,7 @@ def main():
         if not is_human_turn and not game_over:
             computer_move = iterative_deepening(valid_moves, board, dict, THINKING_MAX_TIME)
          #   t.sleep(1)
-            chess_engine.make_move(board, computer_move, dict)
+            Board_state.make_move(board, computer_move, dict)
             move_made = True
 
         if move_made and not game_over:

@@ -1,4 +1,4 @@
-from chess_engine import make_move, undo_move, make_null_move, undo_null_move, Move
+from Board_state import make_move, undo_move, make_null_move, undo_null_move, Move
 from Move_Generator import get_all_valid_moves
 from random import randint
 from math import fabs
@@ -19,7 +19,7 @@ CHECK_MATE = 9_999
 STALE_MATE = 0
 
 current_script_path = os.path.abspath(__file__)
-package_file_path = os.path.join(os.path.dirname(current_script_path), 'opening_moves.txt')
+package_file_path = os.path.join(os.path.dirname(current_script_path), 'Opening_repertoire.txt')
 
 OPENING_LINES = package_file_path
 

@@ -1,5 +1,5 @@
 import sys
-from chess_engine import get_all_valid_moves, generate_from_FEN, make_move
+from Board_state import get_all_valid_moves, generate_from_FEN, make_move
 from move_finder import iterative_deepening
 
 
@@ -102,5 +102,5 @@ if __name__ == "__main__":
 # You can make it start quicker probs by deleting some of those things that you dont need
 
 # Make sure you are not in venv when building UCI though
-# The line is: pyinstaller --onefile --add-data "opening_moves.txt:." UCI.py
+# The line is: pyinstaller --onefile --add-data "Opening_repertoire.txt:." UCI.py
 # python3 lichess-bot.py -u

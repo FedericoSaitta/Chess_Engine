@@ -3,7 +3,7 @@ import pandas as pd
 
 FILE = 'games_pgn.txt'
 FILE_2 = 'game_moves.txt'
-FILE_3 = '../opening_moves.txt'
+FILE_3 = '../Opening_repertoire.txt'
 
 with open(FILE, 'r') as file, open(FILE_2, 'w') as file_2:
     for line in file:

@@ -1,6 +1,23 @@
+'''
+This file is responsible for:
+- Calculating legal moves by:
+    - keeping track of pins and checks
+    - iterating through the possible landing squares
+    - en-passant, castling and king moves are first tested to see whether they would result in
+      our king being in check.
+
+To make it faster:
+
+- Faster ways to allocate Move objects to a list?
+- Include lazy generators to speed up quiesce search
+- Reduced amount of memory allocated, and multiplications performed within functions
+- Being able to generate just checks and captures (Need special functions for it)
+'''
+
+
 from math import fabs
-from chess_engine import Move
-from chess_engine import make_move, undo_move
+from Board_state import Move, make_move, undo_move
+
 
 FABS = fabs
 
@@ -26,8 +43,7 @@ BLACK_PAWN_MOVES = ( (1, 0), (1, -1), (1, 1) )
 
 
 
-
-def un_attacked_sq(board, ind, row, col, dict, king_color):  # Determine if the enemy can attack the square (r, c), used to determine validity of castling only
+def un_attacked_sq(board, ind, row, col, dict, king_color):
     # Should check if diagonally one space away there is a king, and diagonally queen and bishop and vertically and horizontally
     # if there is a queen or a rook, do pawns separately, should also check knights separately
 
@@ -178,6 +194,7 @@ def get_N_moves(moves, board, ind, row, col, dict, king_color):
                 if piece_can_move:
                     moves.append(Move(ind, square, board))
 
+
 def get_K_moves(moves, board, ind, row, col, dict, king_color):
     '''NEED TO FIX THIS BECAUSE FOR NOW KING CAN WALK INTO CHECK '''
     local_moves = []
@@ -319,7 +336,6 @@ def get_all_valid_moves(board, dict):  # This will take into account non-legal m
         else:
             dict['stale_mate'] = True
           #  print("Stale-Mate on the board")
-
         return []
 
     return moves

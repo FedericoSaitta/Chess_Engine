@@ -1,4 +1,4 @@
-import chess_engine
+import Board_state
 from Move_Generator import get_all_valid_moves
 import timeit
 import pstats
@@ -15,7 +15,7 @@ piece_dict = {100: 'p', 500: 'r', 330: 'b', 320: 'n', 900: 'q'}
 
 
 DEPTH = 4
-dict, board = chess_engine.generate_from_FEN()
+dict, board = Board_state.generate_from_FEN()
 
 list_of_parents = {}
 
@@ -28,25 +28,25 @@ def perft(board, dict, depth):
         return len(moves)
 
     for move in moves:
-        chess_engine.make_move(board, move, dict)
+        Board_state.make_move(board, move, dict)
         nodes += perft(board, dict, depth - 1)
-        chess_engine.undo_move(board, dict)
+        Board_state.undo_move(board, dict)
 
     return nodes
 
 def divide_perft(board, dict, depth): # This is slower, so should be used only for debugging
-   # chess_engine.make_move(board, chess_engine.Move(33, 36, board), dict)
-   # chess_engine.make_move(board, chess_engine.Move(39, 39 + 7, board), dict)
-   # chess_engine.make_move(board, chess_engine.Move(36, 36-8, board), dict)
-   # chess_engine.make_move(board, chess_engine.Move(39 + 7, 39 + 14, board), dict)
+   # Board_state.make_move(board, Board_state.Move(33, 36, board), dict)
+   # Board_state.make_move(board, Board_state.Move(39, 39 + 7, board), dict)
+   # Board_state.make_move(board, Board_state.Move(36, 36-8, board), dict)
+   # Board_state.make_move(board, Board_state.Move(39 + 7, 39 + 14, board), dict)
     moves = get_all_valid_moves(board, dict)
     for move in moves:
         leafs = 0
         key = get_chess_notation((move.start_ind, move.end_ind), move.prom_piece)
 
-        chess_engine.make_move(board, move, dict)
+        Board_state.make_move(board, move, dict)
         leafs += (perft(board, dict, depth - 1))
-        chess_engine.undo_move(board, dict)
+        Board_state.undo_move(board, dict)
 
         list_of_parents[key] = leafs
     tot = [ind for key, ind in list_of_parents.items()]
@@ -86,7 +86,7 @@ if __name__ == '__main__':
             main()
 
         profiler_stats = pstats.Stats(profile)
-        specific_file = ('chess_engine.py')
+        specific_file = ('Board_state.py')
         profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
 
         # This only profiles the code if it hasnt been compiled in Cython or using PyPy
