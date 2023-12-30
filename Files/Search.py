@@ -31,65 +31,86 @@ MVV_LLA_TABLE = [
     [30, 31, 32, 33, 34, 35, 0],  # victim B, attacker K, Q, R, B, N, P
     [20, 21, 22, 23, 24, 25, 0],  # victim N, attacker K, Q, R, B, N, P
     [10, 11, 12, 13, 14, 15, 0],  # victim P, attacker K, Q, R, B, N, P
-    [0, 0, 0, 0, 0, 0, 0],  # No Victim
+    [0, 0, 0, 0, 0, 0, 0]  # No Victim
 ]
 
 NODES_SEARCHED = 0
 TURN = 0
 OUT_OF_BOOK = False
 
-
+OPENING_REPERTOIRE_FILE = 'Opening_repertoire.txt'
 OPENING_DF = None
 
-def find_random_move(moves):
-    if moves != []:
-        index = randint(0, len(moves) - 1)
-        return moves[index]
-    else:
-        return None
+
+# Methods to read and index the opening repertoire matrix, pandas is avoided to minimize size of executable file
+def initialize_opening_repertoire(file_name):
+    # Initializes the opening repertoire matrix, this is done when the first call to the search function is made,
+    # it is not done at startup to minimize UCI executable start up time.
+    return read_csv_to_matrix(open(file_name, 'r'))
+
+
+def read_csv_to_matrix(file_obj):
+    # Reads the data, removes the extra spaces at the end of the line, it splits each line into a subsequent list
+    # using space as a delimeter.
+    data_matrix = []
+    for line in file_obj:
+        line = line.strip('\n')
+        line = line.split(' ')
+        line.remove('')
+
+        data_matrix.append(line)
+
+    return data_matrix
+
+
+def index_matrix(matrix, row_index, column):
+    # Indexes a matrix, returns all the rows which have the same row_index found at the specified column index
+    for i in range(len(matrix) -1, -1, -1):
+    # Traverses the list backwards to avoid index collisions when removing rows
+        if matrix[i][column] != row_index:
+            # Looks at each element in a specific column in a matrix, if it doesn't match we remove said row
+            matrix.remove(matrix[i])
 
 
 def get_opening_book(board, moves, dict):
     global OPENING_DF, TURN, OUT_OF_BOOK
 
-    if OPENING_DF is None:
-        OPENING_DF = read_csv(OPENING_LINES, delim_whitespace=True, header=None)
+    if OPENING_DF is None: OPENING_DF = initialize_opening_repertoire(OPENING_REPERTOIRE_FILE)
 
     try:  # We look if the current position key is present in the data frame
         if len(dict['move_log']) > 0:
-            # Increments turn by two if playing against a human
-            if (not dict['white_to_move']) and (TURN % 2 == 0):
-                TURN += 1
+
+            if (not dict['white_to_move']) and (TURN % 2 == 0): TURN += 1
+            # Increments the Turn variable if engine plays against a human
 
             previous_move = (dict['move_log'][-1]).get_pgn_notation(board)
             previous_move_2 = (dict['move_log'][-1]).get_pgn_notation(board, multiple_piece_flag=True)
 
             OPENING_1 = OPENING_DF.copy()
+            index_matrix(OPENING_DF, previous_move, TURN-1)
 
-            OPENING_DF = OPENING_DF[OPENING_DF[:][TURN - 1] == previous_move].copy()
+            if OPENING_DF == []:
+                index_matrix(OPENING_1, previous_move_2, TURN-1)
+                OPENING_DF = OPENING_1
 
-            if OPENING_DF.empty: OPENING_DF = OPENING_1[OPENING_1[:][TURN - 1] == previous_move_2]
-
-            OPENING_DF = OPENING_DF.reset_index(drop=True)
 
             index = randint(0, len(OPENING_DF) - 1)
-            move = OPENING_DF.loc[index, TURN]
+            move = OPENING_DF[index][TURN]
             move = get_move_from_notation(board, moves, move)
 
-        # return move
 
         else:  # We choose a random move from the starting possibilities
+               # This only happens at start of the game from the start position so column = 0
             index = randint(0, len(OPENING_DF) - 1)
-            move = OPENING_DF.loc[index, TURN]
+            move = OPENING_DF[index][0]
             move = get_move_from_notation(board, moves, move)
 
         TURN += 1
-     #   print('We found a book move which is: ', move.get_pgn_notation(board))
         return move
 
-    except (
-    KeyError, ValueError, AttributeError):  # Means we are out of book, so we return to finding a move with negamax
-    #    print('Out of book')
+    except (KeyError, ValueError, AttributeError) as e :
+        print(e)
+        # Means we are out of book, so we return to finding a move with negamax
         OUT_OF_BOOK = True
         return None
 
@@ -138,24 +159,27 @@ def get_move_from_notation(board, moves, notation):
     return None
 
 
+
+'''Right now problem is that it finds -9 999 at depth 3 and then -35 at depth 4?, if it finds a checkmate we 
+should kill the search and go for that, should be the quickest mate'''
 ########################################################################################################################
 #                                                  MOVE SEARCH FUNCTION                                                #
 ########################################################################################################################
+def find_random_move(moves):
+    if moves != []:
+        index = randint(0, len(moves) - 1)
+        return moves[index]
+    else:
+        return None
 
 
-# Note that pypy doesn't seem that much faster than normal python, it does speed up with heavier computation but maybe
-# Cython is best, or rewriting some functions could also help quite a bit
-
-
-# Alpha beta is now slow because of the fact tht quiet moves are not ordered at all
 def iterative_deepening(moves, board, dict, time_constraints):
     global NODES_SEARCHED
     best_move, DEPTH = None, 1
     turn_multiplier = 1 if dict['white_to_move'] else -1
 
     if (len(dict['move_log']) < 10) and not OUT_OF_BOOK:
-        pass
-      #  best_move = get_opening_book(board, moves, dict)
+        best_move = get_opening_book(board, moves, dict)
 
     start_time = time.time()
 
@@ -164,7 +188,6 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
         while True:
             NODES_SEARCHED = 0
-            print('searching at a depth of:', DEPTH)
             best_move = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
 
             if (time.time() - start_time > time_constraints) or DEPTH == 15:
@@ -210,13 +233,13 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         if best_score > alpha: alpha = best_score
         if alpha >= beta: break
 
-#    print('Explored: ', NODES_SEARCHED, 'Best Move is: ', best_move.get_pgn_notation(board), ' score: ',
-     #      best_score * turn_multiplier)
+    if best_move is not None:
+        print('At depth: ', depth, ' Best Move: ', best_move.get_pgn_notation(board),
+              ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
 
     return best_move
 
 
-# Also could create a way to see exactly what line the engine is thinking
 EXTENSION = 5
 def negamax(board, dict, turn_multiplier, depth, alpha, beta):
 
@@ -238,15 +261,17 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     # improve his position, you must have an overwhelming advantage
 
     # Note that this will activate for searches at depth 3
-    if depth > 2 and (not dict['in_check']):
+ ######  # This does not work as you are only able to detect check on the next turn, it is probably a good idea to fix that
+
+#    if depth > 2 and (not dict['in_check']):
 
         # Beta window is + 1.5
-        make_null_move(dict)
-        null_move_score = -negamax(board, dict, -turn_multiplier, depth - 2, -beta, -beta+1)
-        undo_null_move(dict)
+ #       make_null_move(dict)
+ #       null_move_score = -negamax(board, dict, -turn_multiplier, depth - 2, -beta, -beta+1)
+ #       undo_null_move(dict)
 
-        if null_move_score >= beta:
-            return null_move_score  # Null move pruning
+ #       if null_move_score >= beta:
+  #          return null_move_score  # Null move pruning
 
     for child in parent_moves:
   #      print('child move: ', child.get_pgn_notation(board))

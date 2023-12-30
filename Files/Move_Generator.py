@@ -14,7 +14,6 @@ To make it faster:
 - Being able to generate just checks and captures (Need special functions for it)
 '''
 
-
 from math import fabs
 from Board_state import Move, make_move, undo_move
 
@@ -85,6 +84,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):
                     return False  # So that side cannot castle
 
     return True
+
 
 def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
     piece_pinned, pin_direction = False, ()

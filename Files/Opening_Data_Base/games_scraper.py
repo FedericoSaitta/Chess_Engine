@@ -20,7 +20,7 @@ with open(FILE_2, 'r') as file, open(FILE_3, 'w') as file_3:
             opening_end_point = line.index('10')
             line = line[:opening_end_point]
             line = re.sub(r'\d+\.', '', line)
-            line = line.replace('+', '').replace('#', '')
+            line = line.replace('+', '').replace('#', '').replace('  ', ' ')
 
             line = line + '\n'
             file_3.write(line)

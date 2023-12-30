@@ -1,6 +1,6 @@
 '''
 This file is responsible for:
-- Evaluating the board
+- Evaluating the board using Pesto boards
 
 '''
 
@@ -122,7 +122,6 @@ KING_EG_white =  ([[-74, -35, -18, -18, -11, 15, 4, -17],
 
 def flip_pst(psq_matrix):
     flipped_matrix = psq_matrix[::-1]
-
     return flipped_matrix
 
 def ravel(two_dimensional_matrix, color):
@@ -193,6 +192,5 @@ def evaluate_board(board, dict, turn_multiplier):
 
 def pesto_board(square_ind, piece, game_phase):
     if piece == 0: return 0
-
     square_value = piece_sq_values[piece][game_phase][square_ind] + piece
     return square_value
