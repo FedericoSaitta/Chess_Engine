@@ -4,42 +4,32 @@ from random import randint
 from math import fabs
 from Evaluation import evaluate_board
 
-import time
-from pandas import read_csv
-import os
-import numpy as np
+from time import time # Needed to limit the Engine's thinking time
 
+# Renaming imports as variables in script gains 10-15 % performance gain
+FABS = fabs
 push_move = make_move
 retract_move = undo_move
 get_valid_moves = get_all_valid_moves
-
-# If when we score the board, positive values indicate white is winning
-FABS = fabs
-CHECK_MATE = 9_999
-STALE_MATE = 0
-
-current_script_path = os.path.abspath(__file__)
-package_file_path = os.path.join(os.path.dirname(current_script_path), 'Opening_repertoire.txt')
-
-OPENING_LINES = package_file_path
+Move = Move
 
 ## Taken from https://rustic-chess.org/front_matter/title.html, Marcel Vanthoor
 MVV_LLA_TABLE = [
-    [0, 0, 0, 0, 0, 0, 0],  # Victim K, 0's as it is checkmate already
+    [0, 0, 0, 0, 0, 0, 0],        # Victim K, 0's as it is checkmate already
     [50, 51, 52, 53, 54, 55, 0],  # victim Q, attacker K, Q, R, B, N, P
     [40, 41, 42, 43, 44, 45, 0],  # victim R, attacker K, Q, R, B, N, P
     [30, 31, 32, 33, 34, 35, 0],  # victim B, attacker K, Q, R, B, N, P
     [20, 21, 22, 23, 24, 25, 0],  # victim N, attacker K, Q, R, B, N, P
     [10, 11, 12, 13, 14, 15, 0],  # victim P, attacker K, Q, R, B, N, P
-    [0, 0, 0, 0, 0, 0, 0]  # No Victim
-]
+    [0, 0, 0, 0, 0, 0, 0]]        # No Victim
 
-NODES_SEARCHED = 0
-TURN = 0
-OUT_OF_BOOK = False
 
-OPENING_REPERTOIRE_FILE = 'Opening_repertoire.txt'
-OPENING_DF = None
+NODES_SEARCHED, TURN = 0, 0
+OPENING_DF, OUT_OF_BOOK = None, False
+OPENING_REPERTOIRE_FILE = '/Users/federicosaitta/PycharmProjects/Chess/Files/Opening_repertoire.txt'
+
+CHECK_MATE = 10_000
+STALE_MATE = 0
 
 
 # Methods to read and index the opening repertoire matrix, pandas is avoided to minimize size of executable file
@@ -117,11 +107,9 @@ def get_opening_book(board, moves, dict):
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4,
                  '5': 3, '6': 2, '7': 1, '8': 0}
-rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}  # To reverse the dictionary
 
 files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3,
                  'e': 4, 'f': 5, 'g': 6, 'h': 7}
-cols_to_files = {v: k for k, v in files_to_cols.items()}
 
 
 def get_move_from_notation(board, moves, notation):
@@ -159,9 +147,6 @@ def get_move_from_notation(board, moves, notation):
     return None
 
 
-
-'''Right now problem is that it finds -9 999 at depth 3 and then -35 at depth 4?, if it finds a checkmate we 
-should kill the search and go for that, should be the quickest mate'''
 ########################################################################################################################
 #                                                  MOVE SEARCH FUNCTION                                                #
 ########################################################################################################################
@@ -181,16 +166,18 @@ def iterative_deepening(moves, board, dict, time_constraints):
     if (len(dict['move_log']) < 10) and not OUT_OF_BOOK:
         best_move = get_opening_book(board, moves, dict)
 
-    start_time = time.time()
+    start_time = time()
 
     if best_move is None:
         moves = move_ordering(moves)
 
         while True:
             NODES_SEARCHED = 0
-            best_move = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
+            best_move, best_score = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
 
-            if (time.time() - start_time > time_constraints) or DEPTH == 15:
+            if best_score == CHECK_MATE: break
+
+            if (time() - start_time > time_constraints) or DEPTH == 15:
                 break  # We have exceeded the time frame for a single search so we stop looking deeper
 
             if best_move is not None:
@@ -212,7 +199,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
 def negamax_root(moves, board, dict, turn_multiplier, depth):
     # The first set of parent moves have already been ordered
     best_score, best_move = -CHECK_MATE, None
-    alpha, beta = -10_000, 10_000
+    alpha, beta = -CHECK_MATE, CHECK_MATE
 
     # Note with alpha beta pruning some moves will have the same evaluation but that is because they are
     # Moves whose nodes have been pruned.
@@ -224,7 +211,7 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha)
         retract_move(board, dict)
 
-     #   print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
+        print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
 
         if score > best_score:
             best_score = score
@@ -237,7 +224,7 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         print('At depth: ', depth, ' Best Move: ', best_move.get_pgn_notation(board),
               ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
 
-    return best_move
+    return best_move, best_score
 
 
 EXTENSION = 5
@@ -310,7 +297,7 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
     child_moves = move_ordering(child_moves)
 
     if dict['stale_mate']: return STALE_MATE
-    elif dict['check_mate']: return -CHECK_MATE * turn_multiplier
+    elif dict['check_mate']: return CHECK_MATE * turn_multiplier
 
     # I should also be looking at checks not just captures, should be using special method to just be able to yield
     # these kind of moves efficiently
