@@ -149,6 +149,7 @@ def get_move_from_notation(board, moves, notation):
 ########################################################################################################################
 #                                                  MOVE SEARCH FUNCTION                                                #
 ########################################################################################################################
+
 def find_random_move(moves):
     if moves != []:
         index = randint(0, len(moves) - 1)
@@ -164,7 +165,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
     if (len(dict['move_log']) < 10) and not OUT_OF_BOOK:
         best_move = get_opening_book(board, moves, dict)
-        best_move = None
+
     start_time = time()
 
     if best_move is None:
@@ -241,7 +242,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     parent_moves = move_ordering(moves)  # Ordering moves by MVV/LLA for more pruning
 
     # Done this way as I detect check or stalemate after all the moves have been retrieved
-    # This fails if only depth 1 is considered, assuming we always look further it is sound.
+    # The checkmate is negated because if dict['check_mate'] == True that means we are in checkmate
     if dict['stale_mate']: return STALE_MATE
     if dict['check_mate']: return -CHECK_MATE
 
@@ -253,15 +254,15 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
  ######  # This does not work as you are only able to detect check on the next turn, it is probably a good idea to fix that
 
     # Try this one proper in check condition is in place
-#    if depth > 2 and (not dict['in_check']):
+   # if depth > 2 and (not dict['in_check']):
 
-        # Beta window is + 1.5
- #       make_null_move(dict)
+        # Beta window is + 1
+  #      make_null_move(dict)
  #       null_move_score = -negamax(board, dict, -turn_multiplier, depth - 2, -beta, -beta+1)
- #       undo_null_move(dict)
+  #      undo_null_move(dict)
 
  #       if null_move_score >= beta:
-  #          return null_move_score  # Null move pruning
+ #           return null_move_score  # Null move pruning
 
     for child in parent_moves:
   #      print('child move: ', child.get_pgn_notation(board))

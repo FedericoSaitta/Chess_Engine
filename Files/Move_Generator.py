@@ -12,6 +12,8 @@ To make it faster:
 - Include lazy generators to speed up quiesce search
 - Reduced amount of memory allocated, and multiplications performed within functions
 - Being able to generate just checks and captures (Need special functions for it)
+- Running all the move in just one function, similar to pyfish, this should speed up
+- multiprocessing for move generation?? A new thread is spawned each time a new get_moves methods is called for a piece
 '''
 
 from math import fabs
@@ -41,6 +43,9 @@ WHITE_PAWN_MOVES = ( (-1, 0), (- 1, -1), (-1, 1) )
 BLACK_PAWN_MOVES = ( (1, 0), (1, -1), (1, 1) )
 
 
+########################################################################################################################
+#                                        FUNCTIONS FOR LEGAL MOVE GENERATION                                           #
+########################################################################################################################
 
 def un_attacked_sq(board, ind, row, col, dict, king_color):
     # Should check if diagonally one space away there is a king, and diagonally queen and bishop and vertically and horizontally
@@ -390,3 +395,11 @@ def check_pins_and_checks(board, ind, col, row, dict):
                 checks.append((end_row*8 + end_col, tup[0], tup[1]))
 
     dict['in_check'], dict['pins_list'], dict['checks_list'] = in_check, pins, checks
+
+########################################################################################################################
+#                                      SPECIAL GENERATORS FOR QUIESCE SEARCH                                           #
+########################################################################################################################
+
+# In check validator for Null move pruning:
+
+

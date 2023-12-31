@@ -16,13 +16,13 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 1 # Seconds (last iteration)
+THINKING_MAX_TIME = 60 # Seconds (last iteration)
 
 '''FIX THE FEN FORMATTING BUG FOR CASTLING
 I STRUGGLES TO SOLVE MATE IN 3s, it finds mates that take 3 moves at depth 4
 '''
 # From this position it thinks it is in check while it isnt
-FEN  = '8/Qp4pk/2p3b1/5p1p/3B3P/1P4P1/P1P1rnBK/3r4 b - - 0 1'
+FEN  = '6k1/ppp2ppp/8/2n2K1P/2P2P1P/2Bpr3/PP4r1/4RR2 b - - 0 1'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -43,7 +43,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
 
-    dict, board = Board_state.generate_from_FEN()
+    dict, board = Board_state.generate_from_FEN(FEN)
 
     valid_moves = get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function

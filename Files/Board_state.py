@@ -39,7 +39,7 @@ piece_dictionary = {'q': -900, 'Q': 900, 'r': -500, 'R': 500, 'b': -330, 'B':  3
 ZOBRIST_TABLE = None
 
 # METHODS TO GENERATE A BOARD AND A BOUARD_DICTIONARY FROM A FEN
-def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/BBBBKBBB w KQkq - 0 1'):
+def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
     global ZOBRIST_TABLE
     # Splits the FEN into: [BOARD, TURN, CASTLING RIGHTS, EN PASSANT SQUARE]
     # Discards half move and full move clocks as engine doesn't apply 50 move rule.
