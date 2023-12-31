@@ -33,45 +33,25 @@ HASHING_DICTIONARY = {  1: 0,   -1:  6,
                       900: 5, -900: 11}
 
 
-def initialize_zobrist_table():
-    ZOBRIST_HASH_TABLE = [[getrandbits(64) for _ in range(12)] for _ in range(64)]
-    return ZOBRIST_HASH_TABLE
-
-
-def calculate_initial_hash(board, ZOBRIST_HASH_TABLE):
-    # The zobrist hash_value for transposition tables should be more unique, including the
-    # side to move, castling rights, en_passant possibility.
-    # This is not a big problem though when only checking for three-fold repetition
-    # Should still be fixed though
-    hash_value = 0
-    for square in range(64):
-        piece = board[square]
-        if piece != 0:  # 0 represents an empty square
-            piece_num = HASHING_DICTIONARY[piece]
-            hash_value ^= ZOBRIST_HASH_TABLE[square][piece_num]
-
-    return hash_value
-
-ZOBRIST_TABLE = initialize_zobrist_table()
-
-
-# Empty square is represented by 0
 piece_dictionary = {'q': -900, 'Q': 900, 'r': -500, 'R': 500, 'b': -330, 'B':  330,
                     'n': -320, 'N': 320, 'p': -100, 'P': 100, 'k': -1, 'K': 1}
 
+ZOBRIST_TABLE = None
 
+# METHODS TO GENERATE A BOARD AND A BOUARD_DICTIONARY FROM A FEN
 def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/BBBBKBBB w KQkq - 0 1'):
+    global ZOBRIST_TABLE
     # Splits the FEN into: [BOARD, TURN, CASTLING RIGHTS, EN PASSANT SQUARE]
     # Discards half move and full move clocks as engine doesn't apply 50 move rule.
     board_dictionary = {}
     board = []
     argument_list = FEN.split(' ')[:-2]
     board_FEN, turn, castling_rights, en_passant_sq = argument_list
-    white_castling, black_castling = castling_rights[:2], castling_rights[2:]
+
 
     board_dictionary['white_to_move'] = True if turn == 'w' else False
-    board_dictionary['white_castle'] = (True if white_castling[1] == 'Q' else False, True if white_castling[0] == 'K' else False)
-    board_dictionary['black_castle'] = (True if black_castling[1] == 'q' else False, True if black_castling[0] == 'k' else False)
+    board_dictionary['white_castle'] = (True if 'Q' in castling_rights else False, True if 'K' in castling_rights else False)
+    board_dictionary['black_castle'] = (True if 'q' in castling_rights else False, True if 'k' in castling_rights else False)
     board_dictionary['castle_rights_log'] = []
 
     if en_passant_sq != '-':
@@ -101,13 +81,15 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/BBBBKBBB w KQkq - 
 
     board_dictionary['white_king_loc'] = white_king_loc
     board_dictionary['black_king_loc'] = black_king_loc
+
+    ZOBRIST_TABLE = initialize_zobrist_table()
     board_dictionary['ZOBRIST_HASH'] = calculate_initial_hash(board, ZOBRIST_TABLE)
 
     return board_dictionary, board
 
 def get_zeros(len):
-    array = [0 for number in range(len)]
-    return array
+    # Returns an array of 0's (empty squares) for Board generation from FEN
+    return [0 for number in range(len)]
 
 
 
@@ -250,9 +232,29 @@ def undo_move(board, dict):
 
 
 ########################################################################################################################
-#                                            HASHING AND FEN FUNCTIONS                                                 #
+#                                               ZOBRIST HASH FUNCTIONS                                                 #
 ########################################################################################################################
-# Please also encode en_passant square, castleling etc into the hash because two positions may not be equal
+
+def initialize_zobrist_table():
+    ZOBRIST_HASH_TABLE = [[getrandbits(64) for _ in range(12)] for _ in range(64)]
+    return ZOBRIST_HASH_TABLE
+
+
+def calculate_initial_hash(board, ZOBRIST_HASH_TABLE):
+    # The zobrist hash_value for transposition tables should be more unique, including the
+    # side to move, castling rights, en_passant possibility.
+    # This is not a big problem though when only checking for three-fold repetition
+    # Should still be fixed though
+    hash_value = 0
+    for square in range(64):
+        piece = board[square]
+        if piece != 0:  # 0 represents an empty square
+            piece_num = HASHING_DICTIONARY[piece]
+            hash_value ^= ZOBRIST_HASH_TABLE[square][piece_num]
+
+    return hash_value
+
+
 def update_hash_move(hash_value, move, board):
     # Needs to be ran before the board changes state
     from_square, to_square = move.start_ind, move.end_ind
@@ -285,6 +287,7 @@ def undo_hash_move(hash_value, move, board):
 
 
 class Move:
+    # USING SLOTS GIVES ABOUT A 15 % INCREASE IN OBJECT GENERATION
     __slots__ = ('start_ind', 'end_ind', 'move_ID',
                  'piece_moved', 'piece_captured', 'castle_move', 'en_passant',
                  'promotion', 'prom_piece')

@@ -99,7 +99,6 @@ def get_opening_book(board, moves, dict):
         return move
 
     except (KeyError, ValueError, AttributeError) as e :
-        print(e)
         # Means we are out of book, so we return to finding a move with negamax
         OUT_OF_BOOK = True
         return None
@@ -165,7 +164,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
     if (len(dict['move_log']) < 10) and not OUT_OF_BOOK:
         best_move = get_opening_book(board, moves, dict)
-
+        best_move = None
     start_time = time()
 
     if best_move is None:
@@ -175,7 +174,10 @@ def iterative_deepening(moves, board, dict, time_constraints):
             NODES_SEARCHED = 0
             best_move, best_score = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
 
-            if best_score == CHECK_MATE: break
+            # If we do find a checkmate we go for that branch, instead if we see we could get checkmated, hence
+            # best_move is None, we return a random move. This does entail that our engine 'gives up' when it seems
+            # that the opponent has checkmate.
+            if FABS(best_score) == CHECK_MATE: break
 
             if (time() - start_time > time_constraints) or DEPTH == 15:
                 break  # We have exceeded the time frame for a single search so we stop looking deeper
@@ -203,7 +205,6 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
 
     # Note with alpha beta pruning some moves will have the same evaluation but that is because they are
     # moves whose nodes have been pruned.
-
     for move in moves:
     #    print('Parent move: ', move.get_pgn_notation(board))
         # One is subtracted by the depth as we are looking at parent moves already
@@ -233,8 +234,8 @@ EXTENSION = 6
 def negamax(board, dict, turn_multiplier, depth, alpha, beta):
 
     if depth == 0:
-        score = quiesce_search(board, dict, turn_multiplier, EXTENSION, alpha, beta)
-        return score
+        return quiesce_search(board, dict, turn_multiplier, EXTENSION, alpha, beta)
+
 
     best = -CHECK_MATE
     moves = get_valid_moves(board, dict)
@@ -243,7 +244,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     # Done this way as I detect check or stalemate after all the moves have been retrieved
     # This fails if only depth 1 is considered, assuming we always look further it is sound.
     if dict['stale_mate']: return STALE_MATE
-    if dict['check_mate']: return -CHECK_MATE * turn_multiplier
+    if dict['check_mate']: return CHECK_MATE * turn_multiplier
 
 
     # The theory is that if your opponent could make two consecutive moves and not

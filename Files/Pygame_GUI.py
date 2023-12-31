@@ -22,7 +22,7 @@ THINKING_MAX_TIME = 120 # Seconds (last iteration)
 I STRUGGLES TO SOLVE MATE IN 3s, it finds mates that take 3 moves at depth 4
 '''
 # From this position it thinks it is in check while it isnt
-FEN  = '8/Qp4pk/2p3b1/5p1p/3B3P/1P4P1/P1P1rnBK/3r4 b ---- - 0 1'
+FEN  = 'r1b3kr/ppp1Bp1p/1b6/n2P4/2p3q1/2Q2N2/P4PPP/RN2R1K1 w - - 1 0'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -56,6 +56,8 @@ def main():
 
     player_one = False # If a human is playing white it will be true
     player_two = False # If a human is playing black it will be true
+    draw_game_state(screen, board, highlight_sq)
+    p.display.flip()
 
     while running:
         is_human_turn = (dict['white_to_move'] and player_one) or (not dict['white_to_move'] and player_two)
