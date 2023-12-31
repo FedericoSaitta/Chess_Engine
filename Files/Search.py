@@ -202,7 +202,7 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
     alpha, beta = -CHECK_MATE, CHECK_MATE
 
     # Note with alpha beta pruning some moves will have the same evaluation but that is because they are
-    # Moves whose nodes have been pruned.
+    # moves whose nodes have been pruned.
 
     for move in moves:
     #    print('Parent move: ', move.get_pgn_notation(board))
@@ -226,8 +226,10 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
 
     return best_move, best_score
 
-
-EXTENSION = 5
+# This extension limit is really just to limit searching positions where perpetual checks are present,
+# once proper Zobrist hashing is in place, no extension limit should be in place. (It is extremely unlikely to misjudge
+# a position due to this limit)
+EXTENSION = 6
 def negamax(board, dict, turn_multiplier, depth, alpha, beta):
 
     if depth == 0:
@@ -241,7 +243,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     # Done this way as I detect check or stalemate after all the moves have been retrieved
     # This fails if only depth 1 is considered, assuming we always look further it is sound.
     if dict['stale_mate']: return STALE_MATE
-    if dict['check_mate']: return CHECK_MATE * turn_multiplier
+    if dict['check_mate']: return -CHECK_MATE * turn_multiplier
 
 
     # The theory is that if your opponent could make two consecutive moves and not
@@ -250,6 +252,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     # Note that this will activate for searches at depth 3
  ######  # This does not work as you are only able to detect check on the next turn, it is probably a good idea to fix that
 
+    # Try this one proper in check condition is in place
 #    if depth > 2 and (not dict['in_check']):
 
         # Beta window is + 1.5
@@ -297,7 +300,7 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
     child_moves = move_ordering(child_moves)
 
     if dict['stale_mate']: return STALE_MATE
-    elif dict['check_mate']: return CHECK_MATE * turn_multiplier
+    elif dict['check_mate']: return -CHECK_MATE * turn_multiplier
 
     # I should also be looking at checks not just captures, should be using special method to just be able to yield
     # these kind of moves efficiently

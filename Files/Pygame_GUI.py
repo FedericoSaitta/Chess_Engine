@@ -16,13 +16,13 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 60 # Seconds (last iteration)
+THINKING_MAX_TIME = 120 # Seconds (last iteration)
 
 '''FIX THE FEN FORMATTING BUG FOR CASTLING
 I STRUGGLES TO SOLVE MATE IN 3s, it finds mates that take 3 moves at depth 4
 '''
 # From this position it thinks it is in check while it isnt
-FEN  = 'rnbkn2r/pppp1Qpp/5b2/3NN3/3Pp3/8/PPP1KP1P/R1B4q w ---- - 1 0'
+FEN  = '8/Qp4pk/2p3b1/5p1p/3B3P/1P4P1/P1P1rnBK/3r4 b ---- - 0 1'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -55,7 +55,7 @@ def main():
     game_over = False
 
     player_one = False # If a human is playing white it will be true
-    player_two = True # If a human is playing black it will be true
+    player_two = False # If a human is playing black it will be true
 
     while running:
         is_human_turn = (dict['white_to_move'] and player_one) or (not dict['white_to_move'] and player_two)

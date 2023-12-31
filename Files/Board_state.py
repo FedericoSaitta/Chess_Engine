@@ -60,7 +60,7 @@ piece_dictionary = {'q': -900, 'Q': 900, 'r': -500, 'R': 500, 'b': -330, 'B':  3
                     'n': -320, 'N': 320, 'p': -100, 'P': 100, 'k': -1, 'K': 1}
 
 
-def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
+def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/BBBBKBBB w KQkq - 0 1'):
     # Splits the FEN into: [BOARD, TURN, CASTLING RIGHTS, EN PASSANT SQUARE]
     # Discards half move and full move clocks as engine doesn't apply 50 move rule.
     board_dictionary = {}
