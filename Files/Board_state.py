@@ -45,7 +45,7 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
     board_dictionary = {}
     board = []
     argument_list = FEN.split(' ')[:-2]
-    board_FEN, turn, castling_rights, en_passant_sq = argument_list
+    board_FEN, turn, castling_rights, en_passant_sq = argument_list[0:4]
 
 
     board_dictionary['white_to_move'] = True if turn == 'w' else False
@@ -284,7 +284,8 @@ def calculate_initial_hash(board, dict, ZOBRIST_DICTIONARY):
 
     return hash_value
 
-# We only need one function that updates the board due to simmetry of XOR operator
+
+# We only need one function that updates the board due to symmetry of XOR operator
 def update_hash_move(hash_value, move, dict):
     # Needs to be run before the board changes state
     from_square, to_square = move.start_ind, move.end_ind

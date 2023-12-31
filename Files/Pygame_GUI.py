@@ -20,7 +20,7 @@ THINKING_MAX_TIME = 1 # Seconds (last iteration)
 
 
 
-FEN  = '6k1/2P5/8/8/8/8/3K4/8 w - - 0 1'
+FEN  = '8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 0'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -41,8 +41,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
 
-    dict, board = Board_state.generate_from_FEN()
-    print(dict['ZOBRIST_HASH'])
+    dict, board = Board_state.generate_from_FEN(FEN)
 
     valid_moves = get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function
@@ -53,8 +52,8 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = True # If a human is playing white it will be true
-    player_two = True # If a human is playing black it will be true
+    player_one = False # If a human is playing white it will be true
+    player_two = False # If a human is playing black it will be true
     draw_game_state(screen, board, highlight_sq)
     p.display.flip()
 
@@ -127,7 +126,6 @@ def main():
             move_made = True
 
         if move_made and not game_over:
-            print(dict['ZOBRIST_HASH'])
             valid_moves = get_all_valid_moves(board, dict)  # Note this will need to be valid moves only in the future
 
             move_made = False
@@ -199,12 +197,12 @@ def get_single_move_notation(move):
 
 if __name__ == '__main__':
 
-    with cProfile.Profile() as profile:
+    with (cProfile.Profile() as profile):
 
         main()
 
         profiler_stats = pstats.Stats(profile)
-        specific_file = ('Search.py')
-        profiler_stats.strip_dirs().sort_stats('cumulative').print_stats(specific_file)
+     #   specific_file = ('Search.py')
+        profiler_stats.strip_dirs().sort_stats('cumulative') # .print_stats(specific_file)
 
 

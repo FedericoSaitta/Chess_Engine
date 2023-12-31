@@ -30,8 +30,11 @@ OPENING_REPERTOIRE_FILE = '/Users/federicosaitta/PycharmProjects/Chess/Files/Ope
 
 CHECK_MATE = 10_000
 STALE_MATE = 0
+TRANSPOSITION_TABLE = {}
 
-
+'''Note that transposition tables should save results at a certaint depth, and only look within that depth for other 
+results as it is unreliable to use results from very shallow searches
+'''
 # Methods to read and index the opening repertoire matrix, pandas is avoided to minimize size of executable file
 def initialize_opening_repertoire(file_name):
     # Initializes the opening repertoire matrix, this is done when the first call to the search function is made,
@@ -62,6 +65,7 @@ def index_matrix(matrix, row_index, column):
             matrix.remove(matrix[i])
 
 
+# Sometimes it starts looking at opening book moves even though it shouldn't
 def get_opening_book(board, moves, dict):
     global OPENING_DF, TURN, OUT_OF_BOOK
 
@@ -126,7 +130,6 @@ def get_move_from_notation(board, moves, notation):
                 return move
 
     end_square = files_to_cols[notation[-2]] + 8 * ranks_to_rows[notation[-1]]
-
     # Checks if there are multiple moves of the same type achieving the same square
     # So we flag them as multiple moves
 
@@ -154,8 +157,7 @@ def find_random_move(moves):
     if moves != []:
         index = randint(0, len(moves) - 1)
         return moves[index]
-    else:
-        return None
+    else: return None
 
 
 def iterative_deepening(moves, board, dict, time_constraints):
@@ -163,7 +165,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
     best_move, DEPTH = None, 1
     turn_multiplier = 1 if dict['white_to_move'] else -1
 
-    if (len(dict['move_log']) < 10) and not OUT_OF_BOOK:
+    if (len(dict['move_log']) < 10) and (not OUT_OF_BOOK):
         best_move = get_opening_book(board, moves, dict)
 
     start_time = time()
@@ -222,9 +224,9 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         if best_score > alpha: alpha = best_score
         if alpha >= beta: break
 
-  #  if best_move is not None:
-    #    print('At depth: ', depth, ' Best Move: ', best_move.get_pgn_notation(board),
-    #          ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
+    if best_move is not None:
+        print('At depth: ', depth, ' Best Move: ', best_move.get_pgn_notation(board),
+              ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
 
     return best_move, best_score
 
@@ -279,24 +281,37 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     return best
 
 
-def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
-    global NODES_SEARCHED
-
+'''Pretty sure TT table needs fixing though, i believe it is pulling evals from slightly shallower searches so not 100 % 
+sure '''
+def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta, parent_hash=None):
+    global NODES_SEARCHED, TRANSPOSITION_TABLE
     if extension == 0:
         NODES_SEARCHED += 1
-        return evaluate_board(board, dict, turn_multiplier) * turn_multiplier
+        # This updates the transposition on the parent hash for a more accurate position
+        # This happens only if the parent hash happens in a non-quiet position
+        # This technique should be sound as anytime we have a non-quiet position we call quiescence on it
+        # This does cause for non-quiet positions to be evaluated multiple times though
+        # This does happen a rarely so TT table even for low depths (4-5) is faster
+        # But if evaluation is more complicated it would gain a greater edge
+        print('updating a previously hashed function')
+        eval = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
+        TRANSPOSITION_TABLE[parent_hash] = eval
+        return eval
 
     # Best move in a position can only result in an evaluation as good or better than stand_pat (null move principle)
     # so stand_pat is used as the lower bound
-    NODES_SEARCHED += 1
-    stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
+    parent_hash = dict['ZOBRIST_HASH']
+    if parent_hash in TRANSPOSITION_TABLE:
+        stand_pat = TRANSPOSITION_TABLE[parent_hash]
+    else:
+        NODES_SEARCHED += 1
+        stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
+        TRANSPOSITION_TABLE[parent_hash] = stand_pat
 
     if stand_pat >= beta: return beta  # Fail-hard beta-cutoff
     if alpha < stand_pat: alpha = stand_pat  # New alpha
 
 
-    # Should be made fast to check for any captures available
-    best_score = stand_pat
     child_moves = get_valid_moves(board, dict)
     child_moves = move_ordering(child_moves)
 
@@ -309,14 +324,14 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
         if move.piece_captured != 0 or move.en_passant:
 
             make_move(board, move, dict)
-            score = -quiesce_search(board, dict, -turn_multiplier, extension - 1, -beta, -alpha)
+            score = -quiesce_search(board, dict, -turn_multiplier, extension - 1, -beta, -alpha, parent_hash)
             retract_move(board, dict)
 
-            if score > best_score: best_score = score
+            if score > stand_pat: stand_pat = score
             if score >= beta: return beta  # Fail-hard beta-cutoff
             if score > alpha: alpha = score  # New alpha
 
-            return best_score
+            return stand_pat
 
     # No search extensions were made as the position is quiet, so stand_pat is returned
     return stand_pat
