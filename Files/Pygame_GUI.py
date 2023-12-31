@@ -16,13 +16,11 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 60 # Seconds (last iteration)
+THINKING_MAX_TIME = 1 # Seconds (last iteration)
 
-'''FIX THE FEN FORMATTING BUG FOR CASTLING
-I STRUGGLES TO SOLVE MATE IN 3s, it finds mates that take 3 moves at depth 4
-'''
-# From this position it thinks it is in check while it isnt
-FEN  = '6k1/ppp2ppp/8/2n2K1P/2P2P1P/2Bpr3/PP4r1/4RR2 b - - 0 1'
+
+
+FEN  = '6k1/2P5/8/8/8/8/3K4/8 w - - 0 1'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -43,7 +41,8 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
 
-    dict, board = Board_state.generate_from_FEN(FEN)
+    dict, board = Board_state.generate_from_FEN()
+    print(dict['ZOBRIST_HASH'])
 
     valid_moves = get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function
@@ -54,8 +53,8 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = False # If a human is playing white it will be true
-    player_two = False # If a human is playing black it will be true
+    player_one = True # If a human is playing white it will be true
+    player_two = True # If a human is playing black it will be true
     draw_game_state(screen, board, highlight_sq)
     p.display.flip()
 
@@ -116,7 +115,7 @@ def main():
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # Undoes twice so player can redo a move against an engine
                     Board_state.undo_move(board, dict)
-                    Board_state.undo_move(board, dict)
+             #       Board_state.undo_move(board, dict)
                     move_made = True
                     game_over = False
 
@@ -128,6 +127,7 @@ def main():
             move_made = True
 
         if move_made and not game_over:
+            print(dict['ZOBRIST_HASH'])
             valid_moves = get_all_valid_moves(board, dict)  # Note this will need to be valid moves only in the future
 
             move_made = False
@@ -167,9 +167,14 @@ def draw_board(screen):  # Draws the squares on the board
             p.draw.rect(screen, color, p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 
+'''Fix the bug that if multiple pieces can land on the same '''
 def draw_highlights(screen, highlight_sq_list):
     color_red = (255, 50, 50)
     color_yellow = (255, 255, 51)
+
+    highlight_sq_list = list(dict.fromkeys(highlight_sq_list))
+    # Removes duplicates from the list and preserves the order, this is done not to over-colour one square if
+    # multiple pieces can jump to the same square
 
     for index, end_pos in enumerate(highlight_sq_list):
 

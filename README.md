@@ -31,7 +31,9 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
     - Ply 5 in 7.48 s, 90 KNodes/s using CPython
     - Ply 5 in 1.74 s, 387 MNodes/s using PyPy3 
 
-  Note: Cython compilations falls in between PyPy and Cpython
+  Note: 
+    - These results include updating the Zobrist hashes
+    - Cython compilations falls in between PyPy and Cpython
 
   </details>
 

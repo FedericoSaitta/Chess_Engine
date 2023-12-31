@@ -1,7 +1,11 @@
 '''
 This file is responsible for:
-- Evaluating the board using Pesto boards
+- Initializing and flipping the Pesto boards for the white and black side.
+- Evaluating the board position using PeSTO boards
 
+Improvements:
+- Instead of using such a complicated and hard to test cutoff for the middle and endgame:
+  use a tapered eval from: https://www.chessprogramming.org/Tapered_Eval
 '''
 
 
@@ -120,28 +124,30 @@ KING_EG_white =  ([[-74, -35, -18, -18, -11, 15, 4, -17],
                   [-27, -11, 4, 13, 14, 4, -5, -17],
                   [-53, -34, -21, -11, -28, -14, -24, -43]])
 
-def flip_pst(psq_matrix):
+
+def flip_rows_pst(psq_matrix):
     flipped_matrix = psq_matrix[::-1]
     return flipped_matrix
 
-def ravel(two_dimensional_matrix, color):
-    one_dimensional_matrix = []
-    multiplier = 1 if color > 0 else -1 # Multiplier to fix the psq values
 
-    for row in two_dimensional_matrix:
+def ravel(pst_matrix, color):
+    # Ravels the matrix and negates its elements for black pst.
+    array = []
+    multiplier = 1 if color > 0 else -1
+
+    for row in pst_matrix:
         for square in row:
-            one_dimensional_matrix.append(square * multiplier)
+            array.append(square * multiplier)
 
-    one_dimensional_matrix = tuple(one_dimensional_matrix) # Converts to tuple for faster accessing
-    return one_dimensional_matrix
+    return tuple(array)
 
 
-PAWN_MG_black, PAWN_EG_black = flip_pst(PAWN_MG_white), flip_pst(PAWN_EG_white)
-KNIGHT_MG_black, KNIGHT_EG_black = flip_pst(KNIGHT_MG_white), flip_pst(KNIGHT_EG_white)
-BISHOP_MG_black, BISHOP_EG_black = flip_pst(BISHOP_MG_white), flip_pst(BISHOP_EG_white)
-ROOK_MG_black, ROOK_EG_black = flip_pst(ROOK_MG_white), flip_pst(ROOK_EG_white)
-QUEEN_MG_black, QUEEN_EG_black = flip_pst(QUEEN_MG_white), flip_pst(QUEEN_EG_white)
-KING_MG_black, KING_EG_black = flip_pst(KING_MG_white), flip_pst(KING_EG_white)
+PAWN_MG_black, PAWN_EG_black = flip_rows_pst(PAWN_MG_white), flip_rows_pst(PAWN_EG_white)
+KNIGHT_MG_black, KNIGHT_EG_black = flip_rows_pst(KNIGHT_MG_white), flip_rows_pst(KNIGHT_EG_white)
+BISHOP_MG_black, BISHOP_EG_black = flip_rows_pst(BISHOP_MG_white), flip_rows_pst(BISHOP_EG_white)
+ROOK_MG_black, ROOK_EG_black = flip_rows_pst(ROOK_MG_white), flip_rows_pst(ROOK_EG_white)
+QUEEN_MG_black, QUEEN_EG_black = flip_rows_pst(QUEEN_MG_white), flip_rows_pst(QUEEN_EG_white)
+KING_MG_black, KING_EG_black = flip_rows_pst(KING_MG_white), flip_rows_pst(KING_EG_white)
 
 variables = [ (PAWN_MG_white, PAWN_EG_white, 100), (KNIGHT_MG_white, KNIGHT_EG_white, 320),
               (BISHOP_MG_white, BISHOP_EG_white, 330), (ROOK_MG_white, ROOK_EG_white, 500),
@@ -169,7 +175,7 @@ def build_pst_dictionary():
 #                                                   EVALUATION FUNCTION                                                #
 ########################################################################################################################
 
-# We build the dictionary at the start as it is inexpensive
+# Dictionary is built at the start as it is inexpensive
 piece_sq_values = build_pst_dictionary()
 
 def evaluate_board(board, dict, turn_multiplier):

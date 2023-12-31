@@ -213,7 +213,7 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha)
         retract_move(board, dict)
 
-        print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
+   #     print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
 
         if score > best_score:
             best_score = score
@@ -222,9 +222,9 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
         if best_score > alpha: alpha = best_score
         if alpha >= beta: break
 
-    if best_move is not None:
-        print('At depth: ', depth, ' Best Move: ', best_move.get_pgn_notation(board),
-              ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
+  #  if best_move is not None:
+    #    print('At depth: ', depth, ' Best Move: ', best_move.get_pgn_notation(board),
+    #          ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
 
     return best_move, best_score
 

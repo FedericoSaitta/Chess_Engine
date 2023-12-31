@@ -7,7 +7,6 @@ To make it faster:
 
 - Switch to 10 x 12 list for faster out of bord check
 '''
-
 from math import fabs
 from random import getrandbits
 
@@ -36,11 +35,11 @@ HASHING_DICTIONARY = {  1: 0,   -1:  6,
 piece_dictionary = {'q': -900, 'Q': 900, 'r': -500, 'R': 500, 'b': -330, 'B':  330,
                     'n': -320, 'N': 320, 'p': -100, 'P': 100, 'k': -1, 'K': 1}
 
-ZOBRIST_TABLE = None
+ZOBRIST_DICTIONARY = None
 
-# METHODS TO GENERATE A BOARD AND A BOUARD_DICTIONARY FROM A FEN
+# METHODS TO GENERATE A BOARD AND A BOARD-DICTIONARY FROM A FEN
 def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
-    global ZOBRIST_TABLE
+    global ZOBRIST_DICTIONARY
     # Splits the FEN into: [BOARD, TURN, CASTLING RIGHTS, EN PASSANT SQUARE]
     # Discards half move and full move clocks as engine doesn't apply 50 move rule.
     board_dictionary = {}
@@ -82,13 +81,12 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
     board_dictionary['white_king_loc'] = white_king_loc
     board_dictionary['black_king_loc'] = black_king_loc
 
-    ZOBRIST_TABLE = initialize_zobrist_table()
-    board_dictionary['ZOBRIST_HASH'] = calculate_initial_hash(board, ZOBRIST_TABLE)
+    ZOBRIST_DICTIONARY = initialize_zobrist_dictionary()
+    board_dictionary['ZOBRIST_HASH'] = calculate_initial_hash(board, board_dictionary, ZOBRIST_DICTIONARY)
 
     return board_dictionary, board
 
 def get_zeros(len):
-    # Returns an array of 0's (empty squares) for Board generation from FEN
     return [0 for number in range(len)]
 
 
@@ -100,9 +98,6 @@ def undo_null_move(dict):
     dict['white_to_move'] = not dict['white_to_move']
 
 def make_move(board, move, dict):
-    dict['ZOBRIST_HASH'] = update_hash_move(dict['ZOBRIST_HASH'], move, board)
-    dict['HASH_LOG'].append(dict['ZOBRIST_HASH'])
-
     board[move.start_ind], board[move.end_ind] = 0, move.piece_moved
     dict['move_log'].append(move)
 
@@ -175,19 +170,25 @@ def make_move(board, move, dict):
         else:
             board[move.end_ind] = -move.prom_piece
 
-
     dict['white_to_move'] = not dict['white_to_move']  # Swap the player's move
     tup = (dict['white_castle'], dict['black_castle'])
     dict['castle_rights_log'].append(tup)
     dict['en_passant_log'].append(dict['en_passant_sq'])
+
+    # Very last thing to do is to update the ZOBRIST HASH
+    dict['ZOBRIST_HASH'] = update_hash_move(dict['ZOBRIST_HASH'], move, dict)
+    dict['HASH_LOG'].append(dict['ZOBRIST_HASH'])
 
 
 def undo_move(board, dict):
 
     if len(dict['move_log']) > 0:
         move = dict['move_log'].pop()
+
+        '''Please you have to comment on this as it is not obvious'''
+        # Very first thing to do is to update the hash_vale
         dict['HASH_LOG'].pop()
-        dict['ZOBRIST_HASH'] = undo_hash_move(dict['ZOBRIST_HASH'], move, board)
+        dict['ZOBRIST_HASH'] = update_hash_move(dict['ZOBRIST_HASH'], move, dict)
 
         if move.en_passant:
             board[move.start_ind], board[move.end_ind]= move.piece_moved, 0
@@ -231,32 +232,61 @@ def undo_move(board, dict):
 
 
 
+
+
+
 ########################################################################################################################
 #                                               ZOBRIST HASH FUNCTIONS                                                 #
 ########################################################################################################################
 
-def initialize_zobrist_table():
-    ZOBRIST_HASH_TABLE = [[getrandbits(64) for _ in range(12)] for _ in range(64)]
-    return ZOBRIST_HASH_TABLE
+# For more information head to: https://www.chessprogramming.org/Zobrist_Hashing
+def get_random_bits_list(size):
+    # 64 bits are used to minimize collisions. Statistically about one in 4 billion
+    if size == 1: return getrandbits(64)
+    else: return [getrandbits(64) for _ in range(size)]
 
 
-def calculate_initial_hash(board, ZOBRIST_HASH_TABLE):
-    # The zobrist hash_value for transposition tables should be more unique, including the
-    # side to move, castling rights, en_passant possibility.
-    # This is not a big problem though when only checking for three-fold repetition
-    # Should still be fixed though
+def initialize_zobrist_dictionary():
+    # 64 x 12 numbers to store all possible locations of all pieces (even though pawns cant occupy first and last rank)
+    # 1 number to represent the side to move, 16 numbers to represent castling rights (used for faster accessing even
+    # though only 8 are needed), 8 numbers to represent the column the en-passant square is on.
+    # Keys are capitalized as they are constants and to not confused them with the board_dictionary keys.
+    ZOBRIST_DICTIONARY = {}
+    ZOBRIST_DICTIONARY['HASH_TABLE'] = [get_random_bits_list(12) for _ in range(64)]
+    ZOBRIST_DICTIONARY['WHITE_TO_MOVE'] = get_random_bits_list(1)
+    ZOBRIST_DICTIONARY['CASTLING_RIGHTS'] = get_random_bits_list(16)
+    ZOBRIST_DICTIONARY['EN_PASSANT_COLUMN'] = get_random_bits_list(8)
+
+    return ZOBRIST_DICTIONARY
+
+
+def calculate_initial_hash(board, dict, ZOBRIST_DICTIONARY):
     hash_value = 0
     for square in range(64):
         piece = board[square]
         if piece != 0:  # 0 represents an empty square
             piece_num = HASHING_DICTIONARY[piece]
-            hash_value ^= ZOBRIST_HASH_TABLE[square][piece_num]
+            hash_value ^= ZOBRIST_DICTIONARY['HASH_TABLE'][square][piece_num]
+
+    if dict['white_to_move']: hash_value ^= ZOBRIST_DICTIONARY['WHITE_TO_MOVE']
+    
+    castling_index = 0
+    if dict['white_castle'][0]: castling_index |= 1
+    if dict['white_castle'][1]: castling_index |= 2
+    if dict['black_castle'][0]: castling_index |= 4
+    if dict['black_castle'][1]: castling_index |= 8
+    
+    hash_value ^= ZOBRIST_DICTIONARY['CASTLING_RIGHTS'][castling_index]
+
+    if dict['en_passant_sq'] is not None:
+        en_passant_index = dict['en_passant_sq'] % 8
+        hash_value ^= ZOBRIST_DICTIONARY['EN_PASSANT_COLUMN'][en_passant_index]
 
     return hash_value
 
-
-def update_hash_move(hash_value, move, board):
-    # Needs to be ran before the board changes state
+# We only need one function that updates the board due to simmetry of XOR operator
+def update_hash_move(hash_value, move, dict):
+    # Needs to be run before the board changes state
     from_square, to_square = move.start_ind, move.end_ind
 
     if move.promotion:
@@ -264,22 +294,24 @@ def update_hash_move(hash_value, move, board):
     else:
         promotion_piece = HASHING_DICTIONARY[move.piece_moved]
 
-    hash_value ^= ZOBRIST_TABLE[from_square][promotion_piece]  # unXOR
-    hash_value ^= ZOBRIST_TABLE[to_square][promotion_piece]       # XOR
+    hash_value ^= ZOBRIST_DICTIONARY['HASH_TABLE'][from_square][promotion_piece]  # unXOR
+    hash_value ^= ZOBRIST_DICTIONARY['HASH_TABLE'][to_square][promotion_piece]    # XOR
+
+    if dict['white_to_move']: hash_value ^= ZOBRIST_DICTIONARY['WHITE_TO_MOVE']
+
+    if dict['en_passant_sq'] is not None:
+        en_passant_index = dict['en_passant_sq'] % 8
+        hash_value ^= ZOBRIST_DICTIONARY['EN_PASSANT_COLUMN'][en_passant_index]
+
+    castling_index = 0
+    if dict['white_castle'][0]: castling_index |= 1
+    if dict['white_castle'][1]: castling_index |= 2
+    if dict['black_castle'][0]: castling_index |= 4
+    if dict['black_castle'][1]: castling_index |= 8
+
+    hash_value ^= ZOBRIST_DICTIONARY['CASTLING_RIGHTS'][castling_index]
 
     return hash_value
-
-def undo_hash_move(hash_value, move, board):
-    # Needs to be ran before the board changes state
-    from_square, to_square = move.start_ind, move.end_ind
-    piece = HASHING_DICTIONARY[move.piece_moved]
-
-    hash_value ^= ZOBRIST_TABLE[from_square][piece]  # XOR
-    hash_value ^= ZOBRIST_TABLE[to_square][piece]  # unXOR
-
-    return hash_value
-
-
 
 ########################################################################################################################
 #                                                      MOVE CLASS                                                      #
