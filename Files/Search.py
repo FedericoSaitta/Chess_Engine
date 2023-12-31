@@ -232,7 +232,6 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
 # a position due to this limit)
 EXTENSION = 6
 def negamax(board, dict, turn_multiplier, depth, alpha, beta):
-
     if depth == 0:
         return quiesce_search(board, dict, turn_multiplier, EXTENSION, alpha, beta)
 
@@ -244,7 +243,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     # Done this way as I detect check or stalemate after all the moves have been retrieved
     # This fails if only depth 1 is considered, assuming we always look further it is sound.
     if dict['stale_mate']: return STALE_MATE
-    if dict['check_mate']: return CHECK_MATE * turn_multiplier
+    if dict['check_mate']: return -CHECK_MATE
 
 
     # The theory is that if your opponent could make two consecutive moves and not
@@ -301,7 +300,7 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
     child_moves = move_ordering(child_moves)
 
     if dict['stale_mate']: return STALE_MATE
-    elif dict['check_mate']: return -CHECK_MATE * turn_multiplier
+    elif dict['check_mate']: return -CHECK_MATE
 
     # I should also be looking at checks not just captures, should be using special method to just be able to yield
     # these kind of moves efficiently
