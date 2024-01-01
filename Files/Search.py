@@ -30,7 +30,13 @@ OPENING_REPERTOIRE_FILE = '/Users/federicosaitta/PycharmProjects/Chess/Files/Ope
 
 CHECK_MATE = 10_000
 STALE_MATE = 0
-TRANSPOSITION_TABLE = {}
+
+
+# A table where the row represents the ply depth, note that killer moves are ordered after MVV/LLA moves.
+# Killer moves are only updated in the negamax search, not the quiescence one as by definition killer moves are
+# 'quiet' moves, and not captures or checks.
+KILLER_MOVES_TABLE = [[None] * 2 for _ in range(20)]
+
 
 '''Note that transposition tables should save results at a certaint depth, and only look within that depth for other 
 results as it is unreliable to use results from very shallow searches
@@ -66,6 +72,7 @@ def index_matrix(matrix, row_index, column):
 
 
 # Sometimes it starts looking at opening book moves even though it shouldn't
+'''There is a problem with the opening book '''
 def get_opening_book(board, moves, dict):
     global OPENING_DF, TURN, OUT_OF_BOOK
 
@@ -77,8 +84,8 @@ def get_opening_book(board, moves, dict):
             if (not dict['white_to_move']) and (TURN % 2 == 0): TURN += 1
             # Increments the Turn variable if engine plays against a human
 
-            previous_move = (dict['move_log'][-1]).get_pgn_notation(board)
-            previous_move_2 = (dict['move_log'][-1]).get_pgn_notation(board, multiple_piece_flag=True)
+            previous_move = (dict['move_log'][-1]).get_pgn_notation()
+            previous_move_2 = (dict['move_log'][-1]).get_pgn_notation(multiple_piece_flag=True)
 
             OPENING_1 = OPENING_DF.copy()
             index_matrix(OPENING_DF, previous_move, TURN-1)
@@ -133,14 +140,14 @@ def get_move_from_notation(board, moves, notation):
     # Checks if there are multiple moves of the same type achieving the same square
     # So we flag them as multiple moves
 
-    all_possible_notations = [move.get_pgn_notation(board) for move in moves]
+    all_possible_notations = [move.get_pgn_notation() for move in moves]
     for move in moves:
-        move_notation = move.get_pgn_notation(board)
+        move_notation = move.get_pgn_notation()
 
         if all_possible_notations.count(move_notation) > 1:
-            move_not = move.get_pgn_notation(board, multiple_piece_flag=True)
+            move_not = move.get_pgn_notation(multiple_piece_flag=True)
         else:
-            move_not = move.get_pgn_notation(board)
+            move_not = move.get_pgn_notation()
 
         if move_not == notation:
             return move
@@ -165,8 +172,8 @@ def iterative_deepening(moves, board, dict, time_constraints):
     best_move, DEPTH = None, 1
     turn_multiplier = 1 if dict['white_to_move'] else -1
 
-    if (len(dict['move_log']) < 10) and (not OUT_OF_BOOK):
-        best_move = get_opening_book(board, moves, dict)
+   # if (len(dict['move_log']) < 10) and (not OUT_OF_BOOK):
+   #     best_move = get_opening_book(board, moves, dict)
 
     start_time = time()
 
@@ -174,6 +181,10 @@ def iterative_deepening(moves, board, dict, time_constraints):
         moves = move_ordering(moves)
 
         while True:
+            for index, list in enumerate(KILLER_MOVES_TABLE):
+                if list != [None, None]:
+                    print(f'{index}: {list[0].get_pgn_notation()}, {list[1].get_pgn_notation()}')
+
             NODES_SEARCHED = 0
             best_move, best_score = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
 
@@ -195,37 +206,42 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
             DEPTH += 1
 
+    shift_killer_table() # Every time the turn changes we shift the killer move table upwards by 1
     if best_move is None: return find_random_move(moves)
 
     return best_move
 
 
 # Make sure the same are returned both with alpha and beta pruning and without
-def negamax_root(moves, board, dict, turn_multiplier, depth):
+def negamax_root(moves, board, dict, turn_multiplier, max_depth):
     # The first set of parent moves have already been ordered
     best_score, best_move = -CHECK_MATE, None
     alpha, beta = -CHECK_MATE, CHECK_MATE
 
     # Note with alpha beta pruning some moves will have the same evaluation but that is because they are
     # moves whose nodes have been pruned.
-    for move in moves:
+    for parent_move in moves:
     #    print('Parent move: ', move.get_pgn_notation(board))
         # One is subtracted by the depth as we are looking at parent moves already
-        make_move(board, move, dict)
-        score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha)
+        make_move(board, parent_move, dict)
+        score = -negamax(board, dict, -turn_multiplier, max_depth - 1, -beta, -alpha, max_depth)
         retract_move(board, dict)
 
    #     print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
 
         if score > best_score:
             best_score = score
-            best_move = move
+            best_move = parent_move
 
         if best_score > alpha: alpha = best_score
-        if alpha >= beta: break
+
+        if alpha >= beta:
+            ply = 0 # Ply is 0 by definition as we are in the root of negamax
+            update_killer_moves_table(parent_move, ply)
+            break
 
     if best_move is not None:
-        print('At depth: ', depth, ' Best Move: ', best_move.get_pgn_notation(board),
+        print('At depth: ', max_depth, ' Best Move: ', best_move.get_pgn_notation(),
               ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
 
     return best_move, best_score
@@ -234,7 +250,7 @@ def negamax_root(moves, board, dict, turn_multiplier, depth):
 # once proper Zobrist hashing is in place, no extension limit should be in place. (It is extremely unlikely to misjudge
 # a position due to this limit)
 EXTENSION = 6
-def negamax(board, dict, turn_multiplier, depth, alpha, beta):
+def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
     if depth == 0:
         return quiesce_search(board, dict, turn_multiplier, EXTENSION, alpha, beta)
 
@@ -269,44 +285,39 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta):
     for child in parent_moves:
   #      print('child move: ', child.get_pgn_notation(board))
         push_move(board, child, dict)
-        score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha)
+        score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha, max_depth)
         retract_move(board, dict)
 
         if score > best:
             best = score
 
         if score > alpha: alpha = score
-        if alpha >= beta: break
+        if alpha >= beta:
+            # We have a beta-cut off so we store the move as a killer move
+            ply = max_depth - depth
+            update_killer_moves_table(child, ply)
+            break
 
     return best
 
 
 '''Pretty sure TT table needs fixing though, i believe it is pulling evals from slightly shallower searches so not 100 % 
-sure '''
-def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta, parent_hash=None):
-    global NODES_SEARCHED, TRANSPOSITION_TABLE
+sure 
+Took out TT as it isnt helping much and it lead to mistakes, the ZOBRIST KEYS work well though'''
+def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
+    global NODES_SEARCHED
     if extension == 0:
         NODES_SEARCHED += 1
-        # This updates the transposition on the parent hash for a more accurate position
-        # This happens only if the parent hash happens in a non-quiet position
-        # This technique should be sound as anytime we have a non-quiet position we call quiescence on it
-        # This does cause for non-quiet positions to be evaluated multiple times though
-        # This does happen a rarely so TT table even for low depths (4-5) is faster
-        # But if evaluation is more complicated it would gain a greater edge
-        print('updating a previously hashed function')
+
         eval = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
-        TRANSPOSITION_TABLE[parent_hash] = eval
         return eval
 
     # Best move in a position can only result in an evaluation as good or better than stand_pat (null move principle)
     # so stand_pat is used as the lower bound
-    parent_hash = dict['ZOBRIST_HASH']
-    if parent_hash in TRANSPOSITION_TABLE:
-        stand_pat = TRANSPOSITION_TABLE[parent_hash]
-    else:
-        NODES_SEARCHED += 1
-        stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
-        TRANSPOSITION_TABLE[parent_hash] = stand_pat
+
+    NODES_SEARCHED += 1
+    stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
+
 
     if stand_pat >= beta: return beta  # Fail-hard beta-cutoff
     if alpha < stand_pat: alpha = stand_pat  # New alpha
@@ -324,7 +335,7 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta, parent_
         if move.piece_captured != 0 or move.en_passant:
 
             make_move(board, move, dict)
-            score = -quiesce_search(board, dict, -turn_multiplier, extension - 1, -beta, -alpha, parent_hash)
+            score = -quiesce_search(board, dict, -turn_multiplier, extension - 1, -beta, -alpha)
             retract_move(board, dict)
 
             if score > stand_pat: stand_pat = score
@@ -348,11 +359,24 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta, parent_
 piece_indices = {1: 0, 900: 1, 500: 2, 330: 3, 320: 4, 100: 5, 0: 6,
                  -1: 0, -900: 1, -500: 2, -330: 3, -320: 4, -100: 5}
 
+def update_killer_moves_table(move, ply):
+    # I should also see if the move doesn't result in check
+    if move.piece_captured == 0: # Looking for quiet moves only
+        if move not in KILLER_MOVES_TABLE[ply]:
+            KILLER_MOVES_TABLE[ply][1] = KILLER_MOVES_TABLE[ply][0]
+            KILLER_MOVES_TABLE[ply][0] = move
+
+def shift_killer_table():
+    KILLER_MOVES_TABLE.pop(0)
+    KILLER_MOVES_TABLE.append([None, None])
+
+
+
 
 def move_ordering(moves):
     # The -1 ensures that all captures are looked at first before normal moves
 
-    # Promotions dont seem to be really chaning the speed a lot, maybe even slowing down
+    # Promotions dont seem to be really changing the speed a lot, maybe even slowing down
     # As these matter only in the endgame
   #  promotions = []
  #   for move in moves:
@@ -375,85 +399,3 @@ def move_ordering(moves):
     #         print(tup[0].get_pgn_notation(board), tup[1])
 
     return moves
-
-
-#### Extra code I might need for inspiration for new stuff
-'''### This is returns the same value wheter it is white or black perspective
-def evaluate_board(board, dict, turn_multiplier):
-    global NODES_SEARCHED
-    ### COUNTING FOR 3 MOVE REPETITION:
-    if len(HASH_LOG) > 7:
-        counter = 0
-        for index in range(len(HASH_LOG)-1, -1, -1):
-            hash = HASH_LOG[index]
-
-            if hash == (dict['ZOBRIST_HASH']):
-                counter += 1
-
-            if counter == 3:
-                dict['stale_mate'] = True
-                return STALE_MATE
-
-    NODES_SEARCHED += 1
-
-    enemy_score = 0
-    for square in board:
-            if square > 0 and (turn_multiplier == -1):  enemy_score += square
-            elif square < 0 and (turn_multiplier == 1): enemy_score -= square
-
-    enemy_score = 4000 if enemy_score > 4000 else enemy_score
-
-    value = map(lambda square: interpolate_pesto_board(square[0], square[1], enemy_score), enumerate(board))
-    eval_bar = sum(value)
-
-
-    # This takes way too long
-    if (eval_bar * turn_multiplier) > 300 and (enemy_score < 1500):
-        side_winning = 1 if eval_bar > 0 else -1
-
-        white_k = (dict['white_king_loc'] // 8, dict['white_king_loc'] % 8)
-        black_k = (dict['black_king_loc'] // 8, dict['black_king_loc'] % 8)
-
-        king_distance = ((white_k[0] - black_k[0]) ** 2 + (white_k[1] - black_k[1]) ** 2) ** 0.5
-
-        if side_winning == 1:  # White is winning
-            eval_bar -= king_distance * 25
-        else:  # Black is winning
-            eval_bar += king_distance * 25
-
-        if side_winning == 1:
-            row, col = (black_k[0] - 4), (black_k[1] - 4)
-            distance = (row**2 + col**2) * 4 - 128
-
-        else:
-            row, col = (white_k[0] - 4), (white_k[1] - 4)
-            distance = 128 - (row ** 2 + col ** 2)*4
-
-        eval_bar += distance
-
-
-    return eval_bar / 100
-
-
-def interpolate_pesto_board(square_ind, piece, enemy_pieces_values):
-    enemy_pieces_values = 800 if enemy_pieces_values < 800 else enemy_pieces_values
-    if piece == 0:
-        return 0
-
-    side_multiplier = 1 if piece > 0 else -1
-    abs_piece = piece * side_multiplier
-
-    middle_game_value, end_game_value = piece_sq_values[piece][0][square_ind], piece_sq_values[piece][1][square_ind]
-
-    difference = end_game_value - middle_game_value
-    difference_piece_value = end_game_pieces[abs_piece] - middle_game_pieces[abs_piece]
-
-    interpolation_percentage = (4000 - enemy_pieces_values) / 3200
-    # Dividing by 3200 as to enter the endgame when 80% of the pieces are gone
-
-    single_sq_evaluation = middle_game_value + interpolation_percentage * difference_piece_value
-    single_piece_evaluation = middle_game_pieces[abs_piece] + interpolation_percentage * difference_piece_value
-
-    return (single_piece_evaluation * side_multiplier) + single_sq_evaluation
-
-'''

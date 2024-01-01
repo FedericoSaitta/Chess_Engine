@@ -331,7 +331,7 @@ class Move:
         self.piece_moved, self.piece_captured = board[self.start_ind], board[self.end_ind]
         self.castle_move, self.en_passant, (self.promotion, self.prom_piece)  = tup
 
-    def get_pgn_notation(self, board, multiple_piece_flag=False):
+    def get_pgn_notation(self, multiple_piece_flag=False):
         dict = {-100: ' ', 100: ' ', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',
                 -320: 'bN', 320: 'wN', -900: 'bQ', 900: 'wQ', -1: 'bK', 1: 'wK'}
 

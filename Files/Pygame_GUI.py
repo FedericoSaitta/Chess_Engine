@@ -20,7 +20,7 @@ THINKING_MAX_TIME = 1 # Seconds (last iteration)
 
 
 
-FEN  = '8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 0'
+FEN  = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -52,7 +52,7 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = False # If a human is playing white it will be true
+    player_one = True # If a human is playing white it will be true
     player_two = False # If a human is playing black it will be true
     draw_game_state(screen, board, highlight_sq)
     p.display.flip()
@@ -114,7 +114,7 @@ def main():
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # Undoes twice so player can redo a move against an engine
                     Board_state.undo_move(board, dict)
-             #       Board_state.undo_move(board, dict)
+                    Board_state.undo_move(board, dict)
                     move_made = True
                     game_over = False
 
