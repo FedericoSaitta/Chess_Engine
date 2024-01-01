@@ -178,7 +178,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
     start_time = time()
 
     if best_move is None:
-        moves = move_ordering(moves)
+        moves = move_ordering(moves, 0) # Ply is 0 at the root
 
         while True:
             for index, list in enumerate(KILLER_MOVES_TABLE):
@@ -257,7 +257,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
 
     best = -CHECK_MATE
     moves = get_valid_moves(board, dict)
-    parent_moves = move_ordering(moves)  # Ordering moves by MVV/LLA for more pruning
+    parent_moves = move_ordering(moves, max_depth - depth)  # Ordering moves by MVV/LLA for more pruning
 
     # Done this way as I detect check or stalemate after all the moves have been retrieved
     # The checkmate is negated because if dict['check_mate'] == True that means we are in checkmate
@@ -373,7 +373,7 @@ def shift_killer_table():
 
 
 
-def move_ordering(moves):
+def move_ordering(moves, ply):
     # The -1 ensures that all captures are looked at first before normal moves
 
     # Promotions dont seem to be really changing the speed a lot, maybe even slowing down
