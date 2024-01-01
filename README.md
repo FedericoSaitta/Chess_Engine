@@ -51,7 +51,7 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
 - Captures are ranked with MVV/LLA tables
 
 ## ROAD MAP:
-- [ ] Cleaning and commenting code, minimizing use of external libraries (to reduced size of executable)
+- [X] Cleaning and commenting code, minimizing use of external libraries (to reduced size of executable)
 - [ ] Implementing Killer moves (double) and History Heuristics
 - [ ] Implementing TT tables used in search algorithm
 - [ ] Running the bot on lichess

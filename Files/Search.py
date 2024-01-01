@@ -160,6 +160,7 @@ def get_move_from_notation(board, moves, notation):
 #                                                  MOVE SEARCH FUNCTION                                                #
 ########################################################################################################################
 
+# The engine plays well sometimes it just commits completely stupid one move blunders ??? 
 def find_random_move(moves):
     if moves != []:
         index = randint(0, len(moves) - 1)

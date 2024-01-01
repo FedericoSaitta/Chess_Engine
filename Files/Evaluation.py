@@ -4,17 +4,31 @@ This file is responsible for:
 - Evaluating the board position using PeSTO boards
 
 Improvements:
-- Instead of using such a complicated and hard to test cutoff for the middle and endgame:
-  use a tapered eval from: https://www.chessprogramming.org/Tapered_Eval
+- Speeding up the evaluation function
+
 '''
 
+# Tapered eval: https://www.chessprogramming.org/Tapered_Eval
+PAWN_PHASE = 0
+KNIGHT_PHASE = 1
+BISHOP_PHASE = 1
+ROOK_PHASE = 2
+QUEEN_PHASE = 4
+TOTAL_PHASE = PAWN_PHASE * 16 + KNIGHT_PHASE * 4 + BISHOP_PHASE * 4 + ROOK_PHASE * 4 + QUEEN_PHASE * 2
+
+pieces_phase_dictionary = {1:0, 100: PAWN_PHASE, 320: KNIGHT_PHASE, 330: BISHOP_PHASE, 500: ROOK_PHASE, 900:QUEEN_PHASE,
+                    -1:0, -100: PAWN_PHASE, -320: KNIGHT_PHASE, -330: BISHOP_PHASE, -500: ROOK_PHASE, -900: QUEEN_PHASE}
 
 ########################################################################################################################
 #                                                    PeSTO TABLES                                                      #
 ########################################################################################################################
 
-middle_game_pieces = {100: 82, 320: 337, 330: 365, 500: 477, 900: 1025, 1: 0}  # adds to 4039
-end_game_pieces = {100: 94, 320: 281, 330: 297, 500: 512, 900: 936, 1: 0}  # adds to 3868
+'''CHECK THAT PESTO TABLES ARE CORRECT AND THAT YOU ARE INTERPOLATING BETWEEN THEM CORRECTLY, SPEED UP THE PROCESS TOO'''
+middle_game_pieces = {100: 82, 320: 337, 330: 365, 500: 477, 900: 1025, 1: 0,
+                      -100: -82, -320: -337, -330: -365, -500: -477, -900: -1025, -1: 0}  # adds to 4039
+end_game_pieces = {100: 94, 320: 281, 330: 297, 500: 512, 900: 936, 1: 0,
+                   -100: -94, -320: -281, -330: -297, -500: -512, -900: -936, -1: 0}
+                   # adds to 3868
 
 PAWN_MG_white =  ([[0, 0, 0, 0, 0, 0, 0, 0],
                   [98, 134, 61, 95, 68, 126, 34, -11],
@@ -179,24 +193,24 @@ def build_pst_dictionary():
 piece_sq_values = build_pst_dictionary()
 
 def evaluate_board(board, dict, turn_multiplier):
-
     enemy_score = 0
+    phase = TOTAL_PHASE
     for square in board:
-        if square > 0 and (turn_multiplier == -1):
-            enemy_score += square
-        elif square < 0 and (turn_multiplier == 1):
-            enemy_score -= square
+        if square != 0:
+            phase -= pieces_phase_dictionary[square]
 
-    # Game phase of 0 is middle_game, end game is represented by a 1
-    game_phase = 0 if enemy_score > 1500 else 0
+    phase = (phase * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE
 
-    value = map(lambda square: pesto_board(square[0], square[1], game_phase), enumerate(board))
-    eval_bar = sum(value)
+    mg_values = map(lambda square: pesto_board(square[0], square[1], 0, middle_game_pieces), enumerate(board))
+    eg_values = map(lambda square: pesto_board(square[0], square[1], 1, end_game_pieces), enumerate(board))
 
+    mg_eval,  eg_eval = sum(mg_values), sum(eg_values)
+
+    eval_bar = ((mg_eval * (256 - phase)) + (eg_eval * phase)) / 256
     return eval_bar / 100
 
 
-def pesto_board(square_ind, piece, game_phase):
+def pesto_board(square_ind, piece, game_phase, piece_dictionary):
     if piece == 0: return 0
-    square_value = piece_sq_values[piece][game_phase][square_ind] + piece
+    square_value = piece_sq_values[piece][game_phase][square_ind] + piece_dictionary[piece]
     return square_value
