@@ -172,8 +172,8 @@ def iterative_deepening(moves, board, dict, time_constraints):
     best_move, DEPTH = None, 1
     turn_multiplier = 1 if dict['white_to_move'] else -1
 
-   # if (len(dict['move_log']) < 10) and (not OUT_OF_BOOK):
-   #     best_move = get_opening_book(board, moves, dict)
+    if (len(dict['move_log']) < 10) and (not OUT_OF_BOOK):
+        best_move = get_opening_book(board, moves, dict)
 
     start_time = time()
 
@@ -181,9 +181,9 @@ def iterative_deepening(moves, board, dict, time_constraints):
         moves = move_ordering(moves, 0) # Ply is 0 at the root
 
         while True:
-            for index, list in enumerate(KILLER_MOVES_TABLE):
-                if list != [None, None]:
-                    print(f'{index}: {list[0].get_pgn_notation()}, {list[1].get_pgn_notation()}')
+        #    for index, list in enumerate(KILLER_MOVES_TABLE):
+     #           if list != [None, None]:
+     #               print(f'{index}: {list[0].get_pgn_notation()}, {list[1].get_pgn_notation()}')
 
             NODES_SEARCHED = 0
             best_move, best_score = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
@@ -249,7 +249,7 @@ def negamax_root(moves, board, dict, turn_multiplier, max_depth):
 # This extension limit is really just to limit searching positions where perpetual checks are present,
 # once proper Zobrist hashing is in place, no extension limit should be in place. (It is extremely unlikely to misjudge
 # a position due to this limit)
-EXTENSION = 6
+EXTENSION = 20
 def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
     if depth == 0:
         return quiesce_search(board, dict, turn_multiplier, EXTENSION, alpha, beta)
@@ -308,7 +308,6 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
     global NODES_SEARCHED
     if extension == 0:
         NODES_SEARCHED += 1
-
         eval = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
         return eval
 
@@ -359,6 +358,7 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
 piece_indices = {1: 0, 900: 1, 500: 2, 330: 3, 320: 4, 100: 5, 0: 6,
                  -1: 0, -900: 1, -500: 2, -330: 3, -320: 4, -100: 5}
 
+# You should also check_collisions against the best_move already present in the position
 def update_killer_moves_table(move, ply):
     # I should also see if the move doesn't result in check
     if move.piece_captured == 0: # Looking for quiet moves only
@@ -372,8 +372,8 @@ def shift_killer_table():
 
 
 
-
-def move_ordering(moves, ply):
+# Using -1 ply for quiescence search only, should be reframed back to normal once special generator is made for that search
+def move_ordering(moves, ply=-1):
     # The -1 ensures that all captures are looked at first before normal moves
 
     # Promotions dont seem to be really changing the speed a lot, maybe even slowing down
@@ -384,7 +384,19 @@ def move_ordering(moves, ply):
   #          moves.remove(move)
    #         promotions.append(move)
 
-    score = [MVV_LLA_TABLE[piece_indices[move.piece_captured]][piece_indices[move.piece_moved]] for move in moves]
+    # This is because different objects are created
+    for move in KILLER_MOVES_TABLE[ply]:
+        if move is not None:
+            for diff_move in moves:
+                if diff_move == move:
+                    diff_move.killer_move = True
+
+        # Check if there are collisions happening
+
+#    we give killer moves a score of 1, meaning that they are ranked above quiet moves, but below 'bad captures'
+    score = [MVV_LLA_TABLE[piece_indices[move.piece_captured]][piece_indices[move.piece_moved]] if not move.killer_move
+             else 1 for move in moves]
+
     combined = list(zip(moves, score))
 
     # Sort the combined list based on scores
@@ -394,8 +406,8 @@ def move_ordering(moves, ply):
     moves = [tup[0] for tup in sorted_combined]
    # promotions.extend(moves)
 
-    # for tup in sorted_combined:
-    #     if tup[1] != 0:
-    #         print(tup[0].get_pgn_notation(board), tup[1])
+ #   print(f'last pass at depth: {ply}')
+#    for tup in sorted_combined:
+   #     print(tup[0].get_pgn_notation(), tup[1])
 
     return moves

@@ -323,13 +323,14 @@ class Move:
     # USING SLOTS GIVES ABOUT A 15 % INCREASE IN OBJECT GENERATION
     __slots__ = ('start_ind', 'end_ind', 'move_ID',
                  'piece_moved', 'piece_captured', 'castle_move', 'en_passant',
-                 'promotion', 'prom_piece')
+                 'promotion', 'prom_piece', 'killer_move')
 
     def __init__(self, start_sq, end_sq, board, tup=(False, False, (False, None))):
 
         self.start_ind, self.end_ind = start_sq, end_sq
         self.piece_moved, self.piece_captured = board[self.start_ind], board[self.end_ind]
         self.castle_move, self.en_passant, (self.promotion, self.prom_piece)  = tup
+        self.killer_move = False
 
     def get_pgn_notation(self, multiple_piece_flag=False):
         dict = {-100: ' ', 100: ' ', -500: 'bR', 500: 'wR', -330: 'bB', 330: 'wB',

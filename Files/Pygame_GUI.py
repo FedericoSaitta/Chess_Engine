@@ -16,11 +16,11 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 1 # Seconds (last iteration)
+THINKING_MAX_TIME = 0.5 # Seconds (last iteration)
 
 
 
-FEN  = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+FEN  = '6kr/3q1pp1/pp5p/1r5n/8/1P3PP1/PQ4BP/2R3K1 w k - 0 1'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -41,7 +41,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
 
-    dict, board = Board_state.generate_from_FEN(FEN)
+    dict, board = Board_state.generate_from_FEN()
 
     valid_moves = get_all_valid_moves(board, dict)
     move_made = False  # Flag for when we want to generate this function
