@@ -401,5 +401,9 @@ def check_pins_and_checks(board, ind, col, row, dict):
 ########################################################################################################################
 
 # In check validator for Null move pruning:
+def is_not_in_check(board, dict):
+    king_color = True if dict['white_to_move'] else False
+    king_ind = dict['white_king_loc'] if king_color else dict['black_king_loc']
 
+    return un_attacked_sq(board, king_ind, king_ind // 8, king_ind % 8, dict, king_color)
 

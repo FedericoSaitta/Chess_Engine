@@ -1,10 +1,15 @@
 from Board_state import make_move, undo_move, make_null_move, undo_null_move, Move
-from Move_Generator import get_all_valid_moves
+from Move_Generator import get_all_valid_moves, is_not_in_check
 from random import randint
 from math import fabs
 from Evaluation import evaluate_board
 
 from time import time # Needed to limit the Engine's thinking time
+
+# My engine does not have null move pruning because after testing for quite a bit, it really doesn't improve performance
+# it even makes it slightly worse. I hope im implementing right but I think for shallow searching engines like mine
+# null move pruning really doesnt do much
+
 
 # Renaming imports as variables in script gains 10-15 % performance gain
 FABS = fabs
@@ -72,7 +77,9 @@ def index_matrix(matrix, row_index, column):
 
 
 # Sometimes it starts looking at opening book moves even though it shouldn't
-'''There is a problem with the opening book '''
+'''There is a problem with the opening book
+   Please re-check this as im not sure if it working 100%
+ '''
 def get_opening_book(board, moves, dict):
     global OPENING_DF, TURN, OUT_OF_BOOK
 
@@ -189,6 +196,11 @@ def iterative_deepening(moves, board, dict, time_constraints):
             NODES_SEARCHED = 0
             best_move, best_score = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
 
+            if best_move is not None:
+                print('At depth: ', DEPTH, ' Best Move: ', best_move.get_pgn_notation(),
+                  ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED, ' in: ', time() - start_time)
+
+
             # If we do find a checkmate we go for that branch, instead if we see we could get checkmated, hence
             # best_move is None, we return a random move. This does entail that our engine 'gives up' when it seems
             # that the opponent has checkmate.
@@ -241,10 +253,6 @@ def negamax_root(moves, board, dict, turn_multiplier, max_depth):
             update_killer_moves_table(parent_move, ply)
             break
 
-    if best_move is not None:
-        print('At depth: ', max_depth, ' Best Move: ', best_move.get_pgn_notation(),
-              ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
-
     return best_move, best_score
 
 # This extension limit is really just to limit searching positions where perpetual checks are present,
@@ -264,24 +272,6 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
     # The checkmate is negated because if dict['check_mate'] == True that means we are in checkmate
     if dict['stale_mate']: return STALE_MATE
     if dict['check_mate']: return -CHECK_MATE
-
-
-    # The theory is that if your opponent could make two consecutive moves and not
-    # improve his position, you must have an overwhelming advantage
-
-    # Note that this will activate for searches at depth 3
- ######  # This does not work as you are only able to detect check on the next turn, it is probably a good idea to fix that
-
-    # Try this one proper in check condition is in place
-   # if depth > 2 and (not dict['in_check']):
-
-        # Beta window is + 1
-  #      make_null_move(dict)
- #       null_move_score = -negamax(board, dict, -turn_multiplier, depth - 2, -beta, -beta+1)
-  #      undo_null_move(dict)
-
- #       if null_move_score >= beta:
- #           return null_move_score  # Null move pruning
 
     for child in parent_moves:
   #      print('child move: ', child.get_pgn_notation(board))
@@ -382,7 +372,7 @@ def move_ordering(moves, ply=-1):
   #  promotions = []
  #   for move in moves:
  #       if move.promotion:
-  #          moves.remove(move)
+ #           moves.remove(move)
    #         promotions.append(move)
 
     # This is because different objects are created
