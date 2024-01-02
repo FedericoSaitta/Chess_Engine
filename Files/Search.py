@@ -143,7 +143,6 @@ def get_move_from_notation(board, moves, notation):
             if (move.end_ind % 8 == end_col) and move.castle_move:
                 return move
 
-    end_square = files_to_cols[notation[-2]] + 8 * ranks_to_rows[notation[-1]]
     # Checks if there are multiple moves of the same type achieving the same square
     # So we flag them as multiple moves
 

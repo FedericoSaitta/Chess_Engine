@@ -340,11 +340,15 @@ class Move:
         start_rank_file = self.get_rank_file(self.start_ind)
         end_rank_file = self.get_rank_file(self.end_ind)
 
-
+        if self.en_passant:
+            return start_rank_file[0] + 'x' + end_rank_file
         if self.promotion:
-            return end_rank_file + '=' + dict[self.prom_piece][1]
+            if self.piece_captured != 0:
+                return start_rank_file[0] + 'x' + end_rank_file + '=' + dict[self.prom_piece][1]
+            else:
+                return end_rank_file + '=' + dict[self.prom_piece][1]
 
-        if multiple_piece_flag:
+        if multiple_piece_flag and (FABS(self.piece_moved) != 100):
             if same_col:
                 return dict[piece][1:] + start_rank_file[1] + end_rank_file
             else:
