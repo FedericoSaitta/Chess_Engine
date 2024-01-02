@@ -184,9 +184,6 @@ def iterative_deepening(moves, board, dict, time_constraints):
     turn_multiplier = 1 if dict['white_to_move'] else -1
     moves = move_ordering(moves, board, turn_multiplier)
 
-    turn = 'white' if turn_multiplier == 1 else 'black'
-    print('Turn: ', turn)
-
     if len(moves) == 1:
         return moves[0]
 
@@ -234,8 +231,9 @@ def root_negamax(moves, board, dict, turn_multiplier, DEPTH):
     if best_move is None:
         best_move = find_random_move(moves)
 
-    print('Best move at depth: ', DEPTH, ' is: ', best_move.get_pgn_notation(board), 'eval_bar: (white)', score * turn_multiplier)
-    print('Searched:', NODES_SEARCHED)
+   # print('At depth: ', DEPTH, ' Best Move: ', best_move.get_pgn_notation(),
+  #        ' score: ', max_score * turn_multiplier, ' Searched: ', NODES_SEARCHED)
+
     NODES_SEARCHED = 0
     return best_move
 

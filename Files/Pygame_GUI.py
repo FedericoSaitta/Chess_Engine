@@ -53,7 +53,7 @@ def main():
     game_over = False
 
     player_one = False # If a human is playing white it will be true
-    player_two = False # If a human is playing black it will be true
+    player_two = True # If a human is playing black it will be true
     draw_game_state(screen, board, highlight_sq)
     p.display.flip()
 
@@ -209,32 +209,8 @@ if __name__ == '__main__':
 '''pypy3 compilation actually has about 10x more nodes searched for each position, this is such a great advantage to 
 build the file do this: (ask chatgpt)
 
-Yes, you can create an executable file from a Python script that has been compiled using PyPy3. PyPy is a Just-In-Time (JIT) compiler for Python, and it produces a standalone executable when you use the --output option.
 
-Here's a simple example:
 
-Install PyPy3 if you haven't already:
-
-bash
-Copy code
-sudo apt-get install pypy3
-Compile your Python script using PyPy3 with the --output option to generate an executable:
-
-bash
-Copy code
-pypy3 --output=output_executable myscript.py
-Replace myscript.py with the name of your Python script.
-
-After running the above command, you should see a new file named output_executable in your current directory.
-
-Make the file executable:
-
-bash
-Copy code
-chmod +x output_executable
-Now, you can run your Python script as an executable:
-
-bash
-Copy code
-./output_executable
-Keep in mind that the generated executable will be platform-specific. If you want to create an executable for a different platform, you'll need to run the compilation process on that platform.'''
+game against another bot: https://lichess.org/vNn9tJP4/white
+I was using pypy3 compilation though, without it i believe game would be even if not lost
+'''
