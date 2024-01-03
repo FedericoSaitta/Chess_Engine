@@ -298,14 +298,14 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
     global NODES_SEARCHED
     if extension == 0:
         NODES_SEARCHED += 1
-        eval = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
+        eval = evaluate_board(board) * turn_multiplier
         return eval
 
     # Best move in a position can only result in an evaluation as good or better than stand_pat (null move principle)
     # so stand_pat is used as the lower bound
 
     NODES_SEARCHED += 1
-    stand_pat = evaluate_board(board, dict, turn_multiplier) * turn_multiplier
+    stand_pat = evaluate_board(board) * turn_multiplier
 
 
     if stand_pat >= beta: return beta  # Fail-hard beta-cutoff

@@ -16,7 +16,7 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 1 # Seconds (last iteration)
+THINKING_MAX_TIME = 0.1 # Seconds (last iteration)
 
 
 
@@ -52,8 +52,8 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = False # If a human is playing white it will be true
-    player_two = True # If a human is playing black it will be true
+    player_one = True # If a human is playing white it will be true
+    player_two = False # If a human is playing black it will be true
     draw_game_state(screen, board, highlight_sq)
     p.display.flip()
 
@@ -203,7 +203,7 @@ if __name__ == '__main__':
 
         profiler_stats = pstats.Stats(profile)
      #   specific_file = ('Search.py')
-        profiler_stats.strip_dirs().sort_stats('cumulative') # .print_stats(specific_file)
+        profiler_stats.strip_dirs().sort_stats('cumulative').print_stats()
 
 
 '''pypy3 compilation actually has about 10x more nodes searched for each position, this is such a great advantage to 

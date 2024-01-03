@@ -1,14 +1,17 @@
 '''
 This file is responsible for:
 - Initializing and flipping the Pesto boards for the white and black side.
-- Evaluating the board position using PeSTO boards
+- Evaluating the board position using a tapered evaluation with PeSTO boards
+
+Resources:
+- Tapered eval: https://www.chessprogramming.org/Tapered_Eval
 
 Improvements:
-- Speeding up the evaluation function
+- Making the evaluation function more accurate, especially for king safety
 
 '''
 
-# Tapered eval: https://www.chessprogramming.org/Tapered_Eval
+
 PAWN_PHASE = 0
 KNIGHT_PHASE = 1
 BISHOP_PHASE = 1
@@ -17,7 +20,8 @@ QUEEN_PHASE = 4
 TOTAL_PHASE = PAWN_PHASE * 16 + KNIGHT_PHASE * 4 + BISHOP_PHASE * 4 + ROOK_PHASE * 4 + QUEEN_PHASE * 2
 
 pieces_phase_dictionary = {1:0, 100: PAWN_PHASE, 320: KNIGHT_PHASE, 330: BISHOP_PHASE, 500: ROOK_PHASE, 900:QUEEN_PHASE,
-                    -1:0, -100: PAWN_PHASE, -320: KNIGHT_PHASE, -330: BISHOP_PHASE, -500: ROOK_PHASE, -900: QUEEN_PHASE}
+                    -1:0, -100: PAWN_PHASE, -320: KNIGHT_PHASE, -330: BISHOP_PHASE, -500: ROOK_PHASE, -900: QUEEN_PHASE,
+                          0:0 }
 
 ########################################################################################################################
 #                                                    PeSTO TABLES                                                      #
@@ -192,25 +196,22 @@ def build_pst_dictionary():
 # Dictionary is built at the start as it is inexpensive
 piece_sq_values = build_pst_dictionary()
 
-def evaluate_board(board, dict, turn_multiplier):
-    enemy_score = 0
-    phase = TOTAL_PHASE
-    for square in board:
-        if square != 0:
-            phase -= pieces_phase_dictionary[square]
+# This has been optimized and tested, this is the fastest version I could write
+# Dynamically keeping track of the phase could maybe squeeze some more performance but as pruning gets better the edge
+# of using this dynamic method worsens
+def evaluate_board(board):
+    pieces_phase_dictionary_2 = pieces_phase_dictionary
+    piece_sq_values_2 = piece_sq_values
 
+    phase = TOTAL_PHASE - sum(pieces_phase_dictionary_2[p] for p in board)
     phase = (phase * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE
 
-    mg_values = map(lambda square: pesto_board(square[0], square[1], 0, middle_game_pieces), enumerate(board))
-    eg_values = map(lambda square: pesto_board(square[0], square[1], 1, end_game_pieces), enumerate(board))
+    mg_eval, eg_eval = 0, 0
 
-    mg_eval,  eg_eval = sum(mg_values), sum(eg_values)
+    for index, piece in enumerate(board):
+        if piece != 0:
+            mg_eval += piece_sq_values_2[piece][0][index] + middle_game_pieces[piece]
+            eg_eval += piece_sq_values_2[piece][1][index] + end_game_pieces[piece]
 
     eval_bar = ((mg_eval * (256 - phase)) + (eg_eval * phase)) / 256
     return eval_bar / 100
-
-
-def pesto_board(square_ind, piece, game_phase, piece_dictionary):
-    if piece == 0: return 0
-    square_value = piece_sq_values[piece][game_phase][square_ind] + piece_dictionary[piece]
-    return square_value
