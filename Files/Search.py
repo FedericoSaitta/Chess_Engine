@@ -1,3 +1,31 @@
+'''
+This file is responsible for:
+- Searching for the best move in the game tree with an iterative deepening approach
+- Ordering moves by: Hash Move > 2 Killer Moves > MVV/LLA Sorted Moves > The Remaining Moves
+
+Notes:
+- Negamax with alpha beta allows to prune not so promising branches, ultimately the speed of the engine is determined
+  by how many branches we explore to arrive at the best move, good move ordering is the most important factor.
+- Quiescence search instead is needed to avoid 'Horizon Effect', this is key to an accurate evaluation of the board.
+
+Resources:
+- Horizon effect: https://www.chessprogramming.org/Horizon_Effect
+- MVV/LLA Table, Killer Moves: https://rustic-chess.org/front_matter/title.html
+- Negamax: https://en.wikipedia.org/wiki/Negamax
+- Quiescence Search: https://www.dailychess.com/rival/programming/quiescence.php # This has a lot of good tips
+
+
+Possible improvements:
+- Try one or three Killer move approach
+- Creating special generators for the quiescence search
+- Applying History heuristics (note that your move ordering function isn't called that much so it is important that it is
+  good
+- Applying principal variation search
+
+Failed improvements:
+- Null Move pruning, I believe it is because my engine does not search to great depths
+'''
+
 from Board_state import make_move, undo_move, make_null_move, undo_null_move, Move
 from Move_Generator import get_all_valid_moves, is_not_in_check
 from random import randint
@@ -7,18 +35,18 @@ from Evaluation import evaluate_board
 from time import time # Needed to limit the Engine's thinking time
 
 # My engine does not have null move pruning because after testing for quite a bit, it really doesn't improve performance
-# it even makes it slightly worse. I hope im implementing right but I think for shallow searching engines like mine
-# null move pruning really doesnt do much
+# it even makes it slightly worse. I hope im implementing right, but I think for shallow searching engines like mine
+# null move pruning really doesn't do much.
 
 
-# Renaming imports as variables in script gains 10-15 % performance gain
+# Renaming imports as variables in script leads to 10-15 % performance gain
 FABS = fabs
 push_move = make_move
 retract_move = undo_move
 get_valid_moves = get_all_valid_moves
 Move = Move
 
-## Taken from https://rustic-chess.org/front_matter/title.html, Marcel Vanthoor
+
 MVV_LLA_TABLE = [
     [0, 0, 0, 0, 0, 0, 0],        # Victim K, 0's as it is checkmate already
     [50, 51, 52, 53, 54, 55, 0],  # victim Q, attacker K, Q, R, B, N, P
@@ -29,7 +57,7 @@ MVV_LLA_TABLE = [
     [0, 0, 0, 0, 0, 0, 0]]        # No Victim
 
 
-NODES_SEARCHED, TURN = 0, 0
+NODES_SEARCHED = 0
 OPENING_DF, OUT_OF_BOOK = None, False
 OPENING_REPERTOIRE_FILE = '/Users/federicosaitta/PycharmProjects/Chess/Files/Opening_repertoire.txt'
 
@@ -43,9 +71,7 @@ STALE_MATE = 0
 KILLER_MOVES_TABLE = [[None] * 2 for _ in range(20)]
 
 
-'''Note that transposition tables should save results at a certaint depth, and only look within that depth for other 
-results as it is unreliable to use results from very shallow searches
-'''
+
 # Methods to read and index the opening repertoire matrix, pandas is avoided to minimize size of executable file
 def initialize_opening_repertoire(file_name):
     # Initializes the opening repertoire matrix, this is done when the first call to the search function is made,
@@ -70,9 +96,7 @@ def read_csv_to_matrix(file_obj):
 def index_matrix(matrix, row_index, column):
     # Indexes a matrix, returns all the rows which have the same row_index found at the specified column index
     for i in range(len(matrix) -1, -1, -1):
-    # Traverses the list backwards to avoid index collisions when removing rows
         if matrix[i][column] != row_index:
-            # Looks at each element in a specific column in a matrix, if it doesn't match we remove said row
             matrix.remove(matrix[i])
 
 
@@ -80,25 +104,24 @@ def index_matrix(matrix, row_index, column):
 '''There is a problem with the opening book
    Please re-check this as im not sure if it working 100%
  '''
+# Make sure that you make it turn off when the startpos is not the basic start position
 def get_opening_book(board, moves, dict):
-    global OPENING_DF, TURN, OUT_OF_BOOK
+    global OPENING_DF, OUT_OF_BOOK
 
     if OPENING_DF is None: OPENING_DF = initialize_opening_repertoire(OPENING_REPERTOIRE_FILE)
 
     try:  # We look if the current position key is present in the data frame
-        if len(dict['move_log']) > 0:
-
-            if (not dict['white_to_move']) and (TURN % 2 == 0): TURN += 1
-            # Increments the Turn variable if engine plays against a human
+        turn = len(dict['move_log'])
+        if turn > 0:
 
             previous_move = (dict['move_log'][-1]).get_pgn_notation()
             previous_move_2 = (dict['move_log'][-1]).get_pgn_notation(multiple_piece_flag=True)
 
             OPENING_1 = OPENING_DF.copy()
-            index_matrix(OPENING_DF, previous_move, TURN-1)
+            index_matrix(OPENING_DF, previous_move, turn-1)
 
             if OPENING_DF == []:
-                index_matrix(OPENING_1, previous_move_2, TURN-1)
+                index_matrix(OPENING_1, previous_move_2, turn-1)
                 OPENING_DF = OPENING_1
 
 
@@ -158,7 +181,6 @@ def get_move_from_notation(board, moves, notation):
         if move_not == notation:
             return move
 
-   # print('Could not find a move for this notation: ', notation)
     return None
 
 
@@ -166,15 +188,16 @@ def get_move_from_notation(board, moves, notation):
 #                                                  MOVE SEARCH FUNCTION                                                #
 ########################################################################################################################
 
-# The engine plays well sometimes it just commits completely stupid one move blunders ??? 
+# Method needed because if our engine is completely loosing, no move is assigned to best_move so we choose at random
+# from the available moves. In the future, we should aim to select the move that delays checkmate the most, hoping that
+# our opponent misses mate. (Eg stockfish sacrificing lots of pieces when completely loosing)
 def find_random_move(moves):
     if moves != []:
         index = randint(0, len(moves) - 1)
         return moves[index]
-    else: return None
 
 
-def iterative_deepening(moves, board, dict, time_constraints):
+def iterative_deepening(moves, board, dict, time_constraints, debug_info=False):
     global NODES_SEARCHED
     best_move, DEPTH = None, 1
     turn_multiplier = 1 if dict['white_to_move'] else -1
@@ -184,7 +207,7 @@ def iterative_deepening(moves, board, dict, time_constraints):
 
     start_time = time()
 
-    if best_move is None:
+    if best_move is None: # Means that we couldn't find an opening move
         moves = move_ordering(moves, 0) # Ply is 0 at the root
 
         while True:
@@ -195,24 +218,22 @@ def iterative_deepening(moves, board, dict, time_constraints):
             NODES_SEARCHED = 0
             best_move, best_score = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
 
-            if best_move is not None:
-                print('At depth: ', DEPTH, ' Best Move: ', best_move.get_pgn_notation(),
-                  ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED, ' in: ', time() - start_time)
+            if debug_info:
+                if best_move is not None:
+                    print('At depth: ', DEPTH, ' Best Move: ', best_move.get_pgn_notation(),
+                          ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED,
+                          ' in: ', time() - start_time)
 
 
-            # If we do find a checkmate we go for that branch, instead if we see we could get checkmated, hence
-            # best_move is None, we return a random move. This does entail that our engine 'gives up' when it seems
-            # that the opponent has checkmate.
+            # If we find a checkmate, we go for that branch and stop searching, this ensures we go for the fastest mate.
+
+            # Try and remove the brackets and test it a bit
             if FABS(best_score) == CHECK_MATE: break
 
-            if (time() - start_time > time_constraints) or DEPTH == 15:
-                break  # We have exceeded the time frame for a single search so we stop looking deeper
+            if (time() - start_time > time_constraints): break
 
+            ## Look for maybe faster way?? remove is quite heavy, not hugely but noticeably
             if best_move is not None:
-                # Of course when the engine found a forced mate, it gives up. This could be fixed in the future but for
-                # now if a checkmate sequence is found then we simply make random moves
-
-                # Move ordering by best move from previous search
                 moves.remove(best_move)
                 moves.insert(0, best_move)
 
@@ -224,17 +245,13 @@ def iterative_deepening(moves, board, dict, time_constraints):
     return best_move
 
 
-# Make sure the same are returned both with alpha and beta pruning and without
 def negamax_root(moves, board, dict, turn_multiplier, max_depth):
-    # The first set of parent moves have already been ordered
     best_score, best_move = -CHECK_MATE, None
     alpha, beta = -CHECK_MATE, CHECK_MATE
 
-    # Note with alpha beta pruning some moves will have the same evaluation but that is because they are
-    # moves whose nodes have been pruned.
+    # Note that the first set of parent moves have already been ordered
     for parent_move in moves:
     #    print('Parent move: ', move.get_pgn_notation(board))
-        # One is subtracted by the depth as we are looking at parent moves already
         make_move(board, parent_move, dict)
         score = -negamax(board, dict, -turn_multiplier, max_depth - 1, -beta, -alpha, max_depth)
         retract_move(board, dict)
@@ -242,8 +259,7 @@ def negamax_root(moves, board, dict, turn_multiplier, max_depth):
    #     print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
 
         if score > best_score:
-            best_score = score
-            best_move = parent_move
+            best_score, best_move = score, parent_move
 
         if best_score > alpha: alpha = best_score
 
@@ -291,9 +307,6 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
     return best
 
 
-'''Pretty sure TT table needs fixing though, i believe it is pulling evals from slightly shallower searches so not 100 % 
-sure 
-Took out TT as it isnt helping much and it lead to mistakes, the ZOBRIST KEYS work well though'''
 def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
     global NODES_SEARCHED
     if extension == 0:

@@ -5,12 +5,11 @@ This file is responsible for:
 
 Resources:
 - Tapered eval: https://www.chessprogramming.org/Tapered_Eval
+- PeSTO boards: https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
 
-Improvements:
+Possible improvements:
 - Making the evaluation function more accurate, especially for king safety
-
 '''
-
 
 PAWN_PHASE = 0
 KNIGHT_PHASE = 1
@@ -19,20 +18,19 @@ ROOK_PHASE = 2
 QUEEN_PHASE = 4
 TOTAL_PHASE = PAWN_PHASE * 16 + KNIGHT_PHASE * 4 + BISHOP_PHASE * 4 + ROOK_PHASE * 4 + QUEEN_PHASE * 2
 
-pieces_phase_dictionary = {1:0, 100: PAWN_PHASE, 320: KNIGHT_PHASE, 330: BISHOP_PHASE, 500: ROOK_PHASE, 900:QUEEN_PHASE,
+PIECES_PHASE_DICTIONARY = {1:0, 100: PAWN_PHASE, 320: KNIGHT_PHASE, 330: BISHOP_PHASE, 500: ROOK_PHASE, 900:QUEEN_PHASE,
                     -1:0, -100: PAWN_PHASE, -320: KNIGHT_PHASE, -330: BISHOP_PHASE, -500: ROOK_PHASE, -900: QUEEN_PHASE,
                           0:0 }
 
 ########################################################################################################################
-#                                                    PeSTO TABLES                                                      #
+#                                                    PeSTO BOARDS                                                      #
 ########################################################################################################################
 
-'''CHECK THAT PESTO TABLES ARE CORRECT AND THAT YOU ARE INTERPOLATING BETWEEN THEM CORRECTLY, SPEED UP THE PROCESS TOO'''
+
 middle_game_pieces = {100: 82, 320: 337, 330: 365, 500: 477, 900: 1025, 1: 0,
                       -100: -82, -320: -337, -330: -365, -500: -477, -900: -1025, -1: 0}  # adds to 4039
 end_game_pieces = {100: 94, 320: 281, 330: 297, 500: 512, 900: 936, 1: 0,
-                   -100: -94, -320: -281, -330: -297, -500: -512, -900: -936, -1: 0}
-                   # adds to 3868
+                   -100: -94, -320: -281, -330: -297, -500: -512, -900: -936, -1: 0}  # adds to 3868
 
 PAWN_MG_white =  ([[0, 0, 0, 0, 0, 0, 0, 0],
                   [98, 134, 61, 95, 68, 126, 34, -11],
@@ -194,24 +192,24 @@ def build_pst_dictionary():
 ########################################################################################################################
 
 # Dictionary is built at the start as it is inexpensive
-piece_sq_values = build_pst_dictionary()
+PIECE_SQ_VALUES = build_pst_dictionary()
 
-# This has been optimized and tested, this is the fastest version I could write
+# This has been optimized and tested, this is the fastest version I could write, though it is not the prettiest.
 # Dynamically keeping track of the phase could maybe squeeze some more performance but as pruning gets better the edge
 # of using this dynamic method worsens
 def evaluate_board(board):
-    pieces_phase_dictionary_2 = pieces_phase_dictionary
-    piece_sq_values_2 = piece_sq_values
+    pieces_phase_dictionary = PIECES_PHASE_DICTIONARY
+    piece_sq_values = PIECE_SQ_VALUES
 
-    phase = TOTAL_PHASE - sum(pieces_phase_dictionary_2[p] for p in board)
+    # For definition of phase look at the resource on the tapered evaluation
+    phase = TOTAL_PHASE - sum(pieces_phase_dictionary[p] for p in board)
     phase = (phase * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE
 
     mg_eval, eg_eval = 0, 0
-
     for index, piece in enumerate(board):
         if piece != 0:
-            mg_eval += piece_sq_values_2[piece][0][index] + middle_game_pieces[piece]
-            eg_eval += piece_sq_values_2[piece][1][index] + end_game_pieces[piece]
+            mg_eval += piece_sq_values[piece][0][index] + middle_game_pieces[piece]
+            eg_eval += piece_sq_values[piece][1][index] + end_game_pieces[piece]
 
     eval_bar = ((mg_eval * (256 - phase)) + (eg_eval * phase)) / 256
     return eval_bar / 100
