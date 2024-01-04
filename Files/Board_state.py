@@ -47,7 +47,7 @@ def generate_from_FEN(FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 
     argument_list = FEN.split(' ')[:-2]
     board_FEN, turn, castling_rights, en_passant_sq = argument_list[0:4]
 
-
+    board_dictionary['starting_FEN'] = FEN
     board_dictionary['white_to_move'] = True if turn == 'w' else False
     board_dictionary['white_castle'] = (True if 'Q' in castling_rights else False, True if 'K' in castling_rights else False)
     board_dictionary['black_castle'] = (True if 'q' in castling_rights else False, True if 'k' in castling_rights else False)

@@ -4,6 +4,8 @@ This file is responsible for:
 - Ordering moves by: Hash Move > 2 Killer Moves > MVV/LLA Sorted Moves > The Remaining Moves
 
 Notes:
+- In a chess engine the Search module is where the greatest improvements and mistakes can be made, tuning to allow for
+  the most amount of pruning while retaining accuracy should be the programmer's no.1 task.
 - Negamax with alpha beta allows to prune not so promising branches, ultimately the speed of the engine is determined
   by how many branches we explore to arrive at the best move, good move ordering is the most important factor.
 - Quiescence search instead is needed to avoid 'Horizon Effect', this is key to an accurate evaluation of the board.
@@ -13,7 +15,6 @@ Resources:
 - MVV/LLA Table, Killer Moves: https://rustic-chess.org/front_matter/title.html
 - Negamax: https://en.wikipedia.org/wiki/Negamax
 - Quiescence Search: https://www.dailychess.com/rival/programming/quiescence.php # This has a lot of good tips
-
 
 Possible improvements:
 - Try one or three Killer move approach
@@ -31,12 +32,10 @@ from Move_Generator import get_all_valid_moves, is_not_in_check
 from random import randint
 from math import fabs
 from Evaluation import evaluate_board
+from Opening_book import get_opening_book
+
 
 from time import time # Needed to limit the Engine's thinking time
-
-# My engine does not have null move pruning because after testing for quite a bit, it really doesn't improve performance
-# it even makes it slightly worse. I hope im implementing right, but I think for shallow searching engines like mine
-# null move pruning really doesn't do much.
 
 
 # Renaming imports as variables in script leads to 10-15 % performance gain
@@ -45,6 +44,7 @@ push_move = make_move
 retract_move = undo_move
 get_valid_moves = get_all_valid_moves
 Move = Move
+get_opening_book = get_opening_book
 
 
 MVV_LLA_TABLE = [
@@ -58,8 +58,8 @@ MVV_LLA_TABLE = [
 
 
 NODES_SEARCHED = 0
-OPENING_DF, OUT_OF_BOOK = None, False
-OPENING_REPERTOIRE_FILE = '/Users/federicosaitta/PycharmProjects/Chess/Files/Opening_repertoire.txt'
+OUT_OF_BOOK = False
+
 
 CHECK_MATE = 10_000
 STALE_MATE = 0
@@ -69,119 +69,6 @@ STALE_MATE = 0
 # Killer moves are only updated in the negamax search, not the quiescence one as by definition killer moves are
 # 'quiet' moves, and not captures or checks.
 KILLER_MOVES_TABLE = [[None] * 2 for _ in range(20)]
-
-
-
-# Methods to read and index the opening repertoire matrix, pandas is avoided to minimize size of executable file
-def initialize_opening_repertoire(file_name):
-    # Initializes the opening repertoire matrix, this is done when the first call to the search function is made,
-    # it is not done at startup to minimize UCI executable start up time.
-    return read_csv_to_matrix(open(file_name, 'r'))
-
-
-def read_csv_to_matrix(file_obj):
-    # Reads the data, removes the extra spaces at the end of the line, it splits each line into a subsequent list
-    # using space as a delimeter.
-    data_matrix = []
-    for line in file_obj:
-        line = line.strip('\n')
-        line = line.split(' ')
-        line.remove('')
-
-        data_matrix.append(line)
-
-    return data_matrix
-
-
-def index_matrix(matrix, row_index, column):
-    # Indexes a matrix, returns all the rows which have the same row_index found at the specified column index
-    for i in range(len(matrix) -1, -1, -1):
-        if matrix[i][column] != row_index:
-            matrix.remove(matrix[i])
-
-
-# Sometimes it starts looking at opening book moves even though it shouldn't
-'''There is a problem with the opening book
-   Please re-check this as im not sure if it working 100%
- '''
-# Make sure that you make it turn off when the startpos is not the basic start position
-def get_opening_book(board, moves, dict):
-    global OPENING_DF, OUT_OF_BOOK
-
-    if OPENING_DF is None: OPENING_DF = initialize_opening_repertoire(OPENING_REPERTOIRE_FILE)
-
-    try:  # We look if the current position key is present in the data frame
-        turn = len(dict['move_log'])
-        if turn > 0:
-
-            previous_move = (dict['move_log'][-1]).get_pgn_notation()
-            previous_move_2 = (dict['move_log'][-1]).get_pgn_notation(multiple_piece_flag=True)
-
-            OPENING_1 = OPENING_DF.copy()
-            index_matrix(OPENING_DF, previous_move, turn-1)
-
-            if OPENING_DF == []:
-                index_matrix(OPENING_1, previous_move_2, turn-1)
-                OPENING_DF = OPENING_1
-
-
-            index = randint(0, len(OPENING_DF) - 1)
-            move = OPENING_DF[index][TURN]
-            move = get_move_from_notation(board, moves, move)
-
-
-        else:  # We choose a random move from the starting possibilities
-               # This only happens at start of the game from the start position so column = 0
-            index = randint(0, len(OPENING_DF) - 1)
-            move = OPENING_DF[index][0]
-            move = get_move_from_notation(board, moves, move)
-
-        TURN += 1
-        return move
-
-    except (KeyError, ValueError, AttributeError) as e :
-        # Means we are out of book, so we return to finding a move with negamax
-        OUT_OF_BOOK = True
-        return None
-
-
-ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4,
-                 '5': 3, '6': 2, '7': 1, '8': 0}
-
-files_to_cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3,
-                 'e': 4, 'f': 5, 'g': 6, 'h': 7}
-
-
-def get_move_from_notation(board, moves, notation):
-    if notation is None: return None
-    if notation == 'O-O':
-        end_col = 6
-        for move in moves:
-            if (move.end_ind % 8 == end_col) and move.castle_move:
-                return move
-
-    elif notation == 'O-O-O':
-        end_col = 2
-        for move in moves:
-            if (move.end_ind % 8 == end_col) and move.castle_move:
-                return move
-
-    # Checks if there are multiple moves of the same type achieving the same square
-    # So we flag them as multiple moves
-
-    all_possible_notations = [move.get_pgn_notation() for move in moves]
-    for move in moves:
-        move_notation = move.get_pgn_notation()
-
-        if all_possible_notations.count(move_notation) > 1:
-            move_not = move.get_pgn_notation(multiple_piece_flag=True)
-        else:
-            move_not = move.get_pgn_notation()
-
-        if move_not == notation:
-            return move
-
-    return None
 
 
 ########################################################################################################################
@@ -198,12 +85,16 @@ def find_random_move(moves):
 
 
 def iterative_deepening(moves, board, dict, time_constraints, debug_info=False):
-    global NODES_SEARCHED
+    global NODES_SEARCHED, OUT_OF_BOOK
     best_move, DEPTH = None, 1
     turn_multiplier = 1 if dict['white_to_move'] else -1
 
     if (len(dict['move_log']) < 10) and (not OUT_OF_BOOK):
-        best_move = get_opening_book(board, moves, dict)
+        if ('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq') in dict['starting_FEN']:
+            best_move = get_opening_book(board, moves, dict)
+            if best_move is None:
+                OUT_OF_BOOK = True
+                if debug_info: print('Out of Opening Book')
 
     start_time = time()
 
