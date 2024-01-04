@@ -84,7 +84,7 @@ def find_random_move(moves):
         return moves[index]
 
 
-def iterative_deepening(moves, board, dict, time_constraints, debug_info=False):
+def iterative_deepening(moves, board, dict, time_constraints, debug_info=True):
     global NODES_SEARCHED, OUT_OF_BOOK
     best_move, DEPTH = None, 1
     turn_multiplier = 1 if dict['white_to_move'] else -1
