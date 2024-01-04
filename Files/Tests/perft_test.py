@@ -1,9 +1,15 @@
-import Board_state
-from Move_Generator import get_all_valid_moves
+
+# Do the OS stuff here
+
+from Files import Board_state
+from Files.Move_Generator import get_all_valid_moves
+
 import timeit
 import pstats
 from collections import Counter
 import cProfile
+
+
 
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}

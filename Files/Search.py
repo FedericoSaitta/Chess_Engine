@@ -113,8 +113,7 @@ def iterative_deepening(moves, board, dict, time_constraints, debug_info=True):
                 if best_move is not None:
                     print('At depth: ', DEPTH, ' Best Move: ', best_move.get_pgn_notation(),
                           ' score: ', best_score * turn_multiplier, ' Searched: ', NODES_SEARCHED,
-                          ' in: ', time() - start_time)
-
+                          ' in: ', time() - start_time, 'SPEED: ', NODES_SEARCHED / (time() - start_time))
 
             # If we find a checkmate, we go for that branch and stop searching, this ensures we go for the fastest mate.
 
@@ -147,7 +146,9 @@ def negamax_root(moves, board, dict, turn_multiplier, max_depth):
         score = -negamax(board, dict, -turn_multiplier, max_depth - 1, -beta, -alpha, max_depth)
         retract_move(board, dict)
 
-   #     print('Move: ', move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
+      #  print('Move: ', parent_move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
+        if FABS(score) == CHECK_MATE:  # Note that like this our engine will give up if it encounters a checkmate
+            return best_move, score
 
         if score > best_score:
             best_score, best_move = score, parent_move
@@ -185,9 +186,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
         score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha, max_depth)
         retract_move(board, dict)
 
-        if score > best:
-            best = score
-
+        if score > best: best = score
         if score > alpha: alpha = score
         if alpha >= beta:
             # We have a beta-cut off so we store the move as a killer move
@@ -239,7 +238,6 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
 
     # No search extensions were made as the position is quiet, so stand_pat is returned
     return stand_pat
-
 
 
 ########################################################################################################################

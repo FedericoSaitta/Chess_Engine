@@ -16,11 +16,11 @@ DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
 MAX_FPS = 10 # Basically dictates how many buttons you can press per sec, related to animations
 IMAGES = {}
-THINKING_MAX_TIME = 0.1 # Seconds (last iteration)
+THINKING_MAX_TIME = 0.8 # Seconds (last iteration)
 
 
 
-FEN  = 'r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 8'
+FEN  = '8/8/7k/8/8/8/8/6QK w KQkq - 0 8'
 
 '''Square conversion dictionaries'''
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
