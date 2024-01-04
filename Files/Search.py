@@ -255,7 +255,7 @@ piece_indices = {1: 0, 900: 1, 500: 2, 330: 3, 320: 4, 100: 5, 0: 6,
 # You should also check_collisions against the best_move already present in the position
 def update_killer_moves_table(move, ply):
     # I should also see if the move doesn't result in check
-    if move.piece_captured == 0: # Looking for quiet moves only
+    if (move.piece_captured == 0) and (not move.en_passant): # Looking for quiet moves only
         if move not in KILLER_MOVES_TABLE[ply]:
             KILLER_MOVES_TABLE[ply][1] = KILLER_MOVES_TABLE[ply][0]
             KILLER_MOVES_TABLE[ply][0] = move
@@ -265,33 +265,33 @@ def shift_killer_table():
     KILLER_MOVES_TABLE.append([None, None])
 
 
-
 # Using -1 ply for quiescence search only, should be reframed back to normal once special generator is made for that search
+
+# Move ordering should be:
+'''
+# Not sure if killer moves should go before or after MVV/LLA
+- Hash Move
+- Promotions
+- MVV_LLA
+- Killer Moves 
+- Other moves sorted with history heuristics'
+
+'''
+
 def move_ordering(moves, ply=-1):
-    # The -1 ensures that all captures are looked at first before normal moves
 
-    # Promotions dont seem to be really changing the speed a lot, maybe even slowing down
-    # As these matter only in the endgame
-  #  promotions = []
- #   for move in moves:
- #       if move.promotion:
- #           moves.remove(move)
-   #         promotions.append(move)
+    # This is twice as slow but it is working correctly
+    scores = []
+    for move in moves:
+        if move == KILLER_MOVES_TABLE[ply][0] or move == KILLER_MOVES_TABLE[ply][1]:
+            scores.append(2)
 
-    # This is because different objects are created
-    for move in KILLER_MOVES_TABLE[ply]:
-        if move is not None:
-            for diff_move in moves:
-                if diff_move == move:
-                    diff_move.killer_move = True
+        elif move.promotion: scores.append(100)
 
-        # Check if there are collisions happening
+        else: scores.append(MVV_LLA_TABLE[piece_indices[move.piece_captured]][piece_indices[move.piece_moved]])
 
-#    we give killer moves a score of 1, meaning that they are ranked above quiet moves, but below 'bad captures'
-    score = [MVV_LLA_TABLE[piece_indices[move.piece_captured]][piece_indices[move.piece_moved]] if not move.killer_move
-             else 1 for move in moves]
 
-    combined = list(zip(moves, score))
+    combined = list(zip(moves, scores))
 
     # Sort the combined list based on scores
     sorted_combined = sorted(combined, key=lambda x: x[1], reverse=True)
