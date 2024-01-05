@@ -84,10 +84,13 @@ def find_random_move(moves):
         return moves[index]
 
 
+'''Problem it is that it doesnt try and avoid checkmate, this is probs due to scores confliciting or not being assigned'''
 def iterative_deepening(moves, board, dict, time_constraints, debug_info=True):
     global NODES_SEARCHED, OUT_OF_BOOK
+
     best_move, DEPTH = None, 1
     turn_multiplier = 1 if dict['white_to_move'] else -1
+    hash_move = None
 
     if (len(dict['move_log']) < 10) and (not OUT_OF_BOOK):
         if ('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq') in dict['starting_FEN']:
@@ -99,12 +102,9 @@ def iterative_deepening(moves, board, dict, time_constraints, debug_info=True):
     start_time = time()
 
     if best_move is None: # Means that we couldn't find an opening move
-        moves = move_ordering(moves, 0) # Ply is 0 at the root
+        moves = move_ordering(moves, hash_move, ply=0) # Ply is 0 at the root
 
         while True:
-        #    for index, list in enumerate(KILLER_MOVES_TABLE):
-     #           if list != [None, None]:
-     #               print(f'{index}: {list[0].get_pgn_notation()}, {list[1].get_pgn_notation()}')
 
             NODES_SEARCHED = 0
             best_move, best_score = negamax_root(moves, board, dict, turn_multiplier, DEPTH)
@@ -121,11 +121,6 @@ def iterative_deepening(moves, board, dict, time_constraints, debug_info=True):
             if FABS(best_score) == CHECK_MATE: break
 
             if (time() - start_time > time_constraints): break
-
-            ## Look for maybe faster way?? remove is quite heavy, not hugely but noticeably
-            if best_move is not None:
-                moves.remove(best_move)
-                moves.insert(0, best_move)
 
             DEPTH += 1
 
@@ -145,10 +140,6 @@ def negamax_root(moves, board, dict, turn_multiplier, max_depth):
         make_move(board, parent_move, dict)
         score = -negamax(board, dict, -turn_multiplier, max_depth - 1, -beta, -alpha, max_depth)
         retract_move(board, dict)
-
-      #  print('Move: ', parent_move.get_pgn_notation(board), ' score: ', score * turn_multiplier)
-        if FABS(score) == CHECK_MATE:  # Note that like this our engine will give up if it encounters a checkmate
-            return best_move, score
 
         if score > best_score:
             best_score, best_move = score, parent_move
@@ -173,7 +164,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
 
     best = -CHECK_MATE
     moves = get_valid_moves(board, dict)
-    parent_moves = move_ordering(moves, max_depth - depth)  # Ordering moves by MVV/LLA for more pruning
+    parent_moves = move_ordering(moves, ply= max_depth - depth)  # Ordering moves by MVV/LLA for more pruning
 
     # Done this way as I detect check or stalemate after all the moves have been retrieved
     # The checkmate is negated because if dict['check_mate'] == True that means we are in checkmate
@@ -273,15 +264,18 @@ def shift_killer_table():
 - MVV_LLA
 - Killer Moves 
 - Other moves sorted with history heuristics'
-
 '''
-
-def move_ordering(moves, ply=-1):
+# Passing the hash_move like this so we don't have to remove it and re-insert it manually each time
+def move_ordering(moves, hash_move=None, ply=-1):
 
     # This is twice as slow but it is working correctly
     scores = []
+    killer_1, killer_2 = KILLER_MOVES_TABLE[ply]
+
     for move in moves:
-        if move == KILLER_MOVES_TABLE[ply][0] or move == KILLER_MOVES_TABLE[ply][1]:
+        if move == hash_move:
+            scores.append(1_000)
+        elif move == killer_1 or move == killer_2:
             scores.append(2)
 
         elif move.promotion: scores.append(100)
