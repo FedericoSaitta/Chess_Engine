@@ -6,7 +6,7 @@ This file is responsible for:
 from Board_state import generate_from_FEN
 from random import randint
 # Need to fix quite a few bugs and write much cleaner code for the book move generation
-OPENING_REPERTOIRE_FILE = '/Users/federicosaitta/PycharmProjects/Chess/Files/Opening_repertoire.txt'
+OPENING_REPERTOIRE_FILE = '/Users/federicosaitta/Chess_Engine/Files/Opening_repertoire.txt'
 OPENING_DF = None
 
 # Methods to read and index the opening repertoire matrix, pandas is avoided to minimize size of executable file

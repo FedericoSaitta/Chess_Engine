@@ -11,6 +11,7 @@ from collections import Counter
 import cProfile
 
 
+
 WIDTH = HEIGHT = 512
 DIMENSION = 8
 SQ_SIZE = WIDTH / DIMENSION
@@ -144,7 +145,7 @@ def main():
 ########################################################################################################################
 
 def load_images():
-    path = '/Users/federicosaitta/Desktop/PycharmProjects/Chess/Images'
+    path = 'Images/'
     pieces = ['wP', 'bP', 'wR', 'bR', 'wN', 'bN', 'wB', 'bB', 'wQ', 'bQ', 'wK', 'bK']
     for piece in pieces:
         IMAGES[piece] = p.transform.scale(p.image.load(path + piece + '.png'), (SQ_SIZE, SQ_SIZE))
