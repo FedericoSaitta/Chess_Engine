@@ -1,6 +1,19 @@
 
 # Do the OS stuff here
 
+import os
+import sys
+
+# Get the current working directory
+current_dir = os.getcwd()
+
+# Join the current directory with the 'Files' folder
+files_folder = os.path.join(current_dir, 'Files')
+
+# Add the 'Files' folder to the system path
+sys.path.append(files_folder)
+
+# Now you can import your modules
 import Board_state
 from Move_Generator import get_all_valid_moves
 
