@@ -21,3 +21,9 @@ Tests_Notes/Compare_perft_results.py
 Tests_Notes/my_perft_results
 Tests_Notes/stockfish_results
 Tests_Notes/test_data_txt
+Engine_Testing
+/Users/federicosaitta/Chess_Engine/Engine_Testing
+lichess-bot
+Files/__init__.py
+Tests/__init__.py
+Engine_Testing/evaluation_test.py
