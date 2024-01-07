@@ -144,7 +144,7 @@ def main():
 ########################################################################################################################
 
 def load_images():
-    path = '/Users/federicosaitta/PycharmProjects/Chess/Images/'
+    path = '/Users/federicosaitta/Desktop/PycharmProjects/Chess/Images'
     pieces = ['wP', 'bP', 'wR', 'bR', 'wN', 'bN', 'wB', 'bB', 'wQ', 'bQ', 'wK', 'bK']
     for piece in pieces:
         IMAGES[piece] = p.transform.scale(p.image.load(path + piece + '.png'), (SQ_SIZE, SQ_SIZE))
