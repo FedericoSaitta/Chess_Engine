@@ -3,14 +3,28 @@
 
 
 # Do the imports using the OS module to get the path right
-import os
 import pstats
 from collections import Counter
 import cProfile
 
-from Files.Board_state import generate_from_FEN
-from Files.Search import iterative_deepening
-from Files.Move_Generator import get_all_valid_moves
+import os
+import sys
+
+# Get the directory of the current script
+current_script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Navigate to the 'Files' folder
+files_folder = os.path.join(current_script_dir, 'Files')
+
+# Add the 'Files' folder to the system path
+sys.path.append(files_folder)
+
+# Now you can import your modules
+from Board_state import generate_from_FEN
+from Search import iterative_deepening
+from Move_Generator import get_all_valid_moves
+
+from Move_Generator import get_all_valid_moves
 
 
 FEN = '8/8/7k/8/8/8/8/6QK w KQkq - 0 8'
