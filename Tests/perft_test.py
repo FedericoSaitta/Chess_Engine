@@ -1,8 +1,8 @@
 
 # Do the OS stuff here
 
-import Board_state
-from Move_Generator import get_all_valid_moves
+from Files import Board_state
+from Files.Move_Generator import get_all_valid_moves
 
 import timeit
 import pstats
