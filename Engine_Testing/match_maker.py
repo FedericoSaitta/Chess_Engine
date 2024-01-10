@@ -1,7 +1,7 @@
 from Engine_1_OLD.move_finder import iterative_deepening
-from Engine_2_NEW.Move_Generator import  get_all_valid_moves
+from Engine_Testing.Parent_Modules.Move_Generator import  get_all_valid_moves
 from Engine_2_NEW.Search import  iterative_deepening as iter_2
-from Engine_2_NEW.Board_State import generate_from_FEN, make_move, undo_move
+from Engine_Testing.Parent_Modules.Board_State import generate_from_FEN, make_move
 from random import randint
 
 results_file = open('results.txt', 'w')
@@ -70,7 +70,7 @@ def get_opening_book(board, moves, dict, opening_line, turn):
     move = get_move_from_notation(board, moves, move)
     return move
 
-OPENING_DF = read_csv_to_matrix(open('/Users/federicosaitta/PycharmProjects/Chess/Engine_Match_Maker/Engine_2_NEW/Opening_repertoire.txt', 'r'))
+OPENING_DF = read_csv_to_matrix(open('/Users/federicosaitta/PycharmProjects/Chess/Engine_Testing/Engine_2_NEW/Opening_repertoire.txt', 'r'))
 
 index = randint(0, len(OPENING_DF) - 1)
 
