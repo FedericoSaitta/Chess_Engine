@@ -1,15 +1,15 @@
 # Do the OS stuff here
 
-import Engine_2_NEW.Board_State as Board_state
-from Engine_2_NEW.Move_Generator import get_all_valid_moves
+from Engine_Testing.Parent_Modules.Move_Generator import get_all_valid_moves
+
+get_all_valid_moves = get_all_valid_moves
 
 import timeit
 import pstats
-from collections import Counter
 import cProfile
 
 
-Board_State = Board_state
+Board_State = Board_State
 get_all_valid_moves = get_all_valid_moves
 
 ranks_to_rows = {'1': 7, '2': 6, '3': 5, '4': 4, '5': 3, '6': 2, '7': 1, '8': 0}
@@ -23,7 +23,7 @@ piece_dict = {100: 'p', 500: 'r', 330: 'b', 320: 'n', 900: 'q'}
 
 DEPTH = 4
 FEN = 'r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10'
-dict, board = Board_state.generate_from_FEN()
+dict, board = Board_State.generate_from_FEN()
 
 list_of_parents = {}
 
@@ -36,9 +36,9 @@ def perft(board, dict, depth):
         return len(moves)
 
     for move in moves:
-        Board_state.make_move(board, move, dict)
+        Board_State.make_move(board, move, dict)
         nodes += perft(board, dict, depth - 1)
-        Board_state.undo_move(board, dict)
+        Board_State.undo_move(board, dict)
 
     return nodes
 
@@ -52,9 +52,9 @@ def divide_perft(board, dict, depth): # This is slower, so should be used only f
         leafs = 0
         key = get_chess_notation((move.start_ind, move.end_ind), move.prom_piece)
 
-        Board_state.make_move(board, move, dict)
+        Board_State.make_move(board, move, dict)
         leafs += (perft(board, dict, depth - 1))
-        Board_state.undo_move(board, dict)
+        Board_State.undo_move(board, dict)
 
         list_of_parents[key] = leafs
     tot = [ind for key, ind in list_of_parents.items()]
