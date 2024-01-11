@@ -1,7 +1,7 @@
 from Engine_1_OLD.move_finder import iterative_deepening
-from Engine_Testing.Parent_Modules.Move_Generator import  get_all_valid_moves
+from Engine_Testing.Move_Generator import  get_all_valid_moves
 from Engine_2_NEW.Search import  iterative_deepening as iter_2
-from Engine_Testing.Parent_Modules.Board_State import generate_from_FEN, make_move
+from Engine_Testing.Board_state import generate_from_FEN, make_move
 from random import randint
 
 results_file = open('results.txt', 'w')

@@ -91,7 +91,7 @@ def un_attacked_sq(board, ind, row, col, dict, king_color):
     return True
 
 
-def get_P_moves(moves, board, ind, row, col, dict, MOVES, king_color):
+def get_P_moves(moves: list, board: list, ind: int, row: int, col: int, dict: dict, MOVES: list, king_color: bool):
     piece_pinned, pin_direction = False, ()
     for i in range(len(dict['pins_list']) - 1, -1, -1):
         if dict['pins_list'][i][0] == ind:
@@ -245,30 +245,31 @@ def get_K_moves(moves, board, ind, row, col, dict, king_color):
                     if (un_attacked_sq(board, 3, 0, 3, dict, False)) and (un_attacked_sq(board, 2, 0, 2, dict, False)):
                         moves.append(Move(ind, 2, board, (True, False, (False, None))))
 
-def get_all_possible_moves(board, dict): # Using all these if statements as it is fastest
+def get_all_possible_moves(board: list, dict: dict): # Using all these if statements as it is fastest
     moves = []
 
-    for ind in range(64):
-        if (board[ind] > 0 and dict['white_to_move']) or (board[ind] < 0 and not dict['white_to_move']):
+    ind = 0
+    for piece in board:
+        if (piece > 0 and dict['white_to_move']) or (piece < 0 and not dict['white_to_move']):
             col, row = ind % 8, ind // 8
-            piece = FABS(board[ind])
+            piece = FABS(piece)
             king_color = dict['white_to_move']
 
             if piece == 100:
-                if board[ind] > 0:
-                    get_P_moves(moves, board, ind, row, col, dict, WHITE_PAWN_MOVES, king_color)
-                else:
-                    get_P_moves(moves, board, ind, row, col, dict, BLACK_PAWN_MOVES, king_color)
+                if king_color: get_P_moves(moves, board, ind, row, col, dict, WHITE_PAWN_MOVES, king_color)
+                else: get_P_moves(moves, board, ind, row, col, dict, BLACK_PAWN_MOVES, king_color)
 
             elif piece == 500: get_Sliding_moves(moves, board, ind, row, col, ROOK_MOVES, dict, king_color)
             elif piece == 320: get_N_moves(moves, board, ind, row, col, dict, king_color)
             elif piece == 330: get_Sliding_moves(moves, board, ind, row, col, BISHOP_MOVES, dict, king_color)
             elif piece == 900: get_Sliding_moves(moves, board, ind, row, col, QUEEN_MOVES, dict, king_color)
             elif piece == 1: get_K_moves(moves, board, ind, row, col, dict, king_color)
+        ind += 1
 
     return moves
 
-def get_all_valid_moves(board, dict):  # This will take into account non-legal moves that put our king in check
+
+def get_all_valid_moves(board: list, dict: dict):  # This will take into account non-legal moves that put our king in check
     moves = []
     HASH_LOG = dict['HASH_LOG']
     ### COUNTING FOR 3 MOVE REPETITION:
@@ -406,4 +407,3 @@ def is_not_in_check(board, dict):
     king_ind = dict['white_king_loc'] if king_color else dict['black_king_loc']
 
     return un_attacked_sq(board, king_ind, king_ind // 8, king_ind % 8, dict, king_color)
-

@@ -196,7 +196,9 @@ def get_single_move_notation(move):
     return (r, c)
 
 if __name__ == '__main__':
+    main()
 
+    '''
     with (cProfile.Profile() as profile):
 
         main()
@@ -205,6 +207,7 @@ if __name__ == '__main__':
      #   specific_file = ('Search.py')
         profiler_stats.strip_dirs().sort_stats('cumulative').print_stats()
 
+    '''
 
 '''pypy3 compilation actually has about 10x more nodes searched for each position, this is such a great advantage to 
 build the file do this: (ask chatgpt)
