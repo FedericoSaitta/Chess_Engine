@@ -52,7 +52,7 @@ def main():
     player_clicks = []  # keep track of player clicks, list of two tuples
     game_over = False
 
-    player_one = False # If a human is playing white it will be true
+    player_one = True # If a human is playing white it will be true
     player_two = False # If a human is playing black it will be true
     draw_game_state(screen, board, highlight_sq)
     p.display.flip()
