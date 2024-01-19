@@ -20,16 +20,16 @@ The goal is to write a chess engine that is at least around the 1900 elo lichess
   Processor: 1,6 GHz Dual-Core Intel Core i5
 
   - Starting position:
-    - Ply 5 in 31.8 s, 152 KNodes/s using CPython
+    - Ply 5 in 15.4 s, 315 KNodes/s using CPython
     - Ply 5 in 3.07 s, 1.58 MNodes/s using PyPy3 
 
   - Middle-game position (Kiwipete):
-    - Ply 4 in 24.9 s, 164 KNodes/s using CPython
+    - Ply 4 in 10.4 s, 392 KNodes/s using CPython
     - Ply 4 in 3.16 s, 1.28 MNodes/s using PyPy3 
 
   - Endgame position (FEN: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -):
-    - Ply 5 in 7.48 s, 90 KNodes/s using CPython
-    - Ply 5 in 1.74 s, 387 MNodes/s using PyPy3 
+    - Ply 5 in 4.3 s, 156 KNodes/s using CPython
+    - Ply 5 in 1.74 s, 387 KNodes/s using PyPy3 
 
   Note: 
     - These results include updating the Zobrist hashes
