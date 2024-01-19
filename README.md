@@ -1,6 +1,7 @@
 # Chess
-Inspired from Eddie Sharick and Sebastian Lague, my first longest and proudest project so far.
-The goal is to write a chess engine that is at least around the 1900 elo lichess level. 
+Inspired from Eddie Sharick and Sebastian Lague, my longest and proudest project so far.
+The goal was to write a chess engine that is at around the 1900 elo lichess level and after analysing the engine's play
+(with 0.5 seconds thinking time), it has reached this level, but room for major improvements is still present.
 
 ## Board Representation: 
 -1D Python array with integers representing pieces
