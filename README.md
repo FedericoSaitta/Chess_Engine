@@ -60,8 +60,9 @@ The goal was to write a chess engine that is at around the 1900 elo lichess leve
 ### Closing Details:
 - Building a chess engine is a very enjoyable yet challenging journey. It has taught me a lot about how to structure 
   larger projects and be efficient with time. Moreover, I have gained valuable knowledge in the realm of algorithmic
-  complexity and data structures that I would not have otherwise been able to grasp. As a key takeaway, the process of 
-  making mistakes and going back to fix them, though frustrating, is what has made this experience so great. 
+  complexity and data structures that I would not have otherwise been able to grasp. As a key takeaway: the process of 
+  making mistakes and going back to fix them, though frustrating, is what has made this experience so great; seeing all 
+  parts of the project slowly come together has been deeply satisfying. 
 - With that said, I will pause this project to pursue and gain knowledge in other aspects of Python; as a personal goal 
   I intend to return to chess programming and build a more serious engine in C++ once I'm more familiar with it.
 
