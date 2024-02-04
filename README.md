@@ -53,11 +53,16 @@ The goal was to write a chess engine that is at around the 1900 elo lichess leve
 
 ## ROAD MAP:
 - [X] Cleaning and commenting code, minimizing use of external libraries (to reduced size of executable)
-- [ ] Implementing Killer moves (double) and History Heuristics
-- [ ] Implementing TT tables used in search algorithm
-- [ ] Running the bot on lichess
+- [X] Implementing Killer moves (double)
+- [ ] Implementing TT tables and History Heuristics
 
-### Contact: 
+### Closing Details:
+- Building a chess engine is a very enjoyable yet challenging journey. It has taught me a lot about how to structure 
+  larger projects and be efficient with time. Moreover, I have gained valuable knowledge in the realm of algorithmic
+  complexity and data structures that I would not have otherwise been able to grasp. As a key takeaway, the process of 
+  making mistakes and going back to fix them, though frustrating, is what has made this experience so great. 
+- With that said, I will pause this project to pursue and gain knowledge in other aspects of Python; as a personal goal 
+  I intend to return to chess programming and build a more serious engine in C++ once I'm more familiar with it.
+
+### Contact:
 - Please contact me via email for any suggestions or questions related to the code.
-
-

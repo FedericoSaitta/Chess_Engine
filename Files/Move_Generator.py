@@ -247,7 +247,7 @@ def get_K_moves(moves, board, ind, row, col, dict, king_color):
                     if (un_attacked_sq(board, 3, 0, 3, dict, False)) and (un_attacked_sq(board, 2, 0, 2, dict, False)):
                         moves.append(Move(ind, 2, board, (True, False, (False, None))))
 
-def get_all_possible_moves(board, dict, QUIESCE=False): # Using all these if statements as it is fastest
+def get_all_possible_moves(board, dict): # Using all these if statements as it is fastest
     moves = []
 
     ind = 0
@@ -271,7 +271,7 @@ def get_all_possible_moves(board, dict, QUIESCE=False): # Using all these if sta
     return moves
 
 
-def get_all_valid_moves(board: list, dict: dict):  # This will take into account non-legal moves that put our king in check
+def get_all_valid_moves(board: list, dict: dict, QUIESCE= False):  # This will take into account non-legal moves that put our king in check
     moves = []
     HASH_LOG = dict['HASH_LOG']
     ### COUNTING FOR 3 MOVE REPETITION:
@@ -400,7 +400,7 @@ def check_pins_and_checks(board, ind, col, row, dict):
     dict['in_check'], dict['pins_list'], dict['checks_list'] = in_check, pins, checks
 
 ########################################################################################################################
-#                                      SPECIAL GENERATORS FOR QUIESCE SEARCH                                           #
+#                                           SPECIAL GENERATORS FOR SEARCH                                              #
 ########################################################################################################################
 
 # In check validator for Null move pruning:
@@ -409,17 +409,3 @@ def is_not_in_check(board, dict):
     king_ind = dict['white_king_loc'] if king_color else dict['black_king_loc']
 
     return un_attacked_sq(board, king_ind, king_ind // 8, king_ind % 8, dict, king_color)
-
-
-# Working again with rows and cols even though we are on a 1D array just because the to check if we are still in the
-# using the col and row index is useful, could just use indices if I make a 10x12 board, but at that point might just
-# switch to bitboard since a lot of the Move_Generator needs to be rebuilt
-
-# Only checking captures here so moving forwards for pawns is not considered
-                            # Diagonals                         Verticals and Horizontals
-pieces_directions = {1: ( (-1, -1), (-1, 1), (1, -1), (1, 1), (1, 0), (-1, 0), (0, 1), (0, -1) ),
-                     100: ( (-1, -1), (-1, 1), (1, -1), (1, 1) ),
-                     320: ( (-2, 1), (-2, -1), (2, 1), (2, -1), (1, 2), (1, -2), (-1, 2), (-1, -2) ),
-                     330: ( (-1, -1), (-1, 1), (1, -1), (1, 1) ),
-                     500: ( (1, 0), (-1, 0), (0, 1), (0, -1) ),
-                     900: ( (-1, -1), (-1, 1), (1, -1), (1, 1), (1, 0), (-1, 0), (0, 1), (0, -1) ) }

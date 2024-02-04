@@ -75,16 +75,15 @@ KILLER_MOVES_TABLE = [[None] * 2 for _ in range(20)]
 #                                                  MOVE SEARCH FUNCTION                                                #
 ########################################################################################################################
 
-# Method needed because if our engine is completely loosing, no move is assigned to best_move so we choose at random
+# Method needed because if our engine is completely loosing, no move is assigned to best_move, so we choose at random
 # from the available moves. In the future, we should aim to select the move that delays checkmate the most, hoping that
-# our opponent misses mate. (Eg stockfish sacrificing lots of pieces when completely loosing)
+# our opponent misses mate.
 def find_random_move(moves):
     if moves != []:
         index = randint(0, len(moves) - 1)
         return moves[index]
 
 
-'''Problem it is that it doesnt try and avoid checkmate, this is probs due to scores confliciting or not being assigned'''
 def iterative_deepening(moves, board, dict, time_constraints, debug_info=True):
     global NODES_SEARCHED, OUT_OF_BOOK
 
@@ -116,8 +115,6 @@ def iterative_deepening(moves, board, dict, time_constraints, debug_info=True):
                           ' in: ', time() - start_time, 'SPEED: ', NODES_SEARCHED / (time() - start_time))
 
             # If we find a checkmate, we go for that branch and stop searching, this ensures we go for the fastest mate.
-
-            # Try and remove the brackets and test it a bit
             if FABS(best_score) == CHECK_MATE: break
 
             if (time() - start_time > time_constraints): break
@@ -136,7 +133,6 @@ def negamax_root(moves, board, dict, turn_multiplier, max_depth):
 
     # Note that the first set of parent moves have already been ordered
     for parent_move in moves:
-    #    print('Parent move: ', move.get_pgn_notation(board))
         make_move(board, parent_move, dict)
         score = -negamax(board, dict, -turn_multiplier, max_depth - 1, -beta, -alpha, max_depth)
         retract_move(board, dict)
@@ -154,8 +150,6 @@ def negamax_root(moves, board, dict, turn_multiplier, max_depth):
     return best_move, best_score
 
 # This extension limit is really just to limit searching positions where perpetual checks are present,
-# once proper Zobrist hashing is in place, no extension limit should be in place. (It is extremely unlikely to misjudge
-# a position due to this limit)
 EXTENSION = 20
 def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
     if depth == 0:
@@ -164,7 +158,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
 
     best = -CHECK_MATE
     moves = get_valid_moves(board, dict)
-    parent_moves = move_ordering(moves, ply= max_depth - depth)  # Ordering moves by MVV/LLA for more pruning
+    parent_moves = move_ordering(moves, ply= max_depth - depth)  # Ordering moves by MVV/LLA
 
     # Done this way as I detect check or stalemate after all the moves have been retrieved
     # The checkmate is negated because if dict['check_mate'] == True that means we are in checkmate
@@ -172,7 +166,6 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
     if dict['check_mate']: return -CHECK_MATE
 
     for child in parent_moves:
-  #      print('child move: ', child.get_pgn_notation(board))
         push_move(board, child, dict)
         score = -negamax(board, dict, -turn_multiplier, depth - 1, -beta, -alpha, max_depth)
         retract_move(board, dict)
@@ -180,7 +173,7 @@ def negamax(board, dict, turn_multiplier, depth, alpha, beta, max_depth):
         if score > best: best = score
         if score > alpha: alpha = score
         if alpha >= beta:
-            # We have a beta-cut off so we store the move as a killer move
+            # We have a beta-cut off, so we store the move as a killer move
             ply = max_depth - depth
             update_killer_moves_table(child, ply)
             break
@@ -197,7 +190,6 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
 
     # Best move in a position can only result in an evaluation as good or better than stand_pat (null move principle)
     # so stand_pat is used as the lower bound
-
     NODES_SEARCHED += 1
     stand_pat = evaluate_board(board) * turn_multiplier
 
@@ -236,14 +228,13 @@ def quiesce_search(board, dict, turn_multiplier, extension, alpha, beta):
 ########################################################################################################################
 
 ## Aggressive move ordering to lead to great pruning is the way to really increase\
-## the speed of the engine, focus on this until you cant anymore,
+## the speed of the engine, focus on this noticeable results
 
 piece_indices = {1: 0, 900: 1, 500: 2, 330: 3, 320: 4, 100: 5, 0: 6,
                  -1: 0, -900: 1, -500: 2, -330: 3, -320: 4, -100: 5}
 
 # You should also check_collisions against the best_move already present in the position
 def update_killer_moves_table(move, ply):
-    # I should also see if the move doesn't result in check
     if (move.piece_captured == 0) and (not move.en_passant): # Looking for quiet moves only
         if move not in KILLER_MOVES_TABLE[ply]:
             KILLER_MOVES_TABLE[ply][1] = KILLER_MOVES_TABLE[ply][0]
@@ -254,21 +245,8 @@ def shift_killer_table():
     KILLER_MOVES_TABLE.append([None, None])
 
 
-# Using -1 ply for quiescence search only, should be reframed back to normal once special generator is made for that search
-
-# Move ordering should be:
-'''
-# Not sure if killer moves should go before or after MVV/LLA
-- Hash Move
-- Promotions
-- MVV_LLA
-- Killer Moves 
-- Other moves sorted with history heuristics'
-'''
-# Passing the hash_move like this so we don't have to remove it and re-insert it manually each time
+# Passing the hash_move so we don't have to remove it and re-insert it manually each time
 def move_ordering(moves, hash_move=None, ply=-1):
-
-    # This is twice as slow but it is working correctly
     scores = []
     killer_1, killer_2 = KILLER_MOVES_TABLE[ply]
 
@@ -290,7 +268,6 @@ def move_ordering(moves, hash_move=None, ply=-1):
 
     # Extract the sorted values
     moves = [tup[0] for tup in sorted_combined]
-   # promotions.extend(moves)
 
  #   print(f'last pass at depth: {ply}')
 #    for tup in sorted_combined:

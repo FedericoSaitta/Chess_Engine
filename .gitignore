@@ -22,3 +22,5 @@ Tests_Notes/my_perft_results
 Tests_Notes/stockfish_results
 Tests_Notes/test_data_txt
 /lichess-bot/
+/.venv/
+/Engine_Testing/
