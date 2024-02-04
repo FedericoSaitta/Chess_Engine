@@ -46,6 +46,7 @@ The goal was to write a chess engine that is at around the 1900 elo lichess leve
 
 ## Move Search: 
 - Iterative deepening with Negamax (alpha-beta) and Quiescence search for captures only
+- Achieves about 10 KNodes/s in most positions (Processor: 1,6 GHz Dual-Core Intel Core i5).
 
 ## Move Ordering: 
 - Best move from previous search is placed first
